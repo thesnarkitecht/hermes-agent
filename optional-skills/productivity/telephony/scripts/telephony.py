@@ -27,8 +27,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
-from datetime import datetime, timezone, UTC
-from email.utils import parsedate_to_datetime
+from datetime import timezone
 from html import escape as xml_escape
 from pathlib import Path
 from typing import Any
@@ -225,16 +224,6 @@ def _mask_phone(number: str) -> str:
     if len(digits) < 4:
         return "***"
     return f"***-***-{digits[-4:]}"
-
-
-def _parse_twilio_date(value: str | None) -> datetime | None:
-    if not value:
-        return None
-    try:
-        dt = parsedate_to_datetime(value)
-        return dt.astimezone(UTC) if dt.tzinfo else dt.replace(tzinfo=UTC)
-    except Exception:
-        return None
 
 
 def _json_request(

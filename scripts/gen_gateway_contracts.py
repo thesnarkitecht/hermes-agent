@@ -19,7 +19,6 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import Any, get_args, get_type_hints
 
-from pydantic import TypeAdapter
 from pydantic.json_schema import GenerateJsonSchema
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -184,10 +183,6 @@ def _doc(text: str | None, indent: str = "") -> str:
     return f"{indent}/** {clean} */\n"
 
 
-def _pascal(name: str) -> str:
-    return "".join(p[:1].upper() + p[1:] for p in re.split(r"[._]", name))
-
-
 def _enum_values(enum) -> set[str]:
     values = getattr(enum, "__members__", None)
     if values is not None:
@@ -285,12 +280,6 @@ def _tidy(text: str) -> str:
 
 
 # ── OpenRPC rendering ────────────────────────────────────────────────────────────────────────────
-
-
-def _openrpc_schema(model: type) -> dict:
-    schema = TypeAdapter(model).json_schema(schema_generator=_Schema, ref_template="#/components/schemas/{model}")
-    schema.pop("$defs", None)
-    return schema
 
 
 def render_openrpc() -> str:
