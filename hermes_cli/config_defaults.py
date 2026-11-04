@@ -2710,6 +2710,7 @@ DEFAULT_CONFIG = {
     },
     "_config_version": 52,  # Config schema version - bump this when adding new required fields
 }
+__import__("hermes_cli.huntington").huntington.apply_config_defaults(DEFAULT_CONFIG)  # HUNTINGTON-AGENT
 
 
 from hermes_cli.config_defaults_env import OptionalEnvVars, _base_url, _env, _msg, _prov, _setting, _skill, _tool

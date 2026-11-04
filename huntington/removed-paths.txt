@@ -642,3 +642,81 @@ tests/skills/test_google_workspace_setup_deps.py
 tests/skills/test_google_workspace_api.py
 tests/skills/test_google_workspace_credential_files.py
 tests/skills/test_google_workspace_setup.py
+
+# Risky skills: expose localhost publicly, publish to public hosts, bypass bot protection, strip model safety
+optional-skills/devops/pinggy-tunnel
+optional-skills/productivity/here-now
+optional-skills/web-development/cloudflare-temporary-deploy
+optional-skills/research/scrapling
+optional-skills/mlops/obliteratus
+tests/skills/test_cloudflare_temporary_deploy_skill.py
+
+# Repo weight: upstream's documentation site (keep only the model catalog the installer reads),
+# contributor attribution data, developer evals, the gamification and Google Meet plugins
+website/.gitignore
+website/.npmrc
+website/README.md
+website/docs
+website/docusaurus.config.ts
+website/i18n
+website/package-lock.json
+website/package.json
+website/plugins
+website/scripts
+website/sidebars.ts
+website/src
+website/tsconfig.json
+website/static/.nojekyll
+website/static/img
+website/static/oauth
+contributors
+evals
+plugins/hermes-achievements
+plugins/google_meet
+.github/workflows/deploy-site.yml
+.github/workflows/docs-site-checks.yml
+.github/workflows/docs-search-monitor.yml
+.github/workflows/contributor-check.yml
+.github/workflows/skills-index.yml
+.github/workflows/skills-index-freshness.yml
+
+# English only: every other bundled language, plus the removed TUI/desktop key indexes
+locales/*.yaml
+!locales/en.yaml
+locales/_keys.*.json
+
+# Plugin catalog: a curated company list (the live upstream catalog fetch is off, see
+# hermes_cli/huntington.py LIVE_PLUGIN_CATALOG). Add vetted entries with a `!` line.
+plugin-catalog/*.yaml
+!plugin-catalog/agent-importers.yaml
+!plugin-catalog/langfuse.yaml
+!plugin-catalog/mcp-serve.yaml
+
+# MCP catalog: consumer, travel, retail-finance and off-stack servers
+optional-mcps/alltrails
+optional-mcps/kiwi
+optional-mcps/trivago
+optional-mcps/strava
+optional-mcps/robinhood
+optional-mcps/rentahuman
+optional-mcps/indeed
+optional-mcps/paypal
+optional-mcps/plaid
+optional-mcps/square
+optional-mcps/stripe
+optional-mcps/klaviyo
+optional-mcps/unreal-engine
+optional-mcps/comfy-cloud
+optional-mcps/wordpress-com
+optional-mcps/webflow
+optional-mcps/twilio-docs
+optional-mcps/canva
+optional-mcps/gamma
+
+# Upstream CI (NousResearch runners and secrets); huntington-ci.yml and huntington-upstream-sync.yml replace it
+.github/workflows/*
+!.github/workflows/huntington-ci.yml
+!.github/workflows/huntington-upstream-sync.yml
+.github/actions
+.github/CODEOWNERS
+.github/dependabot.yml

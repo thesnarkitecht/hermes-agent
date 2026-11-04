@@ -123,10 +123,13 @@ def test_only_teams_email_and_a2a_platform_plugins_ship():
 
 
 def test_removed_paths_are_absent_from_the_tree():
-    manifest = (ROOT / "huntington" / "removed-paths.txt").read_text().splitlines()
-    present = [p for p in (line.strip() for line in manifest)
-               if p and not p.startswith("#") and (ROOT / p).exists()]
+    lines = [line.strip() for line in (ROOT / "huntington" / "removed-paths.txt").read_text().splitlines()]
+    kept = {line[1:] for line in lines if line.startswith("!")}
+    patterns = [line for line in lines if line and not line.startswith(("#", "!"))]
+    present = sorted({path.relative_to(ROOT).as_posix() for pattern in patterns for path in ROOT.glob(pattern)}
+                     - kept)
     assert present == [], "run scripts/huntington/sync-upstream.sh --apply"
+    assert all((ROOT / path).exists() for path in kept), "a `!` keep line names a missing path"
 
 
 def test_cli_banner_and_help_carry_the_product_name():
@@ -167,7 +170,7 @@ def test_only_huntington_commands_reach_path_directories():
 
 def test_service_identities_do_not_collide_with_an_upstream_hermes_install():
     """A shared `hermes-gateway` unit made each install adopt the other's gateway (profile_mismatch)."""
-    import hermes_cli.gateway as gateway
+    from hermes_cli import gateway
     from hermes_cli.gateway_launchd import get_launchd_label
 
     assert gateway._SERVICE_BASE == "huntington-gateway"
@@ -194,7 +197,7 @@ def test_cron_lifecycle_guard_blocks_huntington_gateway_restarts(command):
 
 def test_agent_terminal_prefers_this_checkouts_launchers(tmp_path, monkeypatch):
     """An upstream `hermes` earlier on PATH must not serve this install's child processes."""
-    import tools.environments.local as local
+    from tools.environments import local
 
     own_bin = ROOT / ".huntington" / "bin"
     if not (own_bin / "huntington").is_file():

@@ -1,0 +1,60 @@
+name: HUNTINGTON-AGENT CI
+
+# Fork CI on GitHub-hosted runners. Upstream's workflows (NousResearch runners and secrets) are
+# removed via huntington/removed-paths.txt; this file and huntington-upstream-sync.yml replace them.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: huntington-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fork-checks:
+    name: Fork invariants, lint, policy tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: Rebrand is complete
+        run: python scripts/huntington/rebrand.py --check
+      - name: Removed paths stay removed
+        run: |
+          scripts/huntington/sync-upstream.sh --apply
+          git diff --exit-code --stat || { echo "::error::paths from huntington/removed-paths.txt are back"; exit 1; }
+      - name: Build the test environment
+        run: python -m pm.build_env --source . --out .venv --group dev --group test
+      - name: Lint and code-health ratchet
+        run: .venv/bin/python scripts/check
+      - name: Fork policy contract
+        run: scripts/run_tests.sh tests/hermes_cli/test_huntington_policy.py
+
+  tests:
+    name: Test suite (slice ${{ matrix.slice }}/4)
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        slice: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: Build the test environment
+        run: python -m pm.build_env --source . --out .venv --group dev --group test
+      - name: Run slice
+        run: scripts/run_tests.sh --slice ${{ matrix.slice }}/4
