@@ -65,7 +65,14 @@ The script merges `NousResearch/hermes-agent` `main`, deletes every path in
 `huntington/removed-paths.txt` again, and keeps the fork's copy of each file in
 `huntington/fork-owned-paths.txt`. A conflict can still happen where an upstream change lands
 next to one of the fork's one-line hooks into `hermes_cli/huntington.py`. In that case the script
-stops and lists the files to resolve by hand. Run the tests before pushing:
+stops and lists the files to resolve by hand.
+
+Upstream tests that drive removed features are deleted (they are listed in
+`huntington/removed-paths.txt`). Upstream tests that assert upstream's wider defaults, such as other
+providers in the pickers or other TTS backends, are deselected through
+`huntington/deselected-tests.txt`, which the root `conftest.py` reads. When a sync brings in a new
+upstream test of that kind, add its node id there. The fork's own contract is
+`tests/hermes_cli/test_huntington_policy.py`. Run the tests before pushing:
 
 ```bash
 scripts/run_tests.sh tests/hermes_cli tests/tools

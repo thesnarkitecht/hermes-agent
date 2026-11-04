@@ -2,3 +2,4 @@
 # version whenever an upstream merge conflicts in one of these. One path per line.
 README.md
 web/public/favicon.ico
+conftest.py

@@ -58,11 +58,15 @@ WEB_SEARCH_BACKENDS: frozenset[str] = frozenset({"xai", "brave-free", "ddgs", "p
 
 def tool_row_supported(row: dict) -> bool:
     """Whether a `hermes tools` / `hermes setup` provider row is offered. Nous Portal subscription
-    rows are hidden (the Nous Portal is not a supported provider); TTS rows outside TTS_PROVIDERS too."""
+    rows are hidden (the Nous Portal is not a supported provider), and so are TTS, image and web
+    rows outside their allowlists."""
     if row.get("managed_nous_feature") or row.get("requires_nous_auth"):
         return False
     tts = row.get("tts_provider")
     if tts and tts not in TTS_PROVIDERS:
+        return False
+    image = row.get("image_gen_plugin_name")
+    if image and image not in IMAGE_GEN_PROVIDERS:
         return False
     web = row.get("web_backend") or row.get("web_search_backend")
     return not web or web in WEB_SEARCH_BACKENDS

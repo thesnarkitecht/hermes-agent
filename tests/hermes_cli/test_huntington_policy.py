@@ -109,6 +109,8 @@ def test_tools_setup_rows_match_the_policy():
         return {r["name"] for r in _visible_providers(TOOL_CATEGORIES[cat], {})}
 
     assert names("tts") == {"Microsoft Edge TTS", "Piper"}
+    assert {r.get("image_gen_plugin_name") for r in _visible_providers(TOOL_CATEGORIES["image_gen"], {})} == {
+        "openai", "openai-codex"}
     assert {r.get("web_backend") for r in _visible_providers(TOOL_CATEGORIES["web"], {})} == {
         "xai", "brave-free", "ddgs", "perplexity"}
     assert not any("Nous" in n for cat in ("tts", "image_gen", "web") for n in names(cat))
