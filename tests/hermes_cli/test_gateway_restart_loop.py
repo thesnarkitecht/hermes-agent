@@ -183,9 +183,9 @@ class TestGatewayLifecyclePattern:
 
     @pytest.mark.parametrize("text", [
         "restart the server application",
-        "hermes cron list",
-        "hermes update",
-        "hermes config set model claude",
+        "huntington cron list",
+        "huntington update",
+        "huntington config set model claude",
         "echo 'just a normal cron job'",
         "run the backup script",
         "gateway is running fine",
@@ -193,8 +193,8 @@ class TestGatewayLifecyclePattern:
         # gateway is a no-op / "already running", and a legit cron job may
         # start a sibling profile's gateway. Only restart/stop/kill are the
         # foot-gun (#30719 lists only those).
-        "hermes gateway start",
-        "hermes gateway start --all",
+        "huntington gateway start",
+        "huntington gateway start --all",
         # Tightened launchctl/systemctl branches: ops on NON-gateway hermes
         # services must not be falsely blocked (the old `.*hermes` matched any
         # hermes token).
@@ -235,7 +235,7 @@ class TestGatewayLifecyclePattern:
 
     @pytest.mark.parametrize("text", [
         # Trailing-boundary fix must not weaken real commands.
-        "hermes gateway restart",
+        "huntington gateway restart",
         "huntington gateway restart; echo done",
         "huntington gateway stop && echo stopped",
         # #77173 command-position anchor must not weaken separator/subshell
@@ -321,15 +321,15 @@ class TestProfileFlagGatewayLifecycle:
         monkeypatch.delenv("HERMES_PROFILE_NAME", raising=False)
 
     @pytest.mark.parametrize("text", [
-        "hermes -p zeus gateway stop",
-        "hermes -p zeus gateway restart",
-        "hermes --profile zeus gateway restart",
-        "hermes --profile zeus gateway stop",
-        "hermes --profile=zeus gateway restart",
+        "huntington -p zeus gateway stop",
+        "huntington -p zeus gateway restart",
+        "huntington --profile zeus gateway restart",
+        "huntington --profile zeus gateway stop",
+        "huntington --profile=zeus gateway restart",
         # Global flags before/after the selector must not hide the shape.
-        "hermes -v -p zeus gateway restart",
-        "hermes -p zeus -v gateway restart",
-        "hermes --debug --profile zeus gateway stop",
+        "huntington -v -p zeus gateway restart",
+        "huntington -p zeus -v gateway restart",
+        "huntington --debug --profile zeus gateway stop",
         # Shell quoting of the profile id is equivalent to the bare name.
         "huntington -p 'zeus' gateway restart",
         "huntington --profile \"zeus\" gateway stop",
@@ -338,18 +338,18 @@ class TestProfileFlagGatewayLifecycle:
         assert _contains_gateway_lifecycle_command(text), f"Should block: {text!r}"
 
     @pytest.mark.parametrize("text", [
-        "hermes -p venus gateway stop",
-        "hermes -p venus gateway restart",
-        "hermes --profile venus gateway restart",
-        "hermes --profile=venus gateway stop",
-        "hermes -p venus -v gateway restart",
+        "huntington -p venus gateway stop",
+        "huntington -p venus gateway restart",
+        "huntington --profile venus gateway restart",
+        "huntington --profile=venus gateway stop",
+        "huntington -p venus -v gateway restart",
     ])
     def test_sibling_allowed(self, text):
         assert not _contains_gateway_lifecycle_command(text), f"Should allow: {text!r}"
 
     @pytest.mark.parametrize("text", [
-        "hermes -p zeus gateway start",
-        "hermes -p zeus gateway start --all",
+        "huntington -p zeus gateway start",
+        "huntington -p zeus gateway start --all",
     ])
     def test_start_still_allowed(self, text):
         # `start` is intentionally excluded from the guard, with or without
@@ -366,8 +366,8 @@ class TestProfileFlagGatewayLifecycle:
         import hermes_cli.profiles as profiles_mod
 
         monkeypatch.setattr(profiles_mod, "get_active_profile_name", lambda: "zeus")
-        assert _contains_gateway_lifecycle_command("hermes -p zeus gateway restart")
-        assert not _contains_gateway_lifecycle_command("hermes -p venus gateway restart")
+        assert _contains_gateway_lifecycle_command("huntington -p zeus gateway restart")
+        assert not _contains_gateway_lifecycle_command("huntington -p venus gateway restart")
 
     def test_no_profile_context_conservative_allow(self, monkeypatch):
         # With no profile identity the guard cannot prove self-targeting, so
@@ -376,8 +376,8 @@ class TestProfileFlagGatewayLifecycle:
         from cron import lifecycle_guard
 
         monkeypatch.setattr(lifecycle_guard, "_current_profile_name", lambda: None)
-        assert not _contains_gateway_lifecycle_command("hermes -p zeus gateway restart")
-        assert _contains_gateway_lifecycle_command("hermes gateway restart")
+        assert not _contains_gateway_lifecycle_command("huntington -p zeus gateway restart")
+        assert _contains_gateway_lifecycle_command("huntington gateway restart")
 
 
 class TestCronCreateLifecycleBlock:
@@ -532,8 +532,8 @@ class TestTerminalToolGatewayLifecycleGuard:
         "systemctl restart huntington-gateway",
         "systemctl --user restart huntington-gateway",
         "systemctl stop huntington-gateway.service",
-        "hermes gateway restart",
-        "hermes gateway uninstall",
+        "huntington gateway restart",
+        "huntington gateway uninstall",
         "launchctl kickstart gui/501/ai.huntington.gateway",
         "launchctl bootout gui/501/ai.huntington.gateway",
         # #62891 exact reported shape and its bootstrap sibling.
@@ -677,10 +677,10 @@ class TestTerminalToolGatewayLifecycleGuard:
             tt, "_check_all_guards", lambda cmd, env, **kwargs: {"approved": True}
         )
 
-        result = json.loads(tt.terminal_tool(command="hermes gateway restart"))
+        result = json.loads(tt.terminal_tool(command="huntington gateway restart"))
 
         assert result["exit_code"] == 0
-        assert calls == ["hermes gateway restart"]
+        assert calls == ["huntington gateway restart"]
 
     def test_blocks_launchctl_submit_hidden_in_referenced_script(
         self, monkeypatch, tmp_path
@@ -1281,7 +1281,7 @@ class TestLifecycleGuardModule:
         monkeypatch.setattr(lg, "_contains_unsafe_gateway_action", _boom)
         # Direct scan still blocks a literal lifecycle command...
         assert lg.contains_gateway_lifecycle_command_or_referenced_script(
-            "hermes gateway restart"
+            "huntington gateway restart"
         ) is True
         # ...and a benign command fails open instead of crashing.
         assert lg.contains_gateway_lifecycle_command_or_referenced_script(
@@ -1772,7 +1772,7 @@ class TestLifecycleGuardDataArgumentExemption:
         "grep 'restart' log; systemctl restart huntington-gateway",
         'sqlite3 db "SELECT 1"; huntington gateway stop',
         # Plain lifecycle commands are unaffected by the exemption.
-        "hermes gateway restart",
+        "huntington gateway restart",
         "sudo systemctl stop huntington-gateway",
     ])
     def test_command_position_lifecycle_still_blocked(self, command):

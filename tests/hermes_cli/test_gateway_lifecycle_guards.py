@@ -129,7 +129,7 @@ def test_stop_refuses_while_sessions_are_live_and_names_them(monkeypatch, record
     assert "2 live session(s)" in out
     assert "chat turn agent:main:telegram:dm:7" in out
     assert "background delegation deleg_ab12cd34" in out
-    assert "hermes gateway stop --yes" in out
+    assert "huntington gateway stop --yes" in out
 
     gw._cmd_stop(SimpleNamespace(all=False, system=False, interrupt=True))
     assert stopped == [False]

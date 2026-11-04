@@ -205,3 +205,11 @@ def test_agent_terminal_prefers_this_checkouts_launchers(tmp_path, monkeypatch):
     monkeypatch.setattr(local, "_HERMES_BIN_DIR", local._SENTINEL)
     monkeypatch.setattr("pm.environments.payload_command_dir", lambda root: None)
     assert local._prepend_hermes_bin_dir(f"{tmp_path}:/usr/bin").split(":")[0] == str(own_bin)
+
+
+def test_hosted_portal_commands_refuse(capsys):
+    import argparse
+    from hermes_cli.portal_cli import portal_command
+
+    assert portal_command(argparse.Namespace(portal_command="info")) == 1
+    assert "not available in HUNTINGTON-AGENT" in capsys.readouterr().err

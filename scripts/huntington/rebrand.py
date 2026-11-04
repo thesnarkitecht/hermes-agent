@@ -98,8 +98,13 @@ SOURCE_RULES: dict[str, tuple[tuple[str, str], ...]] = {
 }
 
 
+# Tests never execute a bare command literal; they assert on output that the rewritten code
+# prints, so inside tests/ an exact `hermes <cmd>` literal is rebranded too (see rewrite_file_text).
+_KEEP_COMMAND_LITERALS = True
+
+
 def rewrite_text(text: str) -> str:
-    if _COMMAND_LITERAL.match(text.strip()) and text.strip() == text:
+    if _KEEP_COMMAND_LITERALS and _COMMAND_LITERAL.match(text.strip()) and text.strip() == text:
         return text
     for pattern, replacement in _RULES:
         text = pattern.sub(replacement, text)
@@ -192,8 +197,10 @@ def rewrite_yaml(source: str) -> str:
 
 
 def rewrite_file_text(rel: str, source: str) -> str:
+    global _KEEP_COMMAND_LITERALS
     if rel in SKIP_FILES:
         return source
+    _KEEP_COMMAND_LITERALS = not rel.startswith("tests/")
     for old, new in SOURCE_RULES.get(rel, ()):
         source = source.replace(old, new)
     if rel in SHELL_FILES:

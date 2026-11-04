@@ -396,7 +396,7 @@ class TestGatewayRuntimeStatus:
         monkeypatch.setattr(status, "_get_process_start_time", lambda pid: None)
         # PID 139 is now the live DEFAULT gateway (bare, no -p coder).
         monkeypatch.setattr(
-            status, "_read_process_cmdline", lambda pid: "hermes gateway run --replace"
+            status, "_read_process_cmdline", lambda pid: "huntington gateway run --replace"
         )
 
         assert (
@@ -419,7 +419,7 @@ class TestGatewayRuntimeStatus:
         monkeypatch.setattr(status, "_pid_exists", lambda pid: True)
         monkeypatch.setattr(status, "_get_process_start_time", lambda pid: 1000)
         for cmdline in (
-            "hermes -p coder gateway run --replace",
+            "huntington -p coder gateway run --replace",
             "/opt/hermes/.venv/bin/hermes --profile coder gateway run --replace",
             "hermes_home=/opt/data/profiles/coder huntington gateway run --replace",
         ):
@@ -436,11 +436,11 @@ class TestGatewayRuntimeStatus:
         (#100817), while a foreign ``-p coder`` keeps being rejected."""
         default_home = Path("/opt/hermes-data")
         for cmdline in (
-            "hermes --profile default gateway run --replace --external-supervisor",
+            "huntington --profile default gateway run --replace --external-supervisor",
             "/opt/hermes/.venv/bin/hermes -p default gateway run",
         ):
             assert status._command_line_belongs_to_profile(cmdline, default_home) is True, cmdline
-        assert status._command_line_belongs_to_profile("hermes -p coder gateway run", default_home) is False
+        assert status._command_line_belongs_to_profile("huntington -p coder gateway run", default_home) is False
 
     def test_command_line_belongs_to_profile_normalizes_separators(self):
         """A Windows argv renders HERMES_HOME with backslashes while the
@@ -465,7 +465,7 @@ class TestGatewayRuntimeStatus:
         default_home = Path("/opt/hermes-data")
         assert not status._command_line_belongs_to_profile("HERMES_HOME=/opt/hermes-data2 huntington gateway run", default_home)
         assert status._command_line_belongs_to_profile("HERMES_HOME=/opt/hermes-data huntington gateway run", default_home)
-        assert status._command_line_belongs_to_profile("hermes gateway run", default_home)
+        assert status._command_line_belongs_to_profile("huntington gateway run", default_home)
 
     def test_command_line_belongs_to_profile_matches_own_home_spellings_only(self):
         """Token-bounded value AND name: quoted values (ps/wmic re-quoting) and a trailing separator

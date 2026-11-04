@@ -25,7 +25,7 @@ def _ledger_entry(**over):
         "spawner_pid": None,
         "spawner_create": None,
         "registered_at": 222.0,
-        "argv": "hermes serve --host 100.94.65.93 --port 9119",
+        "argv": "huntington serve --host 100.94.65.93 --port 9119",
         "host": "100.94.65.93",
         "port": 9119,
         "profile": "",
@@ -136,7 +136,7 @@ def test_inventory_classifies_remote_desktop_ssh_serve_as_its_clients(monkeypatc
 def test_hand_started_isolated_serve_stays_manual(monkeypatch):
     """``--isolated`` alone is an opt-out of the host singleton, not remote ownership: a user's own
     ``hermes serve --isolated`` keeps its manual-serve relaunch."""
-    entry = _ledger_entry(argv="hermes serve --isolated --host 127.0.0.1 --port 9119", isolated=True)
+    entry = _ledger_entry(argv="huntington serve --isolated --host 127.0.0.1 --port 9119", isolated=True)
     fake_pi = SimpleNamespace(ledger_entries=lambda **k: [entry], spawner_is_dead=lambda e: None)
     monkeypatch.setitem(sys.modules, "hermes_cli.process_identity", fake_pi)
     row = next(r for r in update_inventory.collect_runtime_inventory().runtimes if r.kind == "serve")
@@ -175,7 +175,7 @@ def test_scan_dashboard_processes_includes_ledger_only_serves(monkeypatch):
 
     profiled = _ledger_entry(
         pid=8123,
-        argv="hermes --profile work serve --host 100.94.65.93 --port 9119",
+        argv="huntington --profile work serve --host 100.94.65.93 --port 9119",
         profile="work",
     )
     fake_pi = SimpleNamespace(ledger_entries=lambda **k: [profiled])

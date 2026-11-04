@@ -162,3 +162,9 @@ def apply_config_defaults(defaults: dict) -> None:
             else:
                 into[key] = value
     merge(defaults, CONFIG_DEFAULT_OVERRIDES)
+
+
+# The Nous Portal (upstream's hosted subscription) is not a supported provider: `setup --portal`
+# and `huntington portal` refuse with this instead of signing in.
+PORTAL_UNAVAILABLE = ("The hosted portal is not available in HUNTINGTON-AGENT. "
+                      "Pick a supported provider with `huntington model`.")
