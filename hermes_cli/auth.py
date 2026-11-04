@@ -1,3 +1,4 @@
+# health: allow FILE_LINES -- HUNTINGTON-AGENT fork: one-line provider-allowlist hooks at the existing auto-resolution rungs; the policy lives in hermes_cli/huntington.py
 """Multi-provider authentication system for Hermes Agent.
 
 - ``ProviderConfig`` / ``PROVIDER_REGISTRY`` describe every known inference provider.
@@ -1584,14 +1585,11 @@ def _env_key_auto_detected(
     scoped_key_env: Callable[[str], str], oauth_active: Optional[str]) -> Optional[str]:
     """First registry api_key provider (registry order) with a usable env key, warning when it
     preempts a logged-in OAuth provider so a stale key in ~/.hermes/.env never switches silently."""
+    from hermes_cli.huntington import provider_supported as _supported
     from providers import list_providers
-
     ambient = {p.name for p in list_providers() if p.ambient_credentials}  # never per-pid lookups: a miss walks the ladder
     for pid, pconfig in _canonical_registry_rows():
-        if pconfig.auth_type != "api_key" or pid in _NO_AUTO_DETECT_PROVIDERS or pid in ambient:
-            continue
-        from hermes_cli.huntington import provider_supported
-        if not provider_supported(pid):
+        if pconfig.auth_type != "api_key" or pid in _NO_AUTO_DETECT_PROVIDERS or pid in ambient or not _supported(pid):
             continue
         for env_var in pconfig.api_key_env_vars:
             if has_usable_secret(scoped_key_env(env_var)):
@@ -1649,8 +1647,7 @@ def resolve_provider(
     if cfg_provider:
         return cfg_provider
 
-    # HUNTINGTON-AGENT: "auto" only ever lands on a supported provider (explicit choices above win).
-    from hermes_cli.huntington import provider_supported
+    from hermes_cli.huntington import provider_supported  # HUNTINGTON-AGENT: "auto" lands only on supported providers
     _scoped_key_env = _scoped_key_env_reader()
     if provider_supported("openrouter") and _openrouter_auto_detected(_scoped_key_env):
         _refuse_env_adoption_if_config_corrupt()
