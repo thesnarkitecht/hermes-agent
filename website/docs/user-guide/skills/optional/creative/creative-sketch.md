@@ -17,7 +17,7 @@ Throwaway HTML mockups: 2-3 design variants to compare.
 | Source | Optional — install with `hermes skills install official/creative/sketch` |
 | Path | `optional-skills/creative/sketch` |
 | Version | `1.0.1` |
-| Author | Hermes Agent (adapted from gsd-build/get-shit-done) |
+| Author | HUNTINGTON-AGENT (adapted from gsd-build/get-shit-done) |
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `sketch`, `mockup`, `design`, `ui`, `prototype`, `html`, `variants`, `exploration`, `wireframe`, `comparison` |
@@ -107,7 +107,7 @@ Each variant is a **single self-contained HTML file**:
 
 Open it in a browser. If it looks broken, fix it before showing the user.
 
-**Verify variants visually — use Hermes' `browser_exec`.** Don't just write HTML and hope it renders; load each variant and look at it:
+**Verify variants visually — use Huntington' `browser_exec`.** Don't just write HTML and hope it renders; load each variant and look at it:
 
 ```
 browser_exec(code='''

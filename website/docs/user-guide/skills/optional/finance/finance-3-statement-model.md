@@ -17,7 +17,7 @@ Build integrated IS/BS/CF financial workbooks in Excel.
 | Source | Optional — install with `hermes skills install official/finance/3-statement-model` |
 | Path | `optional-skills/finance/3-statement-model` |
 | Version | `1.0.0` |
-| Author | Anthropic (adapted by Nous Research) |
+| Author | Anthropic (adapted by HIP) |
 | License | Apache-2.0 |
 | Platforms | linux, macos, windows |
 | Tags | `finance`, `three-statement`, `income-statement`, `balance-sheet`, `cash-flow`, `excel`, `openpyxl`, `modeling` |
@@ -436,9 +436,9 @@ When Master Status shows errors:
 
 ## Data sources — MCP first, web fallback
 
-Many passages below say "use the S&P Kensho MCP / Daloopa MCP / FactSet MCP". Those are commercial financial-data MCPs from the original Cowork plugin context. In Hermes:
+Many passages below say "use the S&P Kensho MCP / Daloopa MCP / FactSet MCP". Those are commercial financial-data MCPs from the original Cowork plugin context. In Huntington:
 
-- **If you have any structured financial-data MCP configured** (Hermes supports MCP — see `native-mcp` skill), prefer it for point-in-time comps, precedent transactions, and filings.
+- **If you have any structured financial-data MCP configured** (Huntington supports MCP — see `native-mcp` skill), prefer it for point-in-time comps, precedent transactions, and filings.
 - **Otherwise**, fall back to:
   - `web_search` / `web_extract` against SEC EDGAR (`https://www.sec.gov/cgi-bin/browse-edgar`) for US filings
   - Company IR pages for press releases, earnings decks

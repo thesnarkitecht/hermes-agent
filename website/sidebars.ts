@@ -208,21 +208,11 @@ const sidebars: SidebarsConfig = {
                 },
                 {
                   type: 'category',
-                  label: 'note-taking',
-                  key: 'skills-bundled-note-taking',
-                  collapsed: true,
-                  items: [
-                    'user-guide/skills/bundled/note-taking/note-taking-obsidian',
-                  ],
-                },
-                {
-                  type: 'category',
                   label: 'productivity',
                   key: 'skills-bundled-productivity',
                   collapsed: true,
                   items: [
                     'user-guide/skills/bundled/productivity/productivity-document-to-action-items',
-                    'user-guide/skills/bundled/productivity/productivity-google-workspace',
                     'user-guide/skills/bundled/productivity/productivity-maps',
                     'user-guide/skills/bundled/productivity/productivity-meeting-action-items',
                     'user-guide/skills/bundled/productivity/productivity-microsoft-office',
@@ -238,7 +228,6 @@ const sidebars: SidebarsConfig = {
                   key: 'skills-bundled-research',
                   collapsed: true,
                   items: [
-                    'user-guide/skills/bundled/research/research-arxiv',
                     'user-guide/skills/bundled/research/research-competitor-news-monitor',
                     'user-guide/skills/bundled/research/research-grounded-citations',
                   ],
@@ -282,12 +271,7 @@ const sidebars: SidebarsConfig = {
                   collapsed: true,
                   items: [
                     'user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-agent-merge-conflict-arbiter',
-                    'user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-antigravity-cli',
-                    'user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox',
                     'user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-dynamic-workflow',
-                    'user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-grok',
-                    'user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-opencode',
-                    'user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-openhands',
                   ],
                 },
                 {
@@ -332,10 +316,7 @@ const sidebars: SidebarsConfig = {
                   key: 'skills-optional-devops',
                   collapsed: true,
                   items: [
-                    'user-guide/skills/optional/devops/devops-actual-setup',
                     'user-guide/skills/optional/devops/devops-docker-management',
-                    'user-guide/skills/optional/devops/devops-hermes-s6-container-supervision',
-                    'user-guide/skills/optional/devops/devops-inference-sh-cli',
                     'user-guide/skills/optional/devops/devops-pinggy-tunnel',
                     'user-guide/skills/optional/devops/devops-setup-wizard-generator',
                     'user-guide/skills/optional/devops/devops-watchers',
@@ -419,16 +400,6 @@ const sidebars: SidebarsConfig = {
                 },
                 {
                   type: 'category',
-                  label: 'payments',
-                  key: 'skills-optional-payments',
-                  collapsed: true,
-                  items: [
-                    'user-guide/skills/optional/payments/payments-stripe-link-cli',
-                    'user-guide/skills/optional/payments/payments-stripe-projects',
-                  ],
-                },
-                {
-                  type: 'category',
                   label: 'productivity',
                   key: 'skills-optional-productivity',
                   collapsed: true,
@@ -437,8 +408,6 @@ const sidebars: SidebarsConfig = {
                     'user-guide/skills/optional/productivity/productivity-decision-questionnaire',
                     'user-guide/skills/optional/productivity/productivity-here-now',
                     'user-guide/skills/optional/productivity/productivity-live-dashboard',
-                    'user-guide/skills/optional/productivity/productivity-siyuan',
-                    'user-guide/skills/optional/productivity/productivity-telephony',
                   ],
                 },
                 {

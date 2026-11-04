@@ -17,7 +17,7 @@ Drive and script tldraw offline canvases with an agent.
 | Source | Optional — install with `hermes skills install official/creative/tldraw-offline` |
 | Path | `optional-skills/creative/tldraw-offline` |
 | Version | `1.0.0` |
-| Author | Teknium + Hermes Agent |
+| Author | Teknium + HUNTINGTON-AGENT |
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `tldraw`, `canvas`, `whiteboard`, `document-script`, `diagramming` |
@@ -57,7 +57,7 @@ them. Agents are far better at scripting the canvas than at drawing on it.
 - **Agent skills installed in the app**: `Develop → Install Agent Skills`. The
   app writes its own tldraw skill into `~/.codex/skills/`, `~/.claude/skills/`,
   `~/.cursor/skills/`, and `~/.gemini/skills/` — teaching that agent the `curl`
-  recipes below. (This Hermes skill mirrors that guidance for Hermes.)
+  recipes below. (This Huntington skill mirrors that guidance for Huntington.)
 - **The local control API.** On launch the app writes `server.json` to its config
   dir (Linux `~/.config/tldraw/`, macOS `~/Library/Application Support/tldraw/`,
   Windows `%APPDATA%\tldraw\`) with `port` (default `7236`), a bearer `token`,

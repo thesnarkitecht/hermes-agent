@@ -155,3 +155,50 @@ def test_explicit_provider_choice_is_still_honoured():
     from hermes_cli import auth
 
     assert auth.resolve_provider("openrouter") == "openrouter"
+
+
+def test_only_huntington_commands_reach_path_directories():
+    from hermes_cli._launchers import ENTRY_POINTS, PUBLIC_LAUNCHERS
+
+    assert PUBLIC_LAUNCHERS == ("huntington", "huntington-acp")
+    assert ENTRY_POINTS["huntington"] == ("hermes_cli.main", "main")
+    assert ENTRY_POINTS["huntington-acp"] == ("acp_adapter.entry", "main")
+
+
+def test_service_identities_do_not_collide_with_an_upstream_hermes_install():
+    """A shared `hermes-gateway` unit made each install adopt the other's gateway (profile_mismatch)."""
+    import hermes_cli.gateway as gateway
+    from hermes_cli.gateway_launchd import get_launchd_label
+
+    assert gateway._SERVICE_BASE == "huntington-gateway"
+    assert get_launchd_label().startswith("ai.huntington.gateway")
+
+
+def test_huntington_env_spelling_sets_the_engine_variable_unless_already_set():
+    from huntington_env import apply_env_aliases
+
+    env = {"HUNTINGTON_HOME": "/srv/h", "HUNTINGTON_TUI": "0", "HERMES_TUI": "1"}
+    apply_env_aliases(env)
+    assert env["HERMES_HOME"] == "/srv/h" and env["HERMES_TUI"] == "1"
+
+
+@pytest.mark.parametrize("command", [
+    "huntington gateway restart", "systemctl --user restart huntington-gateway",
+    "launchctl kickstart -k gui/501/ai.huntington.gateway", "pkill -f 'huntington gateway'",
+])
+def test_cron_lifecycle_guard_blocks_huntington_gateway_restarts(command):
+    from cron.lifecycle_guard import contains_gateway_lifecycle_command
+
+    assert contains_gateway_lifecycle_command(command)
+
+
+def test_agent_terminal_prefers_this_checkouts_launchers(tmp_path, monkeypatch):
+    """An upstream `hermes` earlier on PATH must not serve this install's child processes."""
+    import tools.environments.local as local
+
+    own_bin = ROOT / ".huntington" / "bin"
+    if not (own_bin / "huntington").is_file():
+        pytest.skip("checkout launchers are not minted in this environment")
+    monkeypatch.setattr(local, "_HERMES_BIN_DIR", local._SENTINEL)
+    monkeypatch.setattr("pm.environments.payload_command_dir", lambda root: None)
+    assert local._prepend_hermes_bin_dir(f"{tmp_path}:/usr/bin").split(":")[0] == str(own_bin)

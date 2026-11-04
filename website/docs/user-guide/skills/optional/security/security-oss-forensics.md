@@ -17,7 +17,7 @@ GitHub supply-chain forensics: recovery, IOCs, reporting.
 | Source | Optional — install with `hermes skills install official/security/oss-forensics` |
 | Path | `optional-skills/security/oss-forensics` |
 | Version | `1.0.0` |
-| Author | Teknium (teknium1), Hermes Agent |
+| Author | Teknium (teknium1), HUNTINGTON-AGENT |
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `Security`, `Forensics`, `GitHub`, `Supply-Chain` |
@@ -62,7 +62,7 @@ Read these before every investigation step. Violating them invalidates the repor
 
 > **Path convention**: Throughout this skill, `SKILL_DIR` refers to the root of this skill's
 > installation directory (the folder containing this `SKILL.md`). When the skill is loaded,
-> resolve `SKILL_DIR` to the actual path — e.g. `~/.hermes/skills/security/oss-forensics/`
+> resolve `SKILL_DIR` to the actual path — e.g. `~/.huntington/skills/security/oss-forensics/`
 > or the `optional-skills/` equivalent. All script and template references are relative to it.
 
 ## Phase 0: Initialization

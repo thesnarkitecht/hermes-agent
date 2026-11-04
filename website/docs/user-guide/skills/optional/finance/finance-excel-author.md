@@ -17,7 +17,7 @@ Build auditable financial workbooks headless via openpyxl.
 | Source | Optional — install with `hermes skills install official/finance/excel-author` |
 | Path | `optional-skills/finance/excel-author` |
 | Version | `1.0.0` |
-| Author | Anthropic (adapted by Nous Research) |
+| Author | Anthropic (adapted by HIP) |
 | License | Apache-2.0 |
 | Platforms | linux, macos, windows |
 | Tags | `excel`, `openpyxl`, `finance`, `spreadsheet`, `modeling` |
@@ -43,17 +43,17 @@ Adapted from Anthropic's `xlsx-author` and `audit-xls` skills in the [anthropics
 
 ## Setup
 
-Use `python` when it already imports `openpyxl` (the Hermes Docker image ships
-it). Otherwise, when `hermes` is on PATH, let Hermes build its shared, pinned
-documents environment under the Hermes home (safe to run from several agents
-at once); in a Docker sandbox without Hermes the block builds a venv in the
+Use `python` when it already imports `openpyxl` (the Huntington Docker image ships
+it). Otherwise, when `huntington` is on PATH, let Huntington build its shared, pinned
+documents environment under the Huntington home (safe to run from several agents
+at once); in a Docker sandbox without Huntington the block builds a venv in the
 sandbox home with the same pinned versions. It is the same block as the
 microsoft-office/pdf skills. Never `pip install` into the interpreter that
-runs Hermes:
+runs Huntington:
 
 ```bash
 python -c "import openpyxl" 2>/dev/null && PY=python || if command -v hermes >/dev/null 2>&1; then
-  PY="$(hermes pm environment documents --extra documents --extra documents-pdf)"
+  PY="$(huntington pm environment documents --extra documents --extra documents-pdf)"
 else
   PY="$HOME/.cache/hermes-docs-venv/bin/python"
   "$PY" -c "import docx, openpyxl, pptx, reportlab, pypdf, pdfplumber, pypdfium2" 2>/dev/null || (

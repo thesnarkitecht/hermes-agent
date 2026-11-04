@@ -1640,7 +1640,7 @@ class TestEdgeCases:
             json.dumps(
                 {
                     "pid": live_pid,
-                    "kind": "hermes-gateway",
+                    "kind": "huntington-gateway",
                     "argv": ["hermes", "gateway", "run"],
                     "start_time": gw_status._get_process_start_time(live_pid),
                     "gateway_state": "running",

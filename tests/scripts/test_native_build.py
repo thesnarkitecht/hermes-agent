@@ -58,7 +58,7 @@ def test_native_cli_consumes_real_minimal_preparation_without_bootstrap(tmp_path
     from pm.store import current_target
 
     out = tmp_path / "payload"
-    code = out / "hermes-agent"
+    code = out / "huntington-agent"
     code.mkdir(parents=True)
     (code / "pyproject.toml").write_text('[project]\nname="native-fixture"\nversion="1.0"\n[project.scripts]\nprobe="entry:main"\n')
     (code / "entry.py").write_text('def main():\n print("native fixture")\n return 0\n')

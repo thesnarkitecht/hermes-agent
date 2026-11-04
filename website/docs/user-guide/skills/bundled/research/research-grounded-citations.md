@@ -17,11 +17,11 @@ Ground answers and documents in cited, verifiable sources.
 | Source | Bundled (installed by default) |
 | Path | `skills/research/grounded-citations` |
 | Version | `1.2.0` |
-| Author | Hermes Agent + Teknium |
+| Author | HUNTINGTON-AGENT + Teknium |
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `Research`, `Citations`, `Grounding`, `Sources`, `Web`, `Reports` |
-| Related skills | [`arxiv`](../../bundled/research/research-arxiv.md), [`pdf`](../../bundled/productivity/productivity-pdf.md), [`rss-feeds`](../../optional/research/research-rss-feeds.md) |
+| Related skills | [`pdf`](../../bundled/productivity/productivity-pdf.md), [`rss-feeds`](../../optional/research/research-rss-feeds.md) |
 
 ## Reference: full SKILL.md
 
@@ -73,7 +73,7 @@ Override per task with `--ledger <path>` or `HERMES_CITATION_LEDGER`.
 ## How to Run
 
 ```bash
-S=~/.hermes/skills/research/grounded-citations/scripts/sources.py
+S=~/.huntington/skills/research/grounded-citations/scripts/sources.py
 
 python "$S" reset                                  # start a clean ledger
 python "$S" add https://example.com/a --title "A"  # prints: [1]
@@ -159,8 +159,8 @@ with every claim attributed to the platform it came from:
 | X/Twitter | `xurl` (needs API access) | announcements, developer chatter |
 
 The `reddit-reading` and `rss-feeds` skills are optional. If absent, install with
-`hermes skills install official/social-media/reddit-reading` or
-`hermes skills install official/research/rss-feeds` before using them.
+`huntington skills install official/social-media/reddit-reading` or
+`huntington skills install official/research/rss-feeds` before using them.
 
 Register every URL from every route in the ledger as it arrives (step ②). Keep
 opinion and measurement apart: a Reddit thread is evidence that users *report*

@@ -31,7 +31,7 @@ def test_shim_removes_only_its_owned_profile(tmp_path, outcome):
         'x-scheme-handler/https=google-chrome.desktop\ntext/html=google-chrome.desktop\n',
         encoding="utf-8",
     )
-    install = tmp_path / "hermes-agent"
+    install = tmp_path / "huntington-agent"
     install.mkdir()
     env = {**os.environ, "HOME": str(tmp_path), "HERMES_HOME": str(tmp_path),
            "XDG_CONFIG_HOME": str(config), "TMPDIR": str(tmp_path),

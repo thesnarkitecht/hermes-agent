@@ -41,7 +41,7 @@ exit 0
 
 def _run_handoff(tmp_path: Path, extra_args: list[str], update_output: str = "") -> list[str]:
     """Run the real hand-off end to end; return the argv of each hermes call."""
-    install_root = tmp_path / "hermes-agent"
+    install_root = tmp_path / "huntington-agent"
     (install_root / "venv" / "bin").mkdir(parents=True)
     hermes = install_root / "venv" / "bin" / "hermes"
     hermes.write_text(FAKE_HERMES)
@@ -130,7 +130,7 @@ def test_every_owed_followup_reaches_the_desktop_result(tmp_path, step):
 def test_dashboard_only_gateway_restart_followup_gets_no_gateway_hint(tmp_path):
     """#141071: the step id stays gateway_restart, but a restart owed only for a serve/dashboard unit
     must not tell the user to run `hermes gateway restart`, which never touches that unit."""
-    line = ("  ⚠ Update follow-up 'gateway_restart' did not finish: serve/dashboard unit(s) hermes-dashboard were not"
+    line = ("  ⚠ Update follow-up 'gateway_restart' did not finish: serve/dashboard unit(s) huntington-dashboard were not"
             " restarted onto the new code; see the systemctl advice above (the next launch retries it)")
     _run_handoff(tmp_path, [], f"{line}\n✓ Update complete!")
 

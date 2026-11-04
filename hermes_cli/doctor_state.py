@@ -134,7 +134,7 @@ def check_legacy_desktop_checkout() -> None:
 
     from hermes_cli.doctor import HERMES_HOME, _DHH
 
-    checkout = HERMES_HOME / "hermes-agent"
+    checkout = HERMES_HOME / "huntington-agent"
     if not (checkout / ".git").exists():
         return
 

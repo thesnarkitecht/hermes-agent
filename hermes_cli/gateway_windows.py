@@ -54,7 +54,7 @@ _ACCESS_DENIED_PATTERN = re.compile(rf"({_ACCESS_DENIED_WORDS})", re.IGNORECASE)
 # shell exits. Dict (not bare bool) so the flag is mutable without ``global``.
 _LAST_SPAWN_BREAKAWAY_FALLBACK: dict = {"fallback": False}
 
-_TASK_NAME_DEFAULT = "Hermes_Gateway"
+_TASK_NAME_DEFAULT = "Huntington_Gateway"
 _TASK_DESCRIPTION = "HUNTINGTON-AGENT Gateway - Messaging Platform Integration"
 _TASK_LOGON_DELAY = "PT30S"
 _TASK_RESTART_INTERVAL = "PT1M"

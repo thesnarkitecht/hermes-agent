@@ -13,6 +13,8 @@ from collections.abc import Callable, Mapping, MutableMapping
 from contextvars import ContextVar, Token
 from pathlib import Path
 
+__import__("huntington_env").apply_env_aliases()  # HUNTINGTON-AGENT: HUNTINGTON_* env spellings
+
 _profile_fallback_warned: bool = False
 _UNSET = object()
 _HERMES_HOME_OVERRIDE: ContextVar[str | object] = ContextVar("_HERMES_HOME_OVERRIDE", default=_UNSET)

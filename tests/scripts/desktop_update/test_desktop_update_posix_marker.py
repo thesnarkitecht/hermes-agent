@@ -84,7 +84,7 @@ def sleeper():
 
 def _install(tmp_path: Path, *, legacy: bool = False) -> tuple[Path, Path]:
     home = tmp_path / "home"
-    install = home / "hermes-agent"
+    install = home / "huntington-agent"
     package = install / "hermes_cli"
     package.mkdir(parents=True)
     (package / "__init__.py").touch()

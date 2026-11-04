@@ -32,12 +32,7 @@ hermes skills uninstall <skill-name>
 | Skill | Description |
 |-------|-------------|
 | [**agent-merge-conflict-arbiter**](../user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-agent-merge-conflict-arbiter.md) | Neutral arbiter for merge conflicts between two agents. |
-| [**antigravity-cli**](../user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-antigravity-cli.md) | Operate the Antigravity CLI (agy): plugins, auth, sandbox. |
-| [**blackbox**](../user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox.md) | Delegate coding tasks to the Blackbox AI multi-model CLI. |
 | [**dynamic-workflow**](../user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-dynamic-workflow.md) | Plan-in-code fan-outs, adversarial verification, waves. |
-| [**grok**](../user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-grok.md) | Delegate coding to xAI Grok Build CLI (features, PRs). |
-| [**opencode**](../user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-opencode.md) | Delegate coding to OpenCode CLI (features, PR review). |
-| [**openhands**](../user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-openhands.md) | Delegate coding to OpenHands CLI (model-agnostic, LiteLLM). |
 
 ## communication
 
@@ -70,10 +65,7 @@ hermes skills uninstall <skill-name>
 
 | Skill | Description |
 |-------|-------------|
-| [**actual-setup**](../user-guide/skills/optional/devops/devops-actual-setup.md) | Set up Actual Computer (actual.inc) inference in Hermes. |
 | [**docker-management**](../user-guide/skills/optional/devops/devops-docker-management.md) | Manage Docker containers, images, volumes, and Compose. |
-| [**hermes-s6-container-supervision**](../user-guide/skills/optional/devops/devops-hermes-s6-container-supervision.md) | Modify or debug s6 services in the Hermes Docker image. |
-| [**inference-sh-cli**](../user-guide/skills/optional/devops/devops-inference-sh-cli.md) | Run 150+ AI apps (image, video, LLM) via inference.sh CLI. |
 | [**pinggy-tunnel**](../user-guide/skills/optional/devops/devops-pinggy-tunnel.md) | Zero-install localhost tunnels over SSH via Pinggy. |
 | [**setup-wizard-generator**](../user-guide/skills/optional/devops/devops-setup-wizard-generator.md) | Generate a bash wizard guiding a human through manual setup. |
 | [**watchers**](../user-guide/skills/optional/devops/devops-watchers.md) | Poll RSS, JSON APIs, and GitHub with watermark dedup. |
@@ -139,13 +131,6 @@ hermes skills uninstall <skill-name>
 | [**torchtitan**](../user-guide/skills/optional/mlops/mlops-torchtitan.md) | Pretrain LLMs at scale with PyTorch 4D parallelism. |
 | [**unsloth**](../user-guide/skills/optional/mlops/mlops-training-unsloth.md) | Unsloth: 2-5x faster LoRA/QLoRA fine-tuning, less VRAM. |
 
-## payments
-
-| Skill | Description |
-|-------|-------------|
-| [**stripe-link-cli**](../user-guide/skills/optional/payments/payments-stripe-link-cli.md) | Agent payments via Stripe Link — cards, SPT, approvals. |
-| [**stripe-projects**](../user-guide/skills/optional/payments/payments-stripe-projects.md) | Provision SaaS services + sync creds via Stripe Projects. |
-
 ## productivity
 
 | Skill | Description |
@@ -154,8 +139,6 @@ hermes skills uninstall <skill-name>
 | [**decision-questionnaire**](../user-guide/skills/optional/productivity/productivity-decision-questionnaire.md) | Turn an unanswerable decision into a questionnaire doc. |
 | [**here-now**](../user-guide/skills/optional/productivity/productivity-here-now.md) | Publish sites to &#123;slug&#125;.here.now and store files in Drives. |
 | [**live-dashboard**](../user-guide/skills/optional/productivity/productivity-live-dashboard.md) | Build self-updating dashboards from live sources. |
-| [**siyuan**](../user-guide/skills/optional/productivity/productivity-siyuan.md) | Query and edit a SiYuan knowledge base via its API. |
-| [**telephony**](../user-guide/skills/optional/productivity/productivity-telephony.md) | Provision Twilio numbers, SMS/MMS, and AI outbound calls. |
 
 ## research
 

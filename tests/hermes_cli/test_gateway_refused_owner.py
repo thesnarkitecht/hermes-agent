@@ -47,7 +47,7 @@ def _gateway_child(tmp_path: Path):
 
 def _record(home: Path, pid: int, **extra) -> dict:
     from gateway.status import _get_process_start_time
-    return {"pid": pid, "kind": "hermes-gateway", "argv": ["hermes", "gateway", "run"],
+    return {"pid": pid, "kind": "huntington-gateway", "argv": ["hermes", "gateway", "run"],
             "start_time": _get_process_start_time(pid), "hermes_home": str(home), **extra}
 
 

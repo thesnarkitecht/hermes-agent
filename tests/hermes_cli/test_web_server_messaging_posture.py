@@ -29,7 +29,7 @@ def _gateway_state(home: Path) -> None:
     )
     (home / "gateway_state.json").write_text(json.dumps({
         "pid": os.getpid(), "hermes_home": str(home), "gateway_state": "running",
-        "kind": "hermes-gateway", "start_time": start_time,
+        "kind": "huntington-gateway", "start_time": start_time,
         "updated_at": "2026-01-01T00:00:00+00:00",
         "platforms": {"telegram": {"state": "connected", "writer_pid": os.getpid()}},
     }), encoding="utf-8")

@@ -619,3 +619,26 @@ tests/skills/test_comfyui_skill.py
 tests/skills/test_hyperliquid_skill.py
 tests/skills/test_property_listings_skill.py
 tests/skills/test_youtube_quiz.py
+
+# Off-stack integrations: coding CLIs for unsupported providers, Google Workspace (Huntington runs
+# Microsoft 365), personal note apps, payments, telephony, third-party inference marketplaces, arXiv,
+# and the Docker-image s6 skill (Docker install is removed)
+optional-skills/autonomous-ai-agents/antigravity-cli
+optional-skills/autonomous-ai-agents/blackbox
+optional-skills/autonomous-ai-agents/grok
+optional-skills/autonomous-ai-agents/opencode
+optional-skills/autonomous-ai-agents/openhands
+optional-skills/productivity/siyuan
+optional-skills/productivity/telephony
+optional-skills/payments
+optional-skills/devops/inference-sh-cli
+optional-skills/devops/actual-setup
+optional-skills/devops/hermes-s6-container-supervision
+skills/productivity/google-workspace
+skills/note-taking
+skills/research/arxiv
+tests/skills/test_telephony_skill.py
+tests/skills/test_google_workspace_setup_deps.py
+tests/skills/test_google_workspace_api.py
+tests/skills/test_google_workspace_credential_files.py
+tests/skills/test_google_workspace_setup.py

@@ -17,11 +17,10 @@ Karpathy's LLM Wiki: build/query interlinked markdown KB.
 | Source | Optional — install with `hermes skills install official/research/llm-wiki` |
 | Path | `optional-skills/research/llm-wiki` |
 | Version | `2.1.0` |
-| Author | Hermes Agent |
+| Author | HUNTINGTON-AGENT |
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `wiki`, `knowledge-base`, `research`, `notes`, `markdown`, `rag-alternative` |
-| Related skills | [`obsidian`](../../bundled/note-taking/note-taking-obsidian.md), [`arxiv`](../../bundled/research/research-arxiv.md) |
 
 ## Reference: full SKILL.md
 
@@ -52,7 +51,7 @@ Use this skill when the user:
 
 ## Wiki Location
 
-**Location:** Set via `WIKI_PATH` environment variable (e.g. in `${HERMES_HOME:-~/.hermes}/.env`).
+**Location:** Set via `WIKI_PATH` environment variable (e.g. in `${HERMES_HOME:-~/.huntington}/.env`).
 
 If unset, defaults to `~/wiki`.
 

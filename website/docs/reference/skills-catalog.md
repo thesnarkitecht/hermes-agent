@@ -19,7 +19,7 @@ If a skill is missing from this list but present in the repo, the catalog is reg
 | [`claude-code`](../user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-claude-code.md) | Delegate coding to Claude Code CLI (features, PRs). | `autonomous-ai-agents/claude-code` |
 | [`codex`](../user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-codex.md) | Delegate coding to OpenAI Codex CLI (features, PRs). | `autonomous-ai-agents/codex` |
 | [`computer-use`](../user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-computer-use.md) | Drive the desktop background-first; escalate on signal. | `autonomous-ai-agents/computer-use` |
-| [`hermes-agent`](../user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-hermes-agent.md) | Use, configure, theme, extend, and orchestrate Hermes Agent. | `autonomous-ai-agents/hermes-agent` |
+| [`hermes-agent`](../user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-hermes-agent.md) | Use, configure, theme, extend, and orchestrate HUNTINGTON-AGENT. | `autonomous-ai-agents/hermes-agent` |
 
 ## creative
 
@@ -42,18 +42,11 @@ If a skill is missing from this list but present in the repo, the catalog is reg
 | [`email-inbox-triage`](../user-guide/skills/bundled/email/email-email-inbox-triage.md) | Triage an inbox: prioritize threads, draft replies safely. | `email/email-inbox-triage` |
 | [`himalaya`](../user-guide/skills/bundled/email/email-himalaya.md) | Himalaya CLI: IMAP/SMTP email from terminal. | `email/himalaya` |
 
-## note-taking
-
-| Skill | Description | Path |
-|-------|-------------|------|
-| [`obsidian`](../user-guide/skills/bundled/note-taking/note-taking-obsidian.md) | Read, search, create, and edit notes in the Obsidian vault. | `note-taking/obsidian` |
-
 ## productivity
 
 | Skill | Description | Path |
 |-------|-------------|------|
 | [`document-to-action-items`](../user-guide/skills/bundled/productivity/productivity-document-to-action-items.md) | Extract cited obligations, deadlines, tasks from documents. | `productivity/document-to-action-items` |
-| [`google-workspace`](../user-guide/skills/bundled/productivity/productivity-google-workspace.md) | Gmail, Calendar, Drive, Docs, Sheets via gws CLI or Python. | `productivity/google-workspace` |
 | [`maps`](../user-guide/skills/bundled/productivity/productivity-maps.md) | Geocode, POIs, routes, timezones via OpenStreetMap/OSRM. | `productivity/maps` |
 | [`meeting-action-items`](../user-guide/skills/bundled/productivity/productivity-meeting-action-items.md) | Turn meeting notes into cited decisions, owners, tickets. | `productivity/meeting-action-items` |
 | [`microsoft-office`](../user-guide/skills/bundled/productivity/productivity-microsoft-office.md) | Create, read, and edit Word, PowerPoint, and Excel files. | `productivity/microsoft-office` |
@@ -66,7 +59,6 @@ If a skill is missing from this list but present in the repo, the catalog is reg
 
 | Skill | Description | Path |
 |-------|-------------|------|
-| [`arxiv`](../user-guide/skills/bundled/research/research-arxiv.md) | Search arXiv papers by keyword, author, category, or ID. | `research/arxiv` |
 | [`competitor-news-monitor`](../user-guide/skills/bundled/research/research-competitor-news-monitor.md) | Watch named companies for material news; cited digests. | `research/competitor-news-monitor` |
 | [`grounded-citations`](../user-guide/skills/bundled/research/research-grounded-citations.md) | Ground answers and documents in cited, verifiable sources. | `research/grounded-citations` |
 

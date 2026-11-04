@@ -40,6 +40,8 @@ SHELL_FILES = ("scripts/install.sh", "scripts/install.ps1", "scripts/install.cmd
                "setup-hermes.ps1", "activate", "activate.fish", "activate.ps1")
 PY_ROOT_GLOBS = ("*.py",)
 YAML_GLOBS = ("locales/*.yaml",)
+# Skill documents the agent reads and follows: their commands and paths must name this install.
+MD_GLOBS = ("skills/**/*.md", "optional-skills/**/*.md")
 SKIP_PARTS = {"__pycache__", "node_modules", ".venv", "web_dist"}
 # The fork's own files: they already say what they mean, and its tests assert upstream names.
 SKIP_FILES = {"hermes_cli/huntington.py", "tests/hermes_cli/test_huntington_policy.py", "conftest.py",
@@ -52,14 +54,36 @@ _RULES: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"(?<![\w./-])Hermes(?![\w])"), "Huntington"),
     (re.compile(r"(?<![\w./~$\\-])hermes(?=(?:[ \t]+(?:--?[a-z]|[a-z][a-z0-9-]*|\{)|`))"), "huntington"),
 )
+# Host-wide service identities (systemd units, launchd labels): HUNTINGTON-AGENT must not share
+# them with an upstream Hermes install on the same machine, or each would adopt the other's service
+# (the gateway then refuses the client with ``profile_mismatch``). Wire protocol names are shared
+# with the web client and stay.
+_SERVICE_RULES: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"(?<![\w.-])hermes-(gateway|serve|dashboard)(?!-ticket|-v1|-metrics|-loop|-command|r)"),
+     r"huntington-\1"),
+    (re.compile(r"(?<![\w-])ai\.hermes(?=[.*\"'`]|$)"), "ai.huntington"),
+)
 _COMMAND_LITERAL = re.compile(r"^hermes(?:\s+[\w.:=/-]+)*$")
 _PATH_RULE = (re.compile(r"(?<![\w-])\.hermes(?![\w-])"), ".huntington")
 _WIN_PATH_RULE = (re.compile(r"(LOCALAPPDATA[%)}]?[\\/]+)hermes(?![\w-])"), r"\1huntington")
+# Source shapes (Python, outside the string rules) of the install layout: the checkout directory
+# <home>/hermes-agent -> <home>/huntington-agent and the Windows data root joined by argument.
+_PY_SOURCE_RULES: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r'(/\s*)"hermes-agent"(?=\s*[)/,\n])'), r'\1"huntington-agent"'),
+    (re.compile(r'((?:local_appdata|LOCALAPPDATA"\])\s*,\s*)"hermes"(?=\s*[,)])'), r'\1"huntington"'),
+    (re.compile(r'("huntington"\s*,\s*)"hermes-agent"(?=\s*[,)])'), r'\1"huntington-agent"'),
+)
+_SHELL_SOURCE_RULES: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"\$HERMES_HOME/hermes-agent\b"), "$HERMES_HOME/huntington-agent"),
+    (re.compile(r"(HERMES_HOME|huntington)\\hermes-agent\b"), r"\1\\huntington-agent"),
+    (re.compile(r"(Join-Path \$resolvedHome )'hermes-agent'"), r"\1'huntington-agent'"),
+)
 # Python source (not string-literal) spellings of the Windows default, per file.
 SOURCE_RULES: dict[str, tuple[tuple[str, str], ...]] = {
     "hermes_constants.py": (('return base / ("hermes" + suffix)', 'return base / ("huntington" + suffix)'),),
     "pm/shell.py": (('ntpath.join(env["LOCALAPPDATA"], "hermes", "git")',
                      'ntpath.join(env["LOCALAPPDATA"], "huntington", "git")'),),
+    "hermes_cli/gateway_windows.py": (('_TASK_NAME_DEFAULT = "Hermes_Gateway"', '_TASK_NAME_DEFAULT = "Huntington_Gateway"'),),
     "scripts/install.sh": (
         ('"│             ☤ Hermes Agent Installer                    │"', '"│               ◆ HUNTINGTON-AGENT Installer              │"'),
         ('"│  An open source AI agent by Nous Research.              │"', '"│               A terminal AI agent by HIP.               │"'),
@@ -83,7 +107,7 @@ def rewrite_text(text: str) -> str:
 
 
 def rewrite_paths(text: str) -> str:
-    for pattern, replacement in (_PATH_RULE, _WIN_PATH_RULE):
+    for pattern, replacement in (_PATH_RULE, _WIN_PATH_RULE, *_SERVICE_RULES):
         text = pattern.sub(replacement, text)
     return text
 
@@ -173,12 +197,18 @@ def rewrite_file_text(rel: str, source: str) -> str:
     for old, new in SOURCE_RULES.get(rel, ()):
         source = source.replace(old, new)
     if rel in SHELL_FILES:
+        for pattern, replacement in _SHELL_SOURCE_RULES:
+            source = pattern.sub(replacement, source)
         # Shell may execute a bare `hermes`, so only the capitalised wording and paths change there.
         for pattern, replacement in _RULES[:4]:
             source = pattern.sub(replacement, source)
         return rewrite_paths(source.replace("☤ HUNTINGTON-AGENT", "◆ HUNTINGTON-AGENT"))
     if rel.endswith(".py"):
+        for pattern, replacement in _PY_SOURCE_RULES:
+            source = pattern.sub(replacement, source)
         return rewrite_python(source)
+    if rel.endswith(".md") and rel.startswith(("skills/", "optional-skills/")):
+        return rewrite_text(source)
     if rel.endswith((".yaml", ".yml")) and rel.startswith("locales/"):
         return rewrite_yaml(source)
     return source
@@ -188,7 +218,7 @@ def targets() -> list[Path]:
     files: list[Path] = []
     for d in PY_DIRS:
         files += (ROOT / d).rglob("*.py")
-    for g in PY_ROOT_GLOBS + YAML_GLOBS:
+    for g in PY_ROOT_GLOBS + YAML_GLOBS + MD_GLOBS:
         files += ROOT.glob(g)
     files += [ROOT / f for f in SHELL_FILES if (ROOT / f).is_file()]
     return sorted(f for f in files if not SKIP_PARTS & set(f.relative_to(ROOT).parts))

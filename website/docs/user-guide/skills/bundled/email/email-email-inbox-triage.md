@@ -17,11 +17,11 @@ Triage an inbox: prioritize threads, draft replies safely.
 | Source | Bundled (installed by default) |
 | Path | `skills/email/email-inbox-triage` |
 | Version | `0.2.0` |
-| Author | Ben Barclay (benbarclay), Hermes Agent |
+| Author | Ben Barclay (benbarclay), HUNTINGTON-AGENT |
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `Email`, `Inbox`, `Triage`, `Replies`, `Productivity` |
-| Related skills | [`himalaya`](../../bundled/email/email-himalaya.md), [`google-workspace`](../../bundled/productivity/productivity-google-workspace.md) |
+| Related skills | [`himalaya`](../../bundled/email/email-himalaya.md) |
 
 ## Reference: full SKILL.md
 

@@ -185,7 +185,7 @@ def _live_system_guard(request, monkeypatch):
 
     # ── Subprocess command-string inspection (whole-line) ──────────
     _HERMES_TOKENS = (
-        "hermes-gateway",
+        "huntington-gateway",
         "hermes.service",
         "hermes_cli.main gateway",
         "hermes_cli/main.py gateway",
@@ -357,8 +357,8 @@ def _live_system_guard(request, monkeypatch):
             raise RuntimeError(
                 f"tests/conftest.py live-system guard: blocked "
                 f"subprocess.{name}({cmd!r}) — would mutate a live "
-                "Huntington systemd unit (hermes-gateway*, hermes-dashboard*, "
-                "hermes-serve*, ...). Mock "
+                "Huntington systemd unit (huntington-gateway*, huntington-dashboard*, "
+                "huntington-serve*, ...). Mock "
                 "subprocess.run / _run_systemctl in the test, or "
                 "mark with @pytest.mark.live_system_guard_bypass."
             )
