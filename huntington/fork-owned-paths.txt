@@ -1,0 +1,5 @@
+# Files HUNTINGTON-AGENT owns outright. scripts/huntington/sync-upstream.sh keeps the fork's
+# version whenever an upstream merge conflicts in one of these. One path per line.
+README.md
+web/public/favicon.ico
+conftest.py
