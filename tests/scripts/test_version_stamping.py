@@ -15,7 +15,7 @@ def _tree(root: Path) -> None:
     (desktop / "package.json").write_text('{"version": "0.0.0"}\n', encoding="utf-8")
     (root / "package-lock.json").write_text(
         '{"version": "0.0.0", "packages": {'
-        '"apps/desktop": {"name": "huntington", "version": "0.0.0"}, '
+        '"apps/desktop": {"name": "hermes", "version": "0.0.0"}, '
         '"apps/bootstrap-installer": {"name": "@hermes/bootstrap-installer", "version": "0.0.0"}}}\n',
         encoding="utf-8")
     (root / "uv.lock").write_text(

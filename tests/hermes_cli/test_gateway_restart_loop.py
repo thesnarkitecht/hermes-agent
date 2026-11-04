@@ -272,7 +272,7 @@ class TestGatewayLifecyclePattern:
         # #68289: execute_code payloads carry the argv as a Python list —
         # brackets/commas separate the words the OS will exec.
         'import subprocess\nsubprocess.run(["launchctl", "bootout", "gui/501/ai.hermes.gateway"])',
-        'subprocess.run(["huntington", "gateway", "restart"])',
+        'subprocess.run(["hermes", "gateway", "restart"])',
         'os.system("launchctl kickstart -k gui/501/ai.hermes.gateway")',
     ])
     def test_python_argv_list_forms_blocked(self, text):
@@ -281,7 +281,7 @@ class TestGatewayLifecyclePattern:
     @pytest.mark.parametrize("text", [
         # Argv-punctuation stripping must not create prose false positives.
         'print("checking gateway restart docs")',
-        'data = ["huntington", "notes"]  # unrelated list',
+        'data = ["hermes", "notes"]  # unrelated list',
     ])
     def test_python_argv_stripping_stays_narrow(self, text):
         assert not _contains_gateway_lifecycle_command(text), f"Should NOT match: {text!r}"

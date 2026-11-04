@@ -104,7 +104,7 @@ def main():
                              "from hermes_cli import auth_codex; "
                              f"auth_codex.CODEX_OAUTH_TOKEN_URL='http://127.0.0.1:{server.server_port}/token'; "
                              "from hermes_cli.main import main; "
-                             f"sys.argv=['huntington','auth',*{command!r}]; main()")
+                             f"sys.argv=['hermes','auth',*{command!r}]; main()")
                 master, slave = pty.openpty()
                 child = subprocess.Popen([sys.executable, "-c", bootstrap], cwd=args.repo,
                                          env=env, stdin=slave, stdout=slave, stderr=slave)

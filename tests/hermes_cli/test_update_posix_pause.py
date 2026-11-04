@@ -76,7 +76,7 @@ _KILLED_AFTER_RECORDING = """
     if kind == "systemd":
         entry.update(kind="systemd", scope="user", unit="hermes-gateway-p2probe.service", cgroup=None)
     else:
-        entry["argv"] = ["huntington", "gateway", "run"]
+        entry["argv"] = ["hermes", "gateway", "run"]
     # Discovery is the seam (no real unit or install here); recording is the code under test.
     m._discover_systemd = lambda: [entry] if kind == "systemd" else []
     m._discover_launchd = lambda: []

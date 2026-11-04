@@ -71,7 +71,7 @@ def test_e2e_scrubbed_env_resolves_bare_hermes_under_minimal_parent_path(monkeyp
 
     resolved = shutil.which("hermes", path=env.get("PATH", ""))
     assert resolved is not None, (
-        f"bare 'huntington' must resolve from the child PATH {env.get('PATH')!r}"
+        f"bare 'hermes' must resolve from the child PATH {env.get('PATH')!r}"
     )
     assert os.path.dirname(resolved) == bin_dir
     assert env["PATH"].split(os.pathsep)[0] == bin_dir

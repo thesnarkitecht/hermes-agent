@@ -33,7 +33,7 @@ def denied(*args, **kwargs):
 venv_sync.prepare_launch = denied if phase == "preparation" else lambda *_: None
 _early_recovery.recover_if_needed = lambda *_: False
 environments.activate_dependencies = denied if phase == "activation" else lambda *_: None
-sys.argv = ["huntington", "-z", "hi"]
+sys.argv = ["hermes", "-z", "hi"]
 import hermes_bootstrap
 """
     result = subprocess.run(

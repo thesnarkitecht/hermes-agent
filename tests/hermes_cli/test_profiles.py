@@ -241,9 +241,9 @@ class TestCreateProfile:
         default_home = tmp_path / ".huntington"
         (default_home / "config.yaml").write_text("memory:\n  provider: hindsight\n")
         (default_home / "hindsight").mkdir()
-        payload = '{"mode": "local_embedded", "bank_id": "huntington", "apiKey": "hs-secret"}'
+        payload = '{"mode": "local_embedded", "bank_id": "hermes", "apiKey": "hs-secret"}'
         (default_home / "hindsight" / "config.json").write_text(payload)
-        (default_home / "mem0.json").write_text('{"agent_id": "huntington"}')
+        (default_home / "mem0.json").write_text('{"agent_id": "hermes"}')
 
         profile_dir = create_profile("coder", clone_config=True, no_alias=True)
 

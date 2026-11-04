@@ -28,7 +28,7 @@ def _critical_module_import_failures(
         # Importing hermes_cli.main runs the startup dotenv load, which pulls external secret
         # sources (op/bws/command helpers, up to 120s each) unless argv says ``update``. The
         # probe only checks importability, so it inherits the updater's own argv contract.
-        "sys.argv = ['huntington', 'update']\n"
+        "sys.argv = ['hermes', 'update']\n"
         "failures = []\n"
         f"for name in {_UPDATE_CRITICAL_MODULES!r}:\n"
         "    try:\n"

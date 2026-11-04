@@ -79,7 +79,7 @@ def test_bootstrap_argv_is_identity_only_for_the_process_running_it(join: str) -
 
 def test_bundled_posix_launcher_bootstrap_is_a_gateway() -> None:
     source = (
-        "import os, site, sys; sys.argv[0]='huntington'; "
+        "import os, site, sys; sys.argv[0]='hermes'; "
         "site.addsitedir(os.environ['HERMES_SITE']); "
         "from hermes_cli.main import main; sys.exit(main())"
     )

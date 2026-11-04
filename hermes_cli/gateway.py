@@ -4417,7 +4417,7 @@ def _guard_official_docker_root_gateway() -> None:
 
     print_error("Refusing to run the Huntington gateway as root inside the official Docker image.")
     print(
-        "  The image entrypoint normally drops privileges to the 'huntington' user. "
+        "  The image entrypoint normally drops privileges to the 'hermes' user. "
         "If you override entrypoint in Docker Compose, include "
         "/opt/hermes/docker/entrypoint.sh before the Huntington command."
     )

@@ -169,6 +169,6 @@ def uninstall_gui(hermes_home: Path | None = None, *, remove_userdata: bool = Tr
         except Exception as e:
             log_warn(f"Could not refresh the application menu cache: {e}")
         log_info("If you installed the desktop via a .deb / .rpm package, remove it with your package manager "
-                 "(e.g. 'sudo apt remove huntington' or 'sudo dnf remove huntington'). AppImage builds are a single "
+                 "(e.g. 'sudo apt remove hermes' or 'sudo dnf remove hermes'). AppImage builds are a single "
                  "file you can delete from wherever you saved it.")
     return removed

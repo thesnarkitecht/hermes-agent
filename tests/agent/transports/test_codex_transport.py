@@ -1315,7 +1315,7 @@ class TestResponsesReservedToolAliases:
                     id="call_2", call_id="call_2", response_item_id="fc_2",
                     function=SimpleNamespace(
                         name="hermes_web_search",
-                        arguments='{"query":"huntington"}',
+                        arguments='{"query":"hermes"}',
                     ),
                 ),
             ],

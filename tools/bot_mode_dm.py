@@ -90,7 +90,7 @@ def message_agent_tool_schema() -> dict:
                 "properties": {
                     "target": {
                         "type": "string",
-                        "description": (f"Who to message ('huntington' is the default agent). Up to {FAN_OUT_MAX} "
+                        "description": (f"Who to message ('hermes' is the default agent). Up to {FAN_OUT_MAX} "
                                         "comma-separated names fan out: one combined reply."),
                     },
                     "message": {

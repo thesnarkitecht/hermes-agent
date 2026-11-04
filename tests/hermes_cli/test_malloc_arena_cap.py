@@ -56,7 +56,7 @@ _WORKERS = textwrap.dedent("""
 # the given argv; only then do worker threads start.
 _ENTRY_CHILD = _WORKERS + textwrap.dedent("""
     import json, sys
-    sys.argv = ["huntington", *json.loads(sys.argv[1])]
+    sys.argv = ["hermes", *json.loads(sys.argv[1])]
     import hermes_cli.main  # noqa: F401
     print(json.dumps({"heaps": arenas_under_load()}))
 """)

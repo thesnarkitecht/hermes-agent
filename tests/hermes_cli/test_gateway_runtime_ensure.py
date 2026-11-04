@@ -351,7 +351,7 @@ def test_unmanaged_root_home_child_ignores_sticky_active_profile(tmp_path, monke
     def boundary(argv, **kwargs):
         assert argv[:3] == [sys.executable, "-m", "hermes_cli.main"]
         # Same argv and env as the real child; the module-import bootstrap is what resolves the profile.
-        code = ("import json, os, sys\nsys.argv = ['huntington', *sys.argv[1:]]\nimport hermes_cli.main\n"
+        code = ("import json, os, sys\nsys.argv = ['hermes', *sys.argv[1:]]\nimport hermes_cli.main\n"
                 f"open({str(witness)!r}, 'w').write(json.dumps({{'home': os.environ['HERMES_HOME'], 'argv': sys.argv}}))")
         return real([sys.executable, "-c", code, *argv[3:]], **kwargs)
 

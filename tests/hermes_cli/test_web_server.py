@@ -612,7 +612,7 @@ class FlatProvMemoryProvider(MemoryProvider):
             {"key": "mode", "label": "Mode", "choices": ["cloud", "local_external"], "default": "cloud"},
             {"key": "api_url", "label": "API URL", "default": ""},
             {"key": "api_key", "label": "API key", "secret": True, "env_var": "FLATPROV_API_KEY"},
-            {"key": "bank_id", "label": "Bank", "default": "huntington"},
+            {"key": "bank_id", "label": "Bank", "default": "hermes"},
             {"key": "recall_budget", "label": "Budget", "choices": ["low", "mid", "high"], "default": "mid"},
         ]
 
@@ -799,7 +799,7 @@ from hermes_constants import get_hermes_home
 
 
 def resolve_active_host():
-    return "huntington"
+    return "hermes"
 
 
 def resolve_config_path():

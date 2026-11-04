@@ -50,7 +50,7 @@ _RULES: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"(?<![\w.-])Nous Research(?!\w)"), "HIP"),
     (re.compile(r"(?<![\w./-])Nous(?![\w])"), "HIP"),
     (re.compile(r"(?<![\w./-])Hermes(?![\w])"), "Huntington"),
-    (re.compile(r"(?<![\w./~$\\-])hermes(?=(?:[ \t]+(?:--?[a-z]|[a-z][a-z0-9-]*|\{)|[`'\"]))"), "huntington"),
+    (re.compile(r"(?<![\w./~$\\-])hermes(?=(?:[ \t]+(?:--?[a-z]|[a-z][a-z0-9-]*|\{)|`))"), "huntington"),
 )
 _COMMAND_LITERAL = re.compile(r"^hermes(?:\s+[\w.:=/-]+)*$")
 _PATH_RULE = (re.compile(r"(?<![\w-])\.hermes(?![\w-])"), ".huntington")

@@ -15,7 +15,7 @@ import json, os
 from pathlib import Path
 
 def resolve_active_host():
-    return "huntington"
+    return "hermes"
 
 def resolve_config_path():
     return Path(os.environ["HERMES_HOME"]) / "honcho.json"
