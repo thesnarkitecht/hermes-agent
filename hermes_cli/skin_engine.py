@@ -340,6 +340,7 @@ _BUILTIN_SKINS: dict[str, dict[str, Any]] = {
 [#F29C38]⠀⠀⠀⠀⠀⠀⠀⣼⡟⠀⠀⢻⣧⠀⠀⠀⠀⠀⠀⠀⠀[/]
 [dim #7A3511]⠀⠀⠀⠀⠀⠀⠀tail flame lit⠀⠀⠀⠀⠀⠀⠀⠀[/]""",
     }}
+__import__("hermes_cli.huntington").huntington.apply_default_skin(_BUILTIN_SKINS)  # HUNTINGTON-AGENT
 
 _active_skin: Optional[SkinConfig] = None
 _active_skin_name: str = "default"
