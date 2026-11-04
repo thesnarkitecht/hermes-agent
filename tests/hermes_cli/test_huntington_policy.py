@@ -178,10 +178,10 @@ def test_service_identities_do_not_collide_with_an_upstream_hermes_install():
 
 
 def test_huntington_env_spelling_sets_the_engine_variable_unless_already_set():
-    from huntington_env import apply_env_aliases
+    from hermes_constants import apply_huntington_env_aliases
 
     env = {"HUNTINGTON_HOME": "/srv/h", "HUNTINGTON_TUI": "0", "HERMES_TUI": "1"}
-    apply_env_aliases(env)
+    apply_huntington_env_aliases(env)
     assert env["HERMES_HOME"] == "/srv/h" and env["HERMES_TUI"] == "1"
 
 
