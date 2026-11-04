@@ -5337,8 +5337,8 @@ def _cmd_stop(args):
         print("  Stop or restart the host gateway instead:")
         print()
         owner_flag = f"-p {owner.profile_label} " if owner is not None else ""
-        print(f"    hermes {owner_flag}gateway stop      # takes every served profile offline")
-        print(f"    hermes {owner_flag}gateway restart")
+        print(f"    huntington {owner_flag}gateway stop      # takes every served profile offline")
+        print(f"    huntington {owner_flag}gateway restart")
         sys.exit(GATEWAY_FATAL_CONFIG_EXIT_CODE)
     from hermes_cli.gateway_lifecycle_guards import refuse_while_sessions_live
     refuse_while_sessions_live("stop", args)

@@ -227,7 +227,7 @@ def test_persistence_commands_are_pinned_to_the_failing_profile(monkeypatch, tmp
     assert selector.strip(), "fixture must resolve to a named profile"
     out = AIAgent._format_turn_completion_explanation("session_persistence_failed", cause)
     assert "{profile_arg}" not in out
-    assert f"`hermes {selector}doctor" in out
+    assert f"`huntington {selector}doctor" in out
     assert "`huntington doctor" not in out and "`huntington gateway" not in out
 
 

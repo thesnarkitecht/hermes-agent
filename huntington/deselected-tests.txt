@@ -1555,3 +1555,13 @@ tests/hermes_cli/test_anon_surfaces.py::test_anonymous_tier_matches_case_and_whi
 tests/hermes_cli/test_webapp_private_launch.py::test_the_no_open_hint_keeps_the_profile_a_bare_rerun_would_not_pick[default-work-huntington
 tests/hermes_cli/test_webapp_private_launch.py::test_the_no_open_hint_keeps_the_profile_a_bare_rerun_would_not_pick[work-None-huntington
 tests/hermes_cli/test_webapp_private_launch.py::test_the_no_open_hint_keeps_the_profile_a_bare_rerun_would_not_pick[work-work-huntington
+# Desktop app's Windows update handoff (scripts/desktop-update), driven through PowerShell when installed.
+tests/scripts/desktop_update/test_handoff_result_identity.py::test_powershell_result_keeps_identity_after_actual_heartbeat[
+# The Webapp is removed; these assert its gateway hints.
+tests/hermes_cli/test_webapp_launcher.py::test_a_gateway_started_before_the_webapp_was_turned_on_asks_for_a_restart
+tests/hermes_cli/test_webapp_launcher.py::test_a_webapp_the_gateway_could_not_serve_reports_why_and_how_to_retry
+# The fixture's ledger argv was rebranded but its launchd argv list is the exact literal `hermes`.
+tests/hermes_cli/test_serve_runtime_inventory.py::test_inventory_classifies_launchd_job_owned_serve
+# Verification evidence keeps upstream's canonical command name `hermes verify` (model-facing).
+tests/agent/test_verification_stop.py::test_nudge_drops_the_unscored_run_warning_once_hermes_verify_records
+tests/agent/test_verification_evidence.py::test_workspace_verify_clears_stale_on_other_session

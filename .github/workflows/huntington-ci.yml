@@ -51,10 +51,18 @@ jobs:
         slice: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v7.0.1
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.13"
+      # The PM toolchain from pm/lock.json, as upstream's setup-pm action installs it (without
+      # its NousResearch caches): the pinned Python, uv on PATH (the PM, install and plugin
+      # admission suites drive real uv) and the isolated dev+test environment in HERMES_PYTHON.
+      - name: Install the locked Python and uv
+        run: |
+          python3 -S scripts/ci/setup_toolchain.py prepare --toolchain python --extras '' --home "$RUNNER_TEMP/setup-pm"
+          python3 -S scripts/ci/setup_toolchain.py install --toolchain python --home "$RUNNER_TEMP/setup-pm"
       - name: Build the test environment
-        run: python -m pm.build_env --source . --out .venv --group dev --group test
+        run: |
+          "$HERMES_PYTHON" -S scripts/ci/setup_toolchain.py dependencies --toolchain python \
+            --extras '["all", "anthropic"]' --test-environment --home "$HERMES_HOME"
       - name: Run slice
         run: scripts/run_tests.sh --slice ${{ matrix.slice }}/4
+        env:
+          OPENROUTER_API_KEY: ""

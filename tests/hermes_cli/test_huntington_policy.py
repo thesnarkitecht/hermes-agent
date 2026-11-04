@@ -239,3 +239,10 @@ def test_profile_alias_wrappers_start_huntington_and_are_recognised(tmp_path, mo
     assert wrapper is not None and "huntington" in wrapper.read_text() and " -p ops" in wrapper.read_text()
     assert profiles._is_our_wrapper(wrapper)
     assert profiles.build_alias_map().get("ops") == "ops"
+
+
+def test_command_hints_built_from_fstrings_name_huntington():
+    """f"hermes {selector}auth add ..." hints are user-facing; `hermes` is not on a user's PATH."""
+    from agent.turn_failure_copy import oauth_relogin_command
+
+    assert oauth_relogin_command("openai-codex").startswith("huntington ")

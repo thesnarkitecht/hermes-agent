@@ -42,7 +42,7 @@ def _pm_failures(sb: I.Sandbox, hermes: str) -> list[str]:
         cp = sb.run([hermes, *args], timeout=300)
         if cp.returncode != 0 or I.TRACEBACK in cp.stdout + cp.stderr:
             tail = (cp.stdout + cp.stderr).strip().splitlines()[-1:] or [""]
-            bad.append(f"`hermes {' '.join(args)}` rc={cp.returncode}: {tail[0][:300]}\n{I.describe(cp)}")
+            bad.append(f"`huntington {' '.join(args)}` rc={cp.returncode}: {tail[0][:300]}\n{I.describe(cp)}")
     return bad
 
 

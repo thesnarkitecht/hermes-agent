@@ -175,7 +175,7 @@ class TestWorktreeLockReaping:
         )
         if pid is not None:
             subprocess.run(
-                ["git", "worktree", "lock", "--reason", f"huntington pid={pid}", str(p)],
+                ["git", "worktree", "lock", "--reason", f"hermes pid={pid}", str(p)],
                 cwd=repo, capture_output=True,
                 check=False,
             )

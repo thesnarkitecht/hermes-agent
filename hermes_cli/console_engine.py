@@ -344,8 +344,8 @@ def _register_command_family(
             return _dispatch(surface, root, fixed, args, namespace_update)
 
         engine.register(
-            full_path, usage, summaries.get(full_path) or f"Run `hermes {usage}`.", handler,
-            mutating=mutating, confirmation=f"Run `hermes {usage}`?")
+            full_path, usage, summaries.get(full_path) or f"Run `huntington {usage}`.", handler,
+            mutating=mutating, confirmation=f"Run `huntington {usage}`?")
 
 
 _BLOCKED_TOP = frozenset(
@@ -477,7 +477,7 @@ class HermesConsoleEngine:
         if first.startswith("-"):
             return f"{first} is not available in Huntington Console."
         if first in _BLOCKED_TOP:
-            return f"`hermes {first}` is not available in Huntington Console."
+            return f"`huntington {first}` is not available in Huntington Console."
         return _BLOCKED_PAIRS.get(tuple(tokens[:2]), "")
 
     def _cap_output(self, output: str) -> str:

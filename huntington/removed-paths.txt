@@ -842,3 +842,6 @@ tests/ci/test_update_ci_routing.py
 tests/ci/test_stable_release_graph.py
 tests/scripts/desktop_update/test_desktop_update_posix_handoff_protocol.py
 tests/scripts/desktop_update/test_handoff_delegate_publication.py
+# Imports the removed tests/ci/test_update_ci_routing.py; the BlueBubbles adapter is removed.
+tests/ci/test_update_transitive_routing.py
+tests/gateway/test_bluebubbles_plugin.py

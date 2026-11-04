@@ -52,7 +52,7 @@ _RULES: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"(?<![\w.-])Nous Research(?!\w)"), "HIP"),
     (re.compile(r"(?<![\w./-])Nous(?![\w])"), "HIP"),
     (re.compile(r"(?<![\w./-])Hermes(?![\w])"), "Huntington"),
-    (re.compile(r"(?<![\w./~$\\-])hermes(?=(?:[ \t]+(?:--?[a-z]|[a-z][a-z0-9-]*|\{)|`))"), "huntington"),
+    (re.compile(r"(?<![\w./~$\\-])(?<!setuidgid )hermes(?![ \t]+(?:pid|session)=)(?=(?:[ \t]+(?:--?[a-z]|[a-z][a-z0-9-]*|\{)|`))"), "huntington"),
 )
 # Host-wide service identities (systemd units, launchd labels): HUNTINGTON-AGENT must not share
 # them with an upstream Hermes install on the same machine, or each would adopt the other's service
@@ -88,6 +88,13 @@ SOURCE_RULES: dict[str, tuple[tuple[str, str], ...]] = {
     "pm/shell.py": (('ntpath.join(env["LOCALAPPDATA"], "hermes", "git")',
                      'ntpath.join(env["LOCALAPPDATA"], "huntington", "git")'),),
     "hermes_cli/gateway_windows.py": (('_TASK_NAME_DEFAULT = "Hermes_Gateway"', '_TASK_NAME_DEFAULT = "Huntington_Gateway"'),),
+    # Exact command literals stay `hermes` (argv matchers); these three are shown to the user, or run
+    # where pyproject publishes `huntington` beside `hermes`.
+    "hermes_cli/config.py": (('_UPDATE_COMMAND_BY_METHOD.get(method, "hermes update")',
+                              '_UPDATE_COMMAND_BY_METHOD.get(method, "huntington update")'),),
+    "hermes_cli/web_routers/memory_providers.py": (('command = "hermes pm install"', 'command = "huntington pm install"'),),
+    "hermes_cli/service_manager.py": (('gateway_cmd = "hermes gateway run --replace"',
+                                       'gateway_cmd = "huntington gateway run --replace"'),),
     "scripts/install.sh": (
         ('"│             ☤ Hermes Agent Installer                    │"', '"│               ◆ HUNTINGTON-AGENT Installer              │"'),
         ('"│  An open source AI agent by Nous Research.              │"', '"│               A terminal AI agent by HIP.               │"'),
@@ -177,10 +184,14 @@ def _rewrite_python_strings(source: str) -> str:
                 end = offsets[tok.end[0] - 1] + tok.end[1]
                 edits.append((start, end, head + new_body + quote))
         elif fstring_middle is not None and tok.type == fstring_middle:
-            new = rewrite_text(tok.string)
+            start = offsets[tok.start[0] - 1] + tok.start[1]
+            end = offsets[tok.end[0] - 1] + tok.end[1]
+            # f"hermes {profile}auth add ...": the span stops before the replacement field, so the
+            # command rule sees the `{` that follows only when it is passed along.
+            follows = "{" if tok.string[-1:].isspace() and source[end:end + 1] == "{" else ""
+            new = rewrite_text(tok.string + follows)
+            new = new[:len(new) - len(follows)]
             if new != tok.string:
-                start = offsets[tok.start[0] - 1] + tok.start[1]
-                end = offsets[tok.end[0] - 1] + tok.end[1]
                 # FSTRING_MIDDLE renders doubled braces as single ones; only rewrite brace-free spans.
                 if source[start:end] == tok.string:
                     edits.append((start, end, new))
