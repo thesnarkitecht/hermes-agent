@@ -74,6 +74,8 @@ _PY_SOURCE_RULES: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r'(/\s*)"hermes-agent"(?=\s*[)/,\n])'), r'\1"huntington-agent"'),
     (re.compile(r'((?:local_appdata|LOCALAPPDATA"\])\s*,\s*)"hermes"(?=\s*[,)])'), r'\1"huntington"'),
     (re.compile(r'("huntington"\s*,\s*)"hermes-agent"(?=\s*[,)])'), r'\1"huntington-agent"'),
+    # argparse program names are display text, never executed.
+    (re.compile(r'(\bprog\s*=\s*)"hermes(?=[ "])'), r'\1"huntington'),
 )
 _SHELL_SOURCE_RULES: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\$HERMES_HOME/hermes-agent\b"), "$HERMES_HOME/huntington-agent"),

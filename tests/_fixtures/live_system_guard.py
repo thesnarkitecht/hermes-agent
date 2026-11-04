@@ -186,6 +186,7 @@ def _live_system_guard(request, monkeypatch):
     # ── Subprocess command-string inspection (whole-line) ──────────
     _HERMES_TOKENS = (
         "huntington-gateway",
+        "huntington-gateway",
         "hermes.service",
         "hermes_cli.main gateway",
         "hermes_cli/main.py gateway",
@@ -259,7 +260,7 @@ def _live_system_guard(request, monkeypatch):
         name = word.rsplit("/", 1)[-1].lower()
         for suffix in (".service", ".timer", ".socket"):
             name = name.removesuffix(suffix)
-        return name == "hermes" or name.startswith("hermes-")
+        return name in ("hermes", "huntington") or name.startswith(("hermes-", "huntington-"))
 
     def _is_blocked_systemctl(cmd) -> bool:
         cmd_str = _cmd_to_string(cmd)

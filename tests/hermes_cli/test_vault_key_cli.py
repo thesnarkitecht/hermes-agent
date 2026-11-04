@@ -37,7 +37,7 @@ def hermes(tmp_path, monkeypatch):
     keyring.set_keyring(backend)
     from hermes_cli.subcommands.vault import build_vault_parser
 
-    parser = argparse.ArgumentParser(prog="hermes")
+    parser = argparse.ArgumentParser(prog="huntington")
     build_vault_parser(parser.add_subparsers())
 
     def run(*argv):

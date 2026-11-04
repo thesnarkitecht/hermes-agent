@@ -668,7 +668,6 @@ website/src
 website/tsconfig.json
 website/static/.nojekyll
 website/static/img
-website/static/oauth
 contributors
 evals
 plugins/hermes-achievements

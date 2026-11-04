@@ -228,3 +228,14 @@ def test_serve_unit_validator_accepts_huntington_units():
     from hermes_cli.update_restart_recovery import _UNIT_RE
 
     assert _UNIT_RE.fullmatch("huntington-serve.service") and _UNIT_RE.fullmatch("huntington-dashboard-ops.service")
+
+
+def test_profile_alias_wrappers_start_huntington_and_are_recognised(tmp_path, monkeypatch):
+    from hermes_cli import profiles
+
+    monkeypatch.setattr(profiles, "_get_wrapper_dir", lambda: tmp_path)
+    monkeypatch.setattr(profiles, "_wrapper_path", lambda name: tmp_path / name)
+    wrapper = profiles.create_wrapper_script("ops")
+    assert wrapper is not None and "huntington" in wrapper.read_text() and " -p ops" in wrapper.read_text()
+    assert profiles._is_our_wrapper(wrapper)
+    assert profiles.build_alias_map().get("ops") == "ops"
