@@ -719,7 +719,7 @@ def test_env_shadowed_reapply_keeps_home_snapshot(tmp_path, monkeypatch, _fresh_
     lifetime under multiplex."""
     from agent.secret_scope import build_profile_secret_scope
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text("secrets:\n  fakebulk:\n    enabled: true\n", encoding="utf-8")
     monkeypatch.setenv("HERMES_HOME", str(home))
@@ -741,7 +741,7 @@ def test_env_shadowed_reapply_keeps_home_snapshot(tmp_path, monkeypatch, _fresh_
 def test_home_scoped_reset_preserves_sibling_snapshot(tmp_path, monkeypatch, _fresh_registry):
     """A cron fire / discovery refresh for one profile resets only THAT home: a multiplex sibling's
     hydrated snapshot stays intact instead of running empty until it re-hydrates."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     sibling = home / "profiles" / "b"
     sibling.mkdir(parents=True)
     for h in (home, sibling):

@@ -70,7 +70,7 @@ def free_port() -> int:
 def hermetic_env(home: Path, extra: dict[str, str] | None = None) -> dict[str, str]:
     """Child env: fake HOME (profile-root anchor) + HERMES_HOME under it, nothing credential-shaped."""
     home = home.resolve()
-    assert home != real_user_home() and not str(home).startswith(str(real_user_home() / ".hermes" / "profiles")), home
+    assert home != real_user_home() and not str(home).startswith(str(real_user_home() / ".huntington" / "profiles")), home
     env = {k: v for k, v in os.environ.items()
            if not (k.endswith(_STRIP_SUFFIXES) or k.startswith(_STRIP_PREFIXES))}
     for var in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy",
@@ -79,7 +79,7 @@ def hermetic_env(home: Path, extra: dict[str, str] | None = None) -> dict[str, s
         env.pop(var, None)
     env.update(
         HOME=str(home),
-        HERMES_HOME=str(home / ".hermes"),
+        HERMES_HOME=str(home / ".huntington"),
         XDG_STATE_HOME=str(home / ".local" / "state"),
         PYTHONPATH=str(REPO_ROOT),
         NO_COLOR="1",
@@ -141,7 +141,7 @@ class Sandbox:
 
     @property
     def hermes_home(self) -> Path:
-        return self.home / ".hermes"
+        return self.home / ".huntington"
 
     def env(self, extra: dict[str, str] | None = None) -> dict[str, str]:
         return hermetic_env(self.home, extra)
@@ -208,7 +208,7 @@ def make_sandbox(root: Path, names: tuple[str, ...] = ("default",),
                  responder: Callable[[Profile], Any] | None = None) -> Sandbox:
     """Launch profile at HOME/.hermes, the rest under profiles/<name>; each owns a started provider
     that accepts only its own key, so every recorded request proves WHO sent it."""
-    hermes_home = root / "home" / ".hermes"
+    hermes_home = root / "home" / ".huntington"
     profiles: dict[str, Profile] = {}
     _reaper.adopt_orphans()  # before any spawn: every detached descendant stays reapable
     for name in names:

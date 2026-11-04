@@ -10,7 +10,7 @@ def test_secondary_worker_env_drops_launch_terminal_policy_and_env_settings(tmp_
     env a standalone ``hermes -p X`` gateway would build — X's HERMES_HOME and X's ``.env`` over a
     base without the launch profile's ``TERMINAL_*`` policy or launch-only ``.env`` settings."""
     from gateway.session_managed_worker import _worker_env
-    root = tmp_path / '.hermes'
+    root = tmp_path / '.huntington'
     beta = root / 'profiles' / 'beta'
     beta.mkdir(parents=True)
     (root / '.env').write_text('HERMES_MODEL=launch-model\nTERMINAL_ENV=docker\n')
@@ -37,7 +37,7 @@ def test_launch_scrub_runs_before_the_turn_context_is_injected(tmp_path, monkeyp
     from gateway.run import _profile_runtime_scope
     from gateway.session_context import scoped_current_session_id
     from gateway.session_managed_worker import _worker_env
-    root = tmp_path / '.hermes'
+    root = tmp_path / '.huntington'
     beta = root / 'profiles' / 'beta'
     beta.mkdir(parents=True)
     (root / '.env').write_text('HERMES_SESSION_ID=launch-session\nLAUNCH_ONLY=launch-value\n')

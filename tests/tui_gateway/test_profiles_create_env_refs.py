@@ -21,7 +21,7 @@ def _ok(method: str, params: dict) -> dict:
 
 
 def test_new_bot_config_keeps_launch_env_refs_not_their_values(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(home))

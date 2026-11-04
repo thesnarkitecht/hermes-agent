@@ -23,7 +23,7 @@ def _make_skill(skills_dir: Path, name: str) -> Path:
 @pytest.fixture
 def lock_env(tmp_path, monkeypatch):
     """Isolated HERMES_HOME with freshly reloaded modules (same shape as test_curator_pin_visibility)."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     skills = home / "skills"
     skills.mkdir(parents=True)
     monkeypatch.setattr(Path, "home", lambda: tmp_path)

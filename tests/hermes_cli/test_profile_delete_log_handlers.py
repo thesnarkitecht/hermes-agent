@@ -23,7 +23,7 @@ from hermes_constants import reset_hermes_home_override, set_hermes_home_overrid
 def routed_profile(tmp_path, monkeypatch):
     """A default home logging in-process plus a created profile; host services are not touched."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(profiles, "_cleanup_gateway_service", lambda *_: None)

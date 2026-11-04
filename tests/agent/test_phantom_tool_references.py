@@ -101,7 +101,7 @@ class TestEssentialOnlySync:
         """A profile with .no-bundled-skills still gets the hermes-agent skill."""
         import tools.skills_sync as ss
 
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         home.mkdir()
         (home / ss.NO_BUNDLED_SKILLS_MARKER).write_text("", encoding="utf-8")
 

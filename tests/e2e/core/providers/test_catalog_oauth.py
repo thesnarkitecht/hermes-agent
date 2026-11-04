@@ -44,10 +44,10 @@ CREDENTIAL_FREE_HOSTS = frozenset({"models.dev:443"})
 KNOWN: dict[str, Known] = {
     "device_interval": Known(
         r"^device poll gap \d+\.\d+s < server interval",
-        "#121163 Nous device-code login polls at 1s, ignoring the server's interval"),
+        "#121163 HIP device-code login polls at 1s, ignoring the server's interval"),
     "nous_401_retry_route": Known(
         r"^401 recovery retry left NOUS_INFERENCE_BASE_URL: egress to \[[^\]]*'inference-api\.nousresearch\.com:443'",
-        "#121323 Nous 401 pool recovery retries on the stored production host, "
+        "#121323 HIP 401 pool recovery retries on the stored production host, "
         "dropping the NOUS_INFERENCE_BASE_URL override"),
 }
 
@@ -61,7 +61,7 @@ _SECRET_SUFFIXES = ("_API_KEY", "_TOKEN", "_SECRET", "_ACCESS_KEY")
 class Home:
     def __init__(self, root: Path, sentinel: CatalogFake, provider: str, model: str, base_url: str = "") -> None:
         self.home = root / "home"
-        self.hermes_home = self.home / ".hermes"
+        self.hermes_home = self.home / ".huntington"
         self.hermes_home.mkdir(parents=True)
         self.sentinel = sentinel
         (self.hermes_home / "config.yaml").write_text(

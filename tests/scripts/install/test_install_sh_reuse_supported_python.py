@@ -72,7 +72,7 @@ def _environment(tmp_path: Path) -> tuple[Path, Path, dict[str, str]]:
         assert real, f"the shell bootstrap requires {tool}"
         (bin_dir / tool).symlink_to(real)
     env = {**os.environ, "HOME": str(tmp_path / "home"),
-           "HERMES_HOME": str(tmp_path / "home/.hermes"),
+           "HERMES_HOME": str(tmp_path / "home/.huntington"),
            "HERMES_RUNTIME_DIR": str(tmp_path / "tools"),
            "UV_PYTHON_INSTALL_DIR": str(tmp_path / "managed-python"),
            "UV_CACHE_DIR": str(tmp_path / "uv-cache"), "UV_OFFLINE": "1",

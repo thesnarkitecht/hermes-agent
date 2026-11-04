@@ -35,7 +35,7 @@ def _make_gui_build(hermes_home: Path) -> None:
 
 
 def test_gui_install_summary_shape(tmp_path, monkeypatch):
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     _make_agent(hermes_home)
     _make_gui_build(hermes_home)
     monkeypatch.setattr(gu, "packaged_gui_app_paths", list)
@@ -70,7 +70,7 @@ def test_uninstall_removes_launcher_entry_and_refreshes_cache(tmp_path, monkeypa
         lde, "refresh_desktop_databases", lambda d: refreshed.append(d) or ["kbuildsycoca6"]
     )
 
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     _make_agent(hermes_home)
     icon = lde.icon_path(hermes_home / "hermes-agent")
     icon.parent.mkdir(parents=True, exist_ok=True)

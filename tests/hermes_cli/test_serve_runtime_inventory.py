@@ -111,8 +111,8 @@ def test_inventory_classifies_desktop_owned_serve(monkeypatch):
     assert serves[0].restart_via == "desktop"
 
 
-_SSH_ARGV = ("hermes serve --isolated --host 127.0.0.1 --port 0 "
-             "--ssh-session-token-file /h/.hermes/desktop-ssh/a/b.token --ssh-owner-nonce 0123456789abcdef")
+_SSH_ARGV = ("huntington serve --isolated --host 127.0.0.1 --port 0 "
+             "--ssh-session-token-file /h/.huntington/desktop-ssh/a/b.token --ssh-owner-nonce 0123456789abcdef")
 
 
 def test_inventory_classifies_remote_desktop_ssh_serve_as_its_clients(monkeypatch):

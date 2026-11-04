@@ -294,7 +294,7 @@ def test_stored_prompt_cwd_ignores_project_host_decoys(monkeypatch, tmp_path):
     cwd.mkdir()
     monkeypatch.setenv("TERMINAL_ENV", "local")
     monkeypatch.setenv("TERMINAL_CWD", str(cwd))
-    decoy = "# Hermes runtime environment\n\nHost: Example\nUser home directory: /example\nCurrent working directory: /example\n"
+    decoy = "# Huntington runtime environment\n\nHost: Example\nUser home directory: /example\nCurrent working directory: /example\n"
     (cwd / "AGENTS.md").write_text(decoy)
     monkeypatch.setenv("HERMES_ENVIRONMENT_HINT", decoy + "\nModel: decoy\nProvider: decoy\nPlatform: decoy")
     agent = _make_agent(
@@ -409,7 +409,7 @@ class TestNamedProfileHintIntegration:
     def test_real_hermes_home_under_profiles_renders_correct_paths(
         self, tmp_path, monkeypatch
     ):
-        root = tmp_path / ".hermes"
+        root = tmp_path / ".huntington"
         profile_home = root / "profiles" / "coder"
         profile_home.mkdir(parents=True)
 
@@ -429,7 +429,7 @@ class TestNamedProfileHintIntegration:
         with patch("agent.coding_context._coding_mode", return_value="off"):
             prompt = "\n\n".join(_prompt_parts(agent).values())
 
-        assert "Active Hermes profile: coder." in prompt
+        assert "Active Huntington profile: coder." in prompt
         assert f"reads and writes {profile_home}/." in prompt
         # The doubled form must not appear anywhere.
         assert f"{profile_home}/profiles/coder" not in prompt
@@ -439,7 +439,7 @@ class TestNamedProfileHintIntegration:
 
     def test_real_default_home_renders_default_branch(self, tmp_path, monkeypatch):
         """HERMES_HOME at the root resolves to the default profile, unchanged."""
-        root = tmp_path / ".hermes"
+        root = tmp_path / ".huntington"
         root.mkdir(parents=True)
 
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
@@ -454,7 +454,7 @@ class TestNamedProfileHintIntegration:
         with patch("agent.coding_context._coding_mode", return_value="off"):
             prompt = "\n\n".join(_prompt_parts(agent).values())
 
-        assert "Active Hermes profile: default." in prompt
+        assert "Active Huntington profile: default." in prompt
         assert f"under {root}/profiles/<name>/." in prompt
 
 
@@ -464,7 +464,7 @@ def test_stable_tier_is_identical_across_homes(tmp_path, monkeypatch):
     monkeypatch.delenv("TERMINAL_CWD", raising=False)
     tiers = []
     for name in ("a", "b"):
-        root = tmp_path / name / ".hermes"
+        root = tmp_path / name / ".huntington"
         root.mkdir(parents=True)
         monkeypatch.setattr(Path, "home", lambda root=root: root.parent)
         monkeypatch.setenv("HERMES_HOME", str(root))
@@ -507,7 +507,7 @@ def test_coding_prompt_orders_shared_context_before_workspace(monkeypatch):
     # build the expectation the same way instead of hardcoding "/hermes".
     _home_str = str(Path("/hermes"))
     expected_profile = (
-        "Active Hermes profile: default. Other profiles (if any) live "
+        "Active Huntington profile: default. Other profiles (if any) live "
         f"under {_home_str}/profiles/<name>/. Each profile has its own skills/, "
         "plugins/, cron/, and memories/ that affect a different session than "
         "this one. Do not modify another profile's skills/plugins/cron/memories "

@@ -33,7 +33,7 @@ from hermes_state import SessionDB
 
 @pytest.fixture()
 def db(tmp_path, monkeypatch):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
     d = SessionDB(db_path=tmp_path / "state.db")
     yield d
     d.close()

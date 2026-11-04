@@ -56,7 +56,7 @@ def _interruptible_wait(agent: Any, seconds: float) -> bool:
             return False
         time.sleep(min(0.2, max(0.0, deadline - time.monotonic())))
         if time.monotonic() >= next_touch:
-            agent._touch_activity("waiting out a Nous 401 on a valid key")
+            agent._touch_activity("waiting out a HIP 401 on a valid key")
             next_touch = time.monotonic() + _ACTIVITY_TOUCH_S
     return True
 
@@ -88,7 +88,7 @@ def _retry_after_backoff(agent: Any, pool: Any, episode: dict[str, Any], *, fail
         "retrying in %.0fs (backoff %s/%s, no further refresh)",
         entry_id, wait, step + 1, len(TRANSIENT_AUTH_BACKOFF_S))
     agent._vprint(
-        f"{agent.log_prefix}🔐 Nous rejected a still-valid key (transient); retrying in {wait:.0f}s...",
+        f"{agent.log_prefix}🔐 HIP rejected a still-valid key (transient); retrying in {wait:.0f}s...",
         force=True, diagnostic=True)
     if not _interruptible_wait(agent, wait):
         # Not recovered: the caller's interrupt check then aborts (or redirects) the turn. A

@@ -166,7 +166,7 @@ def test_doctor_does_not_copy_home_with_a_plugin_checkout(
     from hermes_cli import plugin_dev
 
     home = tmp_path / "fake-home"
-    (home / ".hermes" / "cache" / "scratch").mkdir(parents=True)
+    (home / ".huntington" / "cache" / "scratch").mkdir(parents=True)
     plugin = home / "plugin-checkout"
     plugin.mkdir()
     (plugin / "plugin.yaml").write_text("name: checkout\n", encoding="utf-8")

@@ -163,8 +163,8 @@ class TestCredentialExclusion:
         )
 
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
-        (tmp_path / ".hermes").mkdir()
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+        (tmp_path / ".huntington").mkdir()
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
         stores = _seed_stores(tmp_path / "v1") | {"auth.json.corrupt", ".env.bak-20260928T084018Z",
                                                   "config.yaml.bak-20260928T084018Z"}
         for copy in ("auth.json.corrupt", ".env.bak-20260928T084018Z", "config.yaml.bak-20260928T084018Z"):
@@ -294,7 +294,7 @@ class TestExportSecretScrub:
 def profile_env(tmp_path, monkeypatch):
     """Point the home folder and HERMES_HOME into tmp_path, as test_profiles.py does."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    default_home = tmp_path / ".hermes"
+    default_home = tmp_path / ".huntington"
     default_home.mkdir(exist_ok=True)
     monkeypatch.setenv("HERMES_HOME", str(default_home))
     return tmp_path
@@ -306,7 +306,7 @@ def test_clone_all_does_not_share_the_source_webapp_browser_credential(profile_e
     from gateway.webapp_listener import TOKEN_PATH, browser_session_token
     from hermes_cli.profiles import create_profile
 
-    default_home = profile_env / ".hermes"
+    default_home = profile_env / ".huntington"
     (default_home / "config.yaml").write_text("model: test", encoding="utf-8")
     source_token = browser_session_token(default_home)
 
@@ -326,7 +326,7 @@ def test_clone_all_leaves_the_source_gateways_webapp_sign_in_state_behind(profil
     from hermes_cli.profiles import create_profile
     from hermes_cli.webapp_sign_in import RECORD_PATH
 
-    default_home = profile_env / ".hermes"
+    default_home = profile_env / ".huntington"
     (default_home / "config.yaml").write_text("model: test", encoding="utf-8")
     (default_home / RECORD_PATH).parent.mkdir(parents=True)
     (default_home / RECORD_PATH).write_text('{"' + "d" * 64 + '": 4102444800}\n', encoding="utf-8")

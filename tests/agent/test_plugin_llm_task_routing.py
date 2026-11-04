@@ -430,7 +430,7 @@ class TestOwnershipIntegration:
         from agent import auxiliary_client as auxiliary_mod
         from hermes_cli import config as config_mod
 
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir()
         (hermes_home / "config.yaml").write_text(
             """
@@ -513,7 +513,7 @@ auxiliary:
     def test_sync_fallback_reports_the_successful_route(self, tmp_path, monkeypatch):
         from hermes_cli import config as config_mod
 
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir()
         (hermes_home / "config.yaml").write_text(
             """
@@ -561,7 +561,7 @@ auxiliary:
     def test_async_fallback_reports_the_successful_route(self, tmp_path, monkeypatch):
         from hermes_cli import config as config_mod
 
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir()
         (hermes_home / "config.yaml").write_text(
             """

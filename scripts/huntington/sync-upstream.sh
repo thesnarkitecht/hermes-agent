@@ -7,8 +7,10 @@
 # Every path in huntington/removed-paths.txt is deleted again after the merge. That turns the
 # modify/delete conflicts upstream's edits would cause into automatic resolutions, and also drops
 # any new file upstream adds under a removed directory. Files in huntington/fork-owned-paths.txt
-# keep the fork's version on conflict. Conflicts in other files the fork edits (the
-# rebrand, the CLI-only switch) are left for you to resolve; the script stops and lists them.
+# keep the fork's version on conflict. scripts/huntington/rebrand.py is re-run over the merged tree,
+# and a conflict the rebrand alone causes is re-merged with upstream's side rebranded. Conflicts
+# that remain (an upstream change next to one of the fork's hooks) are left for you to resolve;
+# the script stops and lists them.
 set -euo pipefail
 
 root=$(git rev-parse --show-toplevel)
@@ -49,17 +51,42 @@ keep_fork_owned() {
     done
 }
 
+python_bin=${HERMES_PYTHON:-$( [ -x .venv/bin/python ] && echo .venv/bin/python || command -v python3 )}
+rebrand() { "$python_bin" scripts/huntington/rebrand.py "$@"; }
+
+# Re-merge a conflicted file with the rebrand applied to upstream's side and to the merge base,
+# so a conflict the rebrand alone causes (upstream edited a line the fork rebranded) resolves.
+remerge_rebranded() {
+    local path tmp
+    git diff --name-only --diff-filter=U | while IFS= read -r path; do
+        git cat-file -e ":1:$path" 2>/dev/null && git cat-file -e ":2:$path" 2>/dev/null \
+            && git cat-file -e ":3:$path" 2>/dev/null || continue
+        tmp=$(mktemp -d)
+        git show ":2:$path" > "$tmp/ours"
+        git show ":1:$path" | rebrand --stdin "$path" > "$tmp/base"
+        git show ":3:$path" | rebrand --stdin "$path" > "$tmp/theirs"
+        if git merge-file -q "$tmp/ours" "$tmp/base" "$tmp/theirs"; then
+            cp "$tmp/ours" "$path" && git add -- "$path"
+        fi
+        rm -rf "$tmp"
+    done
+}
+
 merge_status=0
 git merge --no-ff --no-commit "upstream/$upstream_branch" || merge_status=$?
 remove_paths
 keep_fork_owned
+remerge_rebranded
+# New upstream text arrives in Hermes/Nous wording and ~/.hermes paths; rebrand it like the rest.
+rebrand
+git diff --name-only --diff-filter=U | grep -q . || git add -u
 
 unresolved=$(git diff --name-only --diff-filter=U || true)
 if [ -n "$unresolved" ]; then
     echo
     echo "Upstream merged; removed paths re-deleted. These files still need a manual resolution:"
     echo "$unresolved" | sed 's/^/  /'
-    echo "Resolve them, 'git add' them, then: git commit"
+    echo "Resolve them, then: git add -u && python scripts/huntington/rebrand.py --check && git commit"
     exit 1
 fi
 

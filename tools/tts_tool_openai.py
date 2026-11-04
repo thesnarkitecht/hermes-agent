@@ -52,7 +52,7 @@ def _resolve_openai_audio_client_config() -> tuple[str, str, bool]:
         if route is None:
             raise ValueError(selection_error(
                 "tts", NOUS_MANAGED_PROVIDER,
-                "the Nous Tool Gateway is not available (not entitled or unreachable)"))
+                "the HIP Tool Gateway is not available (not entitled or unreachable)"))
         return route
     direct_api_key = openai_cfg.get("api_key") or resolve_openai_audio_api_key()
     if direct_api_key:
@@ -152,7 +152,7 @@ def _generate_deepinfra_tts(text: str, output_path: str, tts_config: dict[str, A
     delegate to the OpenAI-compatible handler."""
     api_key = _origin()._resolve_provider_key("DEEPINFRA_API_KEY", "deepinfra")
     if not api_key:
-        raise ValueError("DEEPINFRA_API_KEY not set. Run `hermes setup` to configure, or set the env var directly.")
+        raise ValueError("DEEPINFRA_API_KEY not set. Run `huntington setup` to configure, or set the env var directly.")
     di_config = _section(tts_config, "deepinfra")
     from hermes_cli.models import deepinfra_base_url, deepinfra_model_ids
     model = di_config.get("model")

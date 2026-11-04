@@ -621,7 +621,7 @@ class ClientLifecycleMixin:
                 timeout_seconds=timeout, force_refresh=force, stale_access_token=self.api_key or None,
             )
         except Exception as exc:
-            logger.debug("Nous credential refresh failed: %s", exc)
+            logger.debug("HIP credential refresh failed: %s", exc)
             return False
         api_key, base_url = creds.get("api_key"), creds.get("base_url")
         if not _valid_credential_pair(api_key, base_url):
@@ -637,7 +637,7 @@ class ClientLifecycleMixin:
                 new_account = None
             if str(new_account or "") != require_account:
                 logger.info(
-                    "Nous pre-expiry adoption skipped: the store's key belongs to a different account "
+                    "HIP pre-expiry adoption skipped: the store's key belongs to a different account "
                     "than the one in hand; keeping the current credential."
                 )
                 return False
@@ -683,7 +683,7 @@ class ClientLifecycleMixin:
         try:
             return self._try_refresh_nous_client_credentials(force=False, require_account=str(account))
         except Exception:
-            logger.debug("Nous key pre-expiry adoption failed", exc_info=True)
+            logger.debug("HIP key pre-expiry adoption failed", exc_info=True)
             return False
 
 

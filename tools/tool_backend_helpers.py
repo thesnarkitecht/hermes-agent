@@ -29,7 +29,7 @@ def managed_nous_tools_enabled(*, force_fresh: bool = False) -> bool:
         return False
 
 
-def nous_tool_gateway_unavailable_message(capability: str = "the Nous Tool Gateway", *,
+def nous_tool_gateway_unavailable_message(capability: str = "the HIP Tool Gateway", *,
                                           force_fresh: bool = False) -> str:
     """Return account-aware guidance for an unavailable Nous Tool Gateway path."""
     try:
@@ -42,8 +42,8 @@ def nous_tool_gateway_unavailable_message(capability: str = "the Nous Tool Gatew
             return message
     except Exception:
         pass
-    return (f"{capability} is unavailable. Run `hermes model` to refresh your "
-            "Nous Portal login and billing status.")
+    return (f"{capability} is unavailable. Run `huntington model` to refresh your "
+            "HIP Portal login and billing status.")
 
 
 def normalize_browser_cloud_provider(value: object | None) -> str:
@@ -296,7 +296,7 @@ def selection_error(section: str, selection_name: str, failure: str) -> str:
     """The uniform honest-error contract for a selected-but-broken provider."""
     failure = removed_backend_note(section, selection_name) or failure
     return (f"{section} is configured to use {selection_name} (set via hermes "
-            f"tools), but {failure}. Run 'hermes tools' to change it.")
+            f"tools), but {failure}. Run 'huntington tools' to change it.")
 
 
 def fal_key_is_configured() -> bool:

@@ -35,7 +35,7 @@ async def _connect(tmp_path, monkeypatch, *, native=True, config=None):
     from gateway.session_controls import AuthorityConnection
     from tui_gateway import server
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     if config:
         (home / "config.yaml").write_text(config, encoding="utf-8")

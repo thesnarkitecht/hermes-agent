@@ -16,7 +16,7 @@ from agent import secret_scope
 
 
 def _named_profile(tmp_path, monkeypatch, *, key_env: bool, dotenv: str = "", model_extra=None):
-    home = tmp_path / ".hermes" / "profiles" / "beta"
+    home = tmp_path / ".huntington" / "profiles" / "beta"
     home.mkdir(parents=True)
     model = {"default": "fake-model", "provider": "custom", "base_url": "http://127.0.0.1:18991/v1", **(model_extra or {})}
     entry = {"name": "FakeUp", "base_url": "http://127.0.0.1:18991/v1"}

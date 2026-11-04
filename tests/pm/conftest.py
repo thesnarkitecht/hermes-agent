@@ -19,7 +19,7 @@ def isolated_machine_home(request, tmp_path, monkeypatch):
     """
     if request.node.get_closest_marker("real_machine_home"):
         return
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(exist_ok=True)
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))

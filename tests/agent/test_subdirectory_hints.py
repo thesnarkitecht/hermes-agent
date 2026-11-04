@@ -422,7 +422,7 @@ class TestHomeWorkingDirGuard:
     def home_tree(self, tmp_path, monkeypatch):
         """A fake $HOME holding unrelated hint files across its subtree."""
         monkeypatch.setenv("HOME", str(tmp_path))  # Path.home() reads os.environ on macOS fallback
-        for rel in ("notes/AGENTS.md", ".hermes/AGENTS.md", ".hermes/skills/s1/AGENTS.md",
+        for rel in ("notes/AGENTS.md", ".huntington/AGENTS.md", ".huntington/skills/s1/AGENTS.md",
                     "projects/whatever/CLAUDE.md"):
             p = tmp_path / rel
             p.parent.mkdir(parents=True, exist_ok=True)
@@ -435,7 +435,7 @@ class TestHomeWorkingDirGuard:
     def test_home_cwd_never_injects_subtree_hints(self, home_tree):
         tracker = self._home_tracker(home_tree)
         assert tracker.check_tool_call(
-            "read_file", {"path": str(home_tree / ".hermes" / "skills" / "s1" / "x.py")}
+            "read_file", {"path": str(home_tree / ".huntington" / "skills" / "s1" / "x.py")}
         ) is None
         assert tracker.check_tool_call(
             "terminal", {"command": f"cat {home_tree / 'notes' / 'AGENTS.md'}"}
@@ -472,7 +472,7 @@ class TestHomeWorkingDirGuard:
         tracker = self._home_tracker(home_tree)
         tracker.rebind_working_dir(str(project))
         assert tracker.check_tool_call(
-            "read_file", {"path": str(home_tree / ".hermes" / "skills" / "s1" / "x.py")}
+            "read_file", {"path": str(home_tree / ".huntington" / "skills" / "s1" / "x.py")}
         ) is None
 
     def test_real_project_cwd_keeps_discovery(self, home_tree):

@@ -15,7 +15,7 @@ import pytest
 @pytest.fixture
 def running_child_with_parent(monkeypatch, tmp_path):
     """A claimed (running) child whose parent is NOT done. Returns ids."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setenv("HERMES_PROFILE", "test-worker")

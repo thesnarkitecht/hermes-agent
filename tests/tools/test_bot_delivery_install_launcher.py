@@ -26,7 +26,7 @@ def launchers(tmp_path, monkeypatch):
     sibling = old_bin / name
     sibling.touch()
     monkeypatch.setattr(sys, "executable", str(old_bin / "python"))
-    published = root / ".hermes" / "bin" / name
+    published = root / ".huntington" / "bin" / name
     published.parent.mkdir(parents=True)
     return published, sibling
 
@@ -92,7 +92,7 @@ def test_real_delivery_launcher_imports_new_generation(tmp_path, monkeypatch):
         "activate_dependencies(Path(__file__).resolve().parent)\n", encoding="utf-8")
     runtime = tmp_path / "runtime"
     monkeypatch.setenv("HERMES_RUNTIME_DIR", str(runtime))
-    out = root / ".hermes" / "bin"
+    out = root / ".huntington" / "bin"
     out.mkdir(parents=True)
     published = _launchers.mint_launcher("hermes", root, out, real_python, None)
     assert published is not None

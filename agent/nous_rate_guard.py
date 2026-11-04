@@ -40,7 +40,7 @@ def _state_path(*, anonymous: bool = False) -> str:
         from hermes_constants import get_hermes_home
         base = get_hermes_home()
     except ImportError:
-        base = os.path.join(os.path.expanduser("~"), ".hermes")
+        base = os.path.join(os.path.expanduser("~"), ".huntington")
     # Signing in must not inherit the anonymous allowance's cooldown (or clear it for
     # another anonymous session). Keep the existing named-account file unchanged.
     return os.path.join(base, "rate_limits", "nous-anonymous.json" if anonymous else "nous.json")
@@ -82,9 +82,9 @@ def record_nous_rate_limit(
     state = {"reset_at": reset_at, "recorded_at": now, "reset_seconds": reset_at - now}
     try:
         atomic_write_text(_state_path(anonymous=anonymous), json.dumps(state))
-        logger.info("Nous rate limit recorded: resets in %.0fs (at %.0f)", reset_at - now, reset_at)
+        logger.info("HIP rate limit recorded: resets in %.0fs (at %.0f)", reset_at - now, reset_at)
     except Exception as exc:
-        logger.debug("Failed to write Nous rate limit state: %s", exc)
+        logger.debug("Failed to write HIP rate limit state: %s", exc)
 
 
 def nous_rate_limit_remaining(*, anonymous: bool = False) -> Optional[float]:
@@ -110,7 +110,7 @@ def clear_nous_rate_limit(*, anonymous: bool = False) -> None:
     except FileNotFoundError:
         pass
     except OSError as exc:
-        logger.debug("Failed to clear Nous rate limit state: %s", exc)
+        logger.debug("Failed to clear HIP rate limit state: %s", exc)
 
 
 def _is_exhausted(remaining: Optional[int], reset: Optional[float]) -> bool:

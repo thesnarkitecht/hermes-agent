@@ -31,7 +31,7 @@ def test_dmg_driver_requires_complete_pm_source_install(tmp_path, missing, expec
         (root / "pm/lock.json").write_text("{}", encoding="utf-8")
     if missing != "checkout":
         (root / ".git").mkdir()
-    launcher = root / ".hermes/bin/hermes"
+    launcher = root / ".huntington/bin/hermes"
     if missing not in {"launcher", "legacy"}:
         launcher.parent.mkdir(parents=True)
         launcher.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
@@ -57,13 +57,13 @@ def test_dmg_driver_requires_complete_pm_source_install(tmp_path, missing, expec
         command = mocks / name
         command.write_text(script, encoding="utf-8")
         command.chmod(0o755)
-    app_bin = tmp_path / "Hermes-Setup"
+    app_bin = tmp_path / "Huntington-Setup"
     app_bin.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
     app_bin.chmod(0o755)
     home = tmp_path / "home"
     home.mkdir()
     if missing not in {"completion", "marker-only"}:
-        logs = home / ".hermes/logs"
+        logs = home / ".huntington/logs"
         logs.mkdir(parents=True)
         logged_root = tmp_path / "other-install" if missing == "wrong-root-log" else root
         (logs / "bootstrap-installer.log").write_text(

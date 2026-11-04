@@ -96,17 +96,18 @@ def installation_command(repo_root: Path, args=(), *, module: str = "hermes_cli.
     if resolve_store_python(root) is None:
         return runtime_command(root, args, module=module, python=python, home=home)
     prefix = [] if module == "hermes_cli.main" else ["--run-module", module]
-    return [str(root / ".hermes" / "bin" / "hermes"), *prefix, *args]
+    return [str(root / ".huntington" / "bin" / "hermes"), *prefix, *args]
 
 #: Launcher command names — keep in lockstep with scripts/install.ps1
 #: Publish-UserCommand and hermes_cli/_install_repair.py.
-WINDOWS_BIN_LAUNCHERS = ("hermes", "hermes-acp")
+WINDOWS_BIN_LAUNCHERS = ("hermes", "hermes-acp", "huntington")  # huntington: HUNTINGTON-AGENT command
 
 #: command name -> (entry module, callable) — mirrors pyproject.toml
 #: [project.scripts].
 ENTRY_POINTS = {
     "hermes": ("hermes_cli.main", "main"),
     "hermes-acp": ("acp_adapter.entry", "main"),
+    "huntington": ("hermes_cli.main", "main"),
 }
 
 
@@ -430,13 +431,13 @@ def _hermes_closure_repair():
             from hermes_cli import _early_recovery
             restored = _early_recovery.restore_interrupted_pull(root)
     except Exception as exc:
-        said.write('hermes: the checkout cannot start after an interrupted `hermes update`, and it was not '
+        said.write('hermes: the checkout cannot start after an interrupted `huntington update`, and it was not '
                    'repaired: %s\\n' % (exc,))
     if restored:
-        sys.stderr.write('hermes: the checkout could not start after an interrupted `hermes update`; '
+        sys.stderr.write('hermes: the checkout could not start after an interrupted `huntington update`; '
                          'repaired it with the recovery code saved before the update.\\n' + said.getvalue())
         _early_recovery.relaunch_after_restore()
-    sys.stderr.write(said.getvalue() or 'hermes: the checkout cannot start after an interrupted `hermes update`; '
+    sys.stderr.write(said.getvalue() or 'hermes: the checkout cannot start after an interrupted `huntington update`; '
                      'launch again once the update that owns it finishes.\\n')
     raise SystemExit(1)
 """
@@ -547,7 +548,7 @@ def _owns_launcher(target: Path, root: Path) -> bool:
     paths = {str(root / p) for p in (
         "hermes", "run_agent.py", "venv/bin/python", "venv/bin/python3",
         "venv/bin/hermes",
-        ".hermes/bin/hermes", ".hermes/bin/hermes-acp",
+        ".huntington/bin/hermes", ".huntington/bin/hermes-acp", ".huntington/bin/huntington",
     )}
     # Current store launchers pass this Python bootstrap as one shell argument.
     bootstrap = f"sys.path.insert(0, {str(root)!r})"
@@ -574,8 +575,8 @@ def _publish_conveniences(root: Path, out_dir: Path, names, *, create: bool = Tr
         if (not create or target.exists() or target.is_symlink()) and not _owns_launcher(target, root):
             continue
         before = target.lstat().st_mtime_ns if target.exists() or target.is_symlink() else None
-        command = ([str(root / ".hermes/bin/hermes"), "--run-module", "run_agent"]
-                   if name == "hermes-agent" else [str(root / ".hermes/bin" / name)])
+        command = ([str(root / ".huntington/bin/hermes"), "--run-module", "run_agent"]
+                   if name == "hermes-agent" else [str(root / ".huntington/bin" / name)])
         if _write_shell(target, command) is None:
             raise OSError(f"could not publish launcher {target}")
         published[target] = before != target.lstat().st_mtime_ns
@@ -834,7 +835,7 @@ def _kept_shared_launcher(name: str, local: Path, store: Path, own: Path | None)
 def ensure_install_launchers(repo_root: Path, out_dir: Path) -> list[str]:
     """Publish exact-install commands; conveniences follow them across Python repins."""
     root = Path(repo_root).resolve()
-    local = root / ".hermes" / "bin"
+    local = root / ".huntington" / "bin"
     local.mkdir(parents=True, exist_ok=True)
     store = store_root(root)
     own = resolve_store_python(root)
@@ -905,7 +906,7 @@ def expose_cli(project_root: Path | None = None, *, create: bool = True) -> dict
     if resolve_store_python(root, publication=True) is None:
         return {"ok": True, "skipped": "no-store-python"}
     try:
-        local = root / ".hermes" / "bin"
+        local = root / ".huntington" / "bin"
         if len(ensure_install_launchers(root, local)) != len(WINDOWS_BIN_LAUNCHERS):
             return {"ok": False, "error": "source launcher publication failed"}
         dirs = [Path.home() / ".local" / "bin"]
@@ -1010,7 +1011,7 @@ def owns_user_path(root: Path) -> bool:
 
     logging.getLogger(__name__).info(
         "User PATH left unchanged: new consoles use %s, not %s",
-        console_root or "an unknown Hermes home", root)
+        console_root or "an unknown Huntington home", root)
     return False
 
 

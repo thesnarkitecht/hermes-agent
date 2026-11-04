@@ -72,7 +72,7 @@ def test_default_handoff_asks_for_the_local_gateway(tmp_path):
     calls = _run_handoff(tmp_path, [])
 
     update_calls = [c for c in calls if " update " in f" {c} "]
-    assert update_calls, "hand-off never ran hermes update"
+    assert update_calls, "hand-off never ran huntington update"
     assert "--gateway" in update_calls[0].split()
 
 @requires_posix_handoff
@@ -86,7 +86,7 @@ def test_no_gateway_flag_omits_gateway_from_update(tmp_path):
     calls = _run_handoff(tmp_path, ["--no-gateway"])
 
     update_calls = [c for c in calls if " update " in f" {c} "]
-    assert update_calls, "hand-off never ran hermes update"
+    assert update_calls, "hand-off never ran huntington update"
     for call in update_calls:
         argv = call.split()
         assert "--gateway" not in argv, f"--gateway reappeared in update argv: {call}"

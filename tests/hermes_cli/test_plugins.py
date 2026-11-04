@@ -237,7 +237,7 @@ class TestPluginDiscovery:
         from hermes_cli.agent_plugins import MCP_SCHEMA_V1, PLUGIN_SCHEMA_V1
         from hermes_cli import plugins as plugins_mod
 
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         # Two unrelated plugins both call their server "shared": one readable name, one owner.
         for plugin_name, command in (("alpha-tools", "python-a"), ("beta-tools", "python-b")):
             plugin = home / "plugins" / plugin_name
@@ -2633,7 +2633,7 @@ class TestPluginContextProfileName:
 
     def test_default_profile(self, tmp_path, monkeypatch):
         """HERMES_HOME at the root resolves to 'default'."""
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         home.mkdir()
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
         monkeypatch.setenv("HERMES_HOME", str(home))
@@ -2641,7 +2641,7 @@ class TestPluginContextProfileName:
 
     def test_named_profile(self, tmp_path, monkeypatch):
         """HERMES_HOME under profiles/<name> resolves to that name."""
-        prof = tmp_path / ".hermes" / "profiles" / "coder"
+        prof = tmp_path / ".huntington" / "profiles" / "coder"
         prof.mkdir(parents=True)
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
         monkeypatch.setenv("HERMES_HOME", str(prof))

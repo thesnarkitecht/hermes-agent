@@ -26,7 +26,7 @@ SHADOWED_BUILTINS = [
 
 
 def _home(tmp_path, monkeypatch, name, builtin_env, *, entry_extra=None, pool=None):
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     hermes_home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(hermes_home))
     entry = {"name": name, "api": ENDPOINT, "transport": "chat_completions", "default_model": "m"}

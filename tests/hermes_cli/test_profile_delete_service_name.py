@@ -20,7 +20,7 @@ from hermes_cli import profiles
 @pytest.fixture
 def two_homes(tmp_path, monkeypatch):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    launch = tmp_path / ".hermes"
+    launch = tmp_path / ".huntington"
     victim = launch / "profiles" / "victim"
     victim.mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(launch))

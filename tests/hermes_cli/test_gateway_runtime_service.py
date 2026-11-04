@@ -25,7 +25,7 @@ def test_ensure_checks_effective_service_binding_before_start(tmp_path, monkeypa
     from hermes_cli.gateway_runtime_service import service_suffix
 
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    home = tmp_path / (".hermes" if case == "default" else "custom root")
+    home = tmp_path / (".huntington" if case == "default" else "custom root")
     if case == "named":
         home = home / "profiles" / "worker"
     home.mkdir(mode=0o700, parents=True)
@@ -166,7 +166,7 @@ def test_launchd_verifies_the_osascript_wrapped_command_the_installer_writes(cas
     import plistlib
     from hermes_cli.gateway_launchd import launchd_program_arguments
     from hermes_cli.gateway_runtime_service_identity import verify_launchd_loaded, verify_launchd_plist
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     from hermes_cli import gateway as gw
     command = _launchd_gateway_command(tmp_path, monkeypatch,
                                        store=case not in {"inline", "tampered_bootstrap", "foreign_root_inline"},
@@ -212,7 +212,7 @@ def test_launchd_verifies_the_osascript_wrapped_command_the_installer_writes(cas
         argv[4] += ' $.system("id");'
     if case == "foreign_osascript":
         argv[0] = str(tmp_path / "osascript")
-    env = dict(HERMES_HOME=str(home if case != "other_home" else tmp_path / "elsewhere" / ".hermes"),
+    env = dict(HERMES_HOME=str(home if case != "other_home" else tmp_path / "elsewhere" / ".huntington"),
                HERMES_SUPERVISED_CHILD="1")
     definition = plistlib.loads(plistlib.dumps(dict(Label="ai.hermes.gateway", ProgramArguments=argv, EnvironmentVariables=env)))
     output = ("gui/123/ai.hermes.gateway = {\n\tstate = not running\n\tprogram = " + argv[0] + "\n\targuments = {\n"
@@ -231,14 +231,14 @@ def _installed_vbs(home, configured):
     """The current installed launcher grammar; no script is executed."""
     script = home / 'gateway.vbs'
     script.write_text("\n".join([
-        "' Hermes Agent Gateway", "Option Explicit", "Dim sh, env, existing_pp",
+        "' HUNTINGTON-AGENT Gateway", "Option Explicit", "Dim sh, env, existing_pp",
         'Set sh = CreateObject("WScript.Shell")', 'Set env = sh.Environment("PROCESS")',
         f'env.Item("HERMES_HOME") = "{configured}"',
         'env.Item("HERMES_SUPERVISED_CHILD") = "1"',
-        'env.Item("VIRTUAL_ENV") = "C:\\Hermes"',
+        'env.Item("VIRTUAL_ENV") = "C:\\Huntington"',
         'existing_pp = env.Item("PYTHONPATH")', 'If Len(existing_pp) > 0 Then',
-        '  env.Item("PYTHONPATH") = "C:\\Hermes;" & existing_pp', 'Else',
-        '  env.Item("PYTHONPATH") = "C:\\Hermes"', 'End If',
+        '  env.Item("PYTHONPATH") = "C:\\Huntington;" & existing_pp', 'Else',
+        '  env.Item("PYTHONPATH") = "C:\\Huntington"', 'End If',
         f'sh.CurrentDirectory = "{home}"',
         f'sh.Run "{sys.executable} -m hermes_cli.main gateway run", 0, False',
     ]) + "\n", encoding='utf-8')

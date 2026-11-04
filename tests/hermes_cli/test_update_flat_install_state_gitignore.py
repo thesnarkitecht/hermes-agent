@@ -121,7 +121,7 @@ def flat_install_repo(tmp_path: Path) -> Path:
     repo.mkdir()
     subprocess.run(["git", "init", "-q", str(repo)], check=True)
     shutil.copyfile(REPO_ROOT / ".gitignore", repo / ".gitignore")
-    (repo / "app.py").write_text("print('hermes')\n")
+    (repo / "app.py").write_text("print('huntington')\n")
     _run_git(repo, "add", ".gitignore", "app.py")
     _run_git(
         repo,
@@ -154,7 +154,7 @@ def test_untracked_autostash_cannot_sweep_runtime_state(flat_install_repo):
         flat_install_repo,
         "stash", "push", "--include-untracked", "-m", "hermes-update-autostash",
     )
-    assert (flat_install_repo / "app.py").read_text() == "print('hermes')\n"
+    assert (flat_install_repo / "app.py").read_text() == "print('huntington')\n"
     missing = [
         rel
         for rel in FLAT_INSTALL_RUNTIME_STATE

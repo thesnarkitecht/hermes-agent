@@ -266,7 +266,7 @@ def _transcribe_xai(
              } if direct_api_key else resolve_xai_http_credentials()
     api_key = str(creds.get("api_key") or "").strip()
     if not api_key:
-        return _error_result("No xAI credentials found. Configure xAI OAuth in `hermes model` or set XAI_API_KEY")
+        return _error_result("No xAI credentials found. Configure xAI OAuth in `huntington model` or set XAI_API_KEY")
     stt_config = _load_stt_config()
     xai_config = stt_config.get("xai") or {}
 
@@ -434,7 +434,7 @@ def _resolve_openai_audio_client_config() -> tuple[str, str]:
         managed = _managed()
         if managed is None:
             raise ValueError(selection_error("stt", NOUS_MANAGED_PROVIDER,
-                                             "the Nous Tool Gateway is not available (not entitled or unreachable)"))
+                                             "the HIP Tool Gateway is not available (not entitled or unreachable)"))
         return managed
     direct = _direct_openai_credentials(openai_cfg.get("api_key", ""), openai_cfg.get("base_url", ""))
     if direct is not None:

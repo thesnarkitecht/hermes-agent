@@ -33,7 +33,7 @@ _PROBE = textwrap.dedent("""
 
 
 def _load(tmp_path, *, config_yaml="", env=None, dotenv=""):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text(config_yaml, encoding="utf-8")
     (home / ".env").write_text(dotenv, encoding="utf-8")

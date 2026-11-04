@@ -1665,7 +1665,7 @@ class TestExplicitOpenaiSelectionError:
              patch("tools.transcription_tools._HAS_FASTER_WHISPER", False), \
              patch(
                  "tools.tool_backend_helpers.nous_tool_gateway_unavailable_message",
-                 lambda what: f"managed route down for {what}; run `hermes tools`",
+                 lambda what: f"managed route down for {what}; run `huntington tools`",
              ):
             from tools.transcription_tools import _dispatch_stt_provider
 

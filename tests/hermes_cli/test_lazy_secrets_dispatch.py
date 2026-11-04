@@ -168,7 +168,7 @@ def capture_update_check(*args, **kwargs):
     # Short-circuit: don't actually call the network in tests.
     return 0
 
-sys.argv = ['hermes', 'update', '--check']
+sys.argv = ['huntington', 'update', '--check']
 
 import hermes_cli.main as m
 

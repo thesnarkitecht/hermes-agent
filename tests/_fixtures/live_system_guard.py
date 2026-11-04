@@ -337,7 +337,7 @@ def _live_system_guard(request, monkeypatch):
         # The child must not resolve the REAL Hermes root. Comparing HERMES_HOME against the whole
         # account home refused every Windows sandbox: %TEMP% lives under %USERPROFILE%.
         from hermes_state_guard import _real_platform_state_root
-        real_root = _real_platform_state_root() or real_home / ".hermes"
+        real_root = _real_platform_state_root() or real_home / ".huntington"
         try:
             return (Path(home).resolve() != real_home
                     and not Path(hermes_home).resolve().is_relative_to(real_root))
@@ -357,7 +357,7 @@ def _live_system_guard(request, monkeypatch):
             raise RuntimeError(
                 f"tests/conftest.py live-system guard: blocked "
                 f"subprocess.{name}({cmd!r}) — would mutate a live "
-                "Hermes systemd unit (hermes-gateway*, hermes-dashboard*, "
+                "Huntington systemd unit (hermes-gateway*, hermes-dashboard*, "
                 "hermes-serve*, ...). Mock "
                 "subprocess.run / _run_systemctl in the test, or "
                 "mark with @pytest.mark.live_system_guard_bypass."
@@ -395,7 +395,7 @@ def _live_system_guard(request, monkeypatch):
             raise RuntimeError(
                 f"tests/conftest.py live-system guard: blocked "
                 f"subprocess.{name}({cmd!r}) — this command would run "
-                "`hermes update` against the real checkout, fetching "
+                "`huntington update` against the real checkout, fetching "
                 "from origin and overwriting repo files (e.g. "
                 "pyproject.toml) mid-test-run. This corrupts every "
                 "subsequent subprocess in the same runner. "
@@ -427,7 +427,7 @@ def _live_system_guard(request, monkeypatch):
             raise RuntimeError(
                 f"tests/conftest.py live-system guard: blocked "
                 f"subprocess.{name}({cmd!r}) — this would spawn a REAL "
-                "hermes gateway runtime that outlives the test (it is "
+                "huntington gateway runtime that outlives the test (it is "
                 "detached), restarts the developer's live gateway, and "
                 "holds the webhook port. Patch the spawn seam where "
                 "production reads it (hermes_cli.web_server_gateway."

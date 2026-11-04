@@ -30,7 +30,7 @@ def notepad(monkeypatch, tmp_path):
 @pytest.fixture
 def cron_env(tmp_path, monkeypatch, notepad):
     """Isolated cron environment with temp HERMES_HOME (mirrors test_cron_context_from)."""
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     hermes_home.mkdir()
     (hermes_home / "cron").mkdir()
     (hermes_home / "cron" / "output").mkdir()

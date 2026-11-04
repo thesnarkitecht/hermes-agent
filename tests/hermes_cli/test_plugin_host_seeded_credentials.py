@@ -28,7 +28,7 @@ register_provider(Seeds(name="seedhost", base_url="https://seedhost.example/v1",
 
 
 def _install(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     plugin_dir = home / "plugins" / "model-providers" / "seedhost"
     plugin_dir.mkdir(parents=True)
     (plugin_dir / "plugin.yaml").write_text("name: seedhost\nkind: model-provider\n", encoding="utf-8")

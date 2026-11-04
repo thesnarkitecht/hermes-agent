@@ -23,7 +23,7 @@ from hermes_cli import update_cmd, update_cmd_maint
 @pytest.fixture()
 def receipt_home(tmp_path, monkeypatch):
     """Isolated HERMES_HOME for receipt writes."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     # ``_receipt_dir`` resolves through ``hermes_constants.get_hermes_home`` (env var), not
     # ``hermes_cli.config`` — patch where production reads.

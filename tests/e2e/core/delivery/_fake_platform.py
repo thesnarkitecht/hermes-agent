@@ -494,7 +494,7 @@ class GatewayProcess:
 
         self.root = root
         self.home = root / "home"
-        self.hermes_home = self.home / ".hermes"
+        self.hermes_home = self.home / ".huntington"
         self.spool = root / "spool"
         self.spool.mkdir(parents=True, exist_ok=True)
         write_hermes_home(self.hermes_home, llm_base_url, extra_config=extra_config)

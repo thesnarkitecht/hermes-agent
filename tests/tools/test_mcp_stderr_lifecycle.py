@@ -46,7 +46,7 @@ def test_rename_profile_releases_cached_log_handle(tmp_path, monkeypatch):
     from tools import mcp_tool_config
 
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(profiles, "_cleanup_gateway_service", lambda *_: None)

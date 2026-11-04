@@ -30,16 +30,16 @@ def _reply_for_401(provider):
 
 
 def test_gateway_401_reply_names_the_provider_and_the_profile(monkeypatch, tmp_path):
-    profile_home = tmp_path / ".hermes" / "profiles" / "codex"
+    profile_home = tmp_path / ".huntington" / "profiles" / "codex"
     profile_home.mkdir(parents=True)
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setenv("HERMES_HOME", str(profile_home))
 
     known = _reply_for_401("openai-codex")
     assert "/login" in known
-    assert "`hermes -p codex auth add openai-codex --type oauth`" in known, known
+    assert "`huntington -p codex auth add openai-codex --type oauth`" in known, known
     assert "<provider>" not in known and "{relogin}" not in known
 
     # No agent yet (failure before the turn claimed one): keep the placeholder, still profile-pinned.
     unknown = _reply_for_401(None)
-    assert "`hermes -p codex auth add <provider>`" in unknown, unknown
+    assert "`huntington -p codex auth add <provider>`" in unknown, unknown

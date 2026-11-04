@@ -72,7 +72,7 @@ def _run_probe(hermes_home: Path, code: str) -> subprocess.CompletedProcess:
 
 
 def test_plugins_discovered_after_auth_import_resolve(tmp_path):
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     # Sorted first: a plugin whose imports drag hermes_cli.auth in mid-discovery
     # (any plugin importing agent.credential_pool or similar does this).
     _write_plugin(

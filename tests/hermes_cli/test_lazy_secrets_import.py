@@ -84,7 +84,7 @@ sys.exit(0)
         script.write_text(
             """
 import sys
-sys.argv = ['hermes', 'update', '--check']
+sys.argv = ['huntington', 'update', '--check']
 
 import hermes_cli.main
 from hermes_cli.update_cmd import _cmd_update_check

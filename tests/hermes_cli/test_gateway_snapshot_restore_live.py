@@ -58,7 +58,7 @@ def local_gateway(tmp_path, monkeypatch):
     monkeypatch.setattr(GatewayConnection, "_shared", None)
 
     def configure(multiplex):
-        home = user / ".hermes"
+        home = user / ".huntington"
         config = {"gateway": {"multiplex_profiles": multiplex},
                   "model": {"provider": "custom", "default": "fixture", "base_url": url},
                   "auxiliary": {"title_generation": {"enabled": False}},

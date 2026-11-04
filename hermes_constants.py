@@ -60,8 +60,8 @@ def _platform_default_hermes_home(environ: Mapping[str, str], user_home: Callabl
     if sys.platform == "win32":
         local_appdata = environ.get("LOCALAPPDATA", "").strip()
         base = Path(local_appdata) if local_appdata else user_home() / "AppData" / "Local"
-        return base / ("hermes" + suffix)
-    return user_home() / (".hermes" + suffix)
+        return base / ("huntington" + suffix)
+    return user_home() / (".huntington" + suffix)
 
 
 def _get_platform_default_hermes_home() -> Path:
@@ -155,7 +155,7 @@ def sudo_invoker_default_home() -> Path | None:
     import pwd
 
     try:
-        return Path(pwd.getpwnam(sudo_user).pw_dir) / ".hermes"
+        return Path(pwd.getpwnam(sudo_user).pw_dir) / ".huntington"
     except KeyError:  # SUDO_USER not in passwd (chroot/container)
         return None
 
@@ -327,7 +327,7 @@ def _is_hermes_profiles_root(profiles_dir: Path) -> bool:
     ``profiles/.deleted`` tombstone dir (only ``profile delete`` creates it), or the default root.
     """
     root = profiles_dir.parent
-    if root.name == ".hermes":
+    if root.name == ".huntington":
         return True
     try:
         if (profiles_dir / _DELETED_PROFILES_DIR).is_dir() or any(
@@ -353,7 +353,7 @@ def named_profile_home(path: str | Path) -> Path | None:
         if (candidate.parent.name == "profiles" and not candidate.name.startswith(".")
                 and _is_hermes_profiles_root(candidate.parent)):
             return candidate
-        if candidate.name == ".hermes":  # default home: a coincidental profiles/ ancestor is not a root
+        if candidate.name == ".huntington":  # default home: a coincidental profiles/ ancestor is not a root
             return None
     return None
 
@@ -682,7 +682,7 @@ def secure_parent_dir(path: Path) -> None:
         logging.getLogger(__name__).warning(
             "Not restricting permissions on %s: it is inside the "
             "hermes-agent install directory (%s). Credential files are "
-            "normally stored under the hermes home directory instead.", parent, _INSTALL_ROOT,
+            "normally stored under the huntington home directory instead.", parent, _INSTALL_ROOT,
         )
         return
     with contextlib.suppress(OSError):
@@ -1454,7 +1454,7 @@ def partial_update_hint(exc: BaseException) -> list[str]:
         "This looks like a partially-updated install: one module was refreshed "
         "and a related one was not.",
         "Re-run the update to bring the whole tree to the same version:",
-        "    hermes update",
+        "    huntington update",
         "If that also fails, reinstall: https://hermes-agent.nousresearch.com",
     ]
 

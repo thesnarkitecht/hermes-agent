@@ -38,7 +38,7 @@ def test_billing_fallback_warning_names_failing_profile_and_remedy(tmp_path, cap
     never the launch profile; a non-billing switch stays INFO."""
     seen = {}
     for name in ("alpha", "beta"):
-        token = set_hermes_home_override(tmp_path / ".hermes" / "profiles" / name)
+        token = set_hermes_home_override(tmp_path / ".huntington" / "profiles" / name)
         try:
             caplog.clear()
             with caplog.at_level(logging.INFO, logger="agent.chat_completion_helpers"):

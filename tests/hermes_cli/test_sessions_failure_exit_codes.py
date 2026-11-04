@@ -134,7 +134,7 @@ def test_redirected_null_stdin_is_unattended_on_every_os(tmp_path):
     import subprocess
     from pathlib import Path
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     _old_ended_session(home / "state.db")
     root = str(Path(__file__).resolve().parents[2])

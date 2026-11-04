@@ -101,7 +101,7 @@ def test_a_screen_started_before_an_update_still_stops_itself(abandoned_screen, 
     --run-module`` launcher, which loads the current generation at every run) with its own pid appended."""
     install = tmp_path / "an install's root"  # quoting: the command crosses the env as a shell-quoted string
     used = tmp_path / "launcher-used"
-    hermes = install / ".hermes" / "bin" / "hermes"
+    hermes = install / ".huntington" / "bin" / "hermes"
     hermes.parent.mkdir(parents=True)
     hermes.write_text(
         "#!/bin/sh\n"

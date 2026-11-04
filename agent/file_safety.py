@@ -22,7 +22,7 @@ def _constants_path(getter_name: str) -> Path:
 
         return getattr(hermes_constants, getter_name)()
     except Exception:
-        return Path(os.path.expanduser("~/.hermes"))
+        return Path(os.path.expanduser("~/.huntington"))
 
 
 def _hermes_home_path() -> Path:
@@ -355,20 +355,20 @@ _CREDENTIAL_FILE_NAMES = (
 # of the user's Cookies / Login Data — the same credential class as auth.json.
 _READ_DENIED_DIRS = (
     ("mcp-tokens",
-     "is the Hermes MCP token directory and cannot be read directly.",
-     "is a Hermes MCP token file and cannot be read directly."),
+     "is the Huntington MCP token directory and cannot be read directly.",
+     "is a Huntington MCP token file and cannot be read directly."),
     ("browser-profile",
-     "is the Hermes real-profile browser snapshot directory (copied cookies/logins) and cannot be read directly.",
-     "is inside the Hermes real-profile browser snapshot (copied cookies/logins) and cannot be read directly."),
+     "is the Huntington real-profile browser snapshot directory (copied cookies/logins) and cannot be read directly.",
+     "is inside the Huntington real-profile browser snapshot (copied cookies/logins) and cannot be read directly."),
     # vault.key + vault.json.enc sit side by side; key + ciphertext = plaintext, so the whole dir is one credential.
     ("vault",
-     "is the Hermes credential vault directory and cannot be read directly (secrets are filled server-side by browser_vault).",
-     "is inside the Hermes credential vault (encrypted secrets + local key) and cannot be read directly (browser_vault resolves them server-side)."),
+     "is the Huntington credential vault directory and cannot be read directly (secrets are filled server-side by browser_vault).",
+     "is inside the Huntington credential vault (encrypted secrets + local key) and cannot be read directly (browser_vault resolves them server-side)."),
     # session-token is the Webapp's browser credential (a bare token no redaction pattern masks); the
     # rest are its grants to native apps and its Web Access registration.
     ("webapp",
-     "is the Hermes Webapp sign-in directory and cannot be read directly.",
-     "is a Hermes Webapp sign-in file (the browser credential or its sign-in records) and cannot be read directly."),
+     "is the Huntington Webapp sign-in directory and cannot be read directly.",
+     "is a Huntington Webapp sign-in file (the browser credential or its sign-in records) and cannot be read directly."),
 )
 
 
@@ -397,12 +397,12 @@ def get_read_block_error(path: str) -> Optional[str]:
     reason = None
     if any(_is_under(resolved, hd / "skills" / ".hub") for hd in hermes_dirs):
         reason = (
-            "is an internal Hermes cache file and cannot be read directly to prevent "
+            "is an internal Huntington cache file and cannot be read directly to prevent "
             "prompt injection. Use the skills_list or skill_view tools instead."
         )
     elif any(resolved in _resolve_each(hd / name for hd in hermes_dirs) for name in _CREDENTIAL_FILE_NAMES):
         reason = (
-            "is a Hermes credential store and cannot be read directly. Provider tools "
+            "is a Huntington credential store and cannot be read directly. Provider tools "
             "consume these credentials through internal channels." + _DID_SUFFIX
         )
     else:
@@ -476,7 +476,7 @@ def classify_sandbox_mirror_target(path: str) -> Optional[dict]:
     # Need at least: sandboxes / <backend> / <task> / home / .hermes / <thing>; inner_idx = the .hermes part.
     inner_idx = next(
         (i + 4 for i, part in enumerate(parts)
-         if part == "sandboxes" and i + 5 < len(parts) and parts[i + 3] == "home" and parts[i + 4] == ".hermes"),
+         if part == "sandboxes" and i + 5 < len(parts) and parts[i + 3] == "home" and parts[i + 4] == ".huntington"),
         None,
     )
     if inner_idx is None:
@@ -498,7 +498,7 @@ def get_sandbox_mirror_warning(path: str) -> Optional[str]:
     return _mirror_warning(
         classify_sandbox_mirror_target(path),
         "a per-task mirror created by a non-local terminal backend (docker/daytona/etc.). "
-        "Writes here land on a copy that the host Hermes process never reads — the "
+        "Writes here land on a copy that the host Huntington process never reads — the "
         "authoritative file is likely {inner_path!r} under the real HERMES_HOME.",
         "this guard after explicit user direction, retry the call",
     )
@@ -519,7 +519,7 @@ def get_container_mirror_warning(path: str, mirror_prefix: str | None = None) ->
     """Model-facing soft-guard warning when ``path`` lands in the container's mirror, else ``None``."""
     return _mirror_warning(
         classify_container_mirror_target(path, mirror_prefix),
-        "the container's bind-mounted home — a per-task mirror that the host Hermes "
+        "the container's bind-mounted home — a per-task mirror that the host Huntington "
         "process never reads. The authoritative file is {inner_path!r} under "
         "the real HERMES_HOME.",
         "after explicit user direction, retry",

@@ -15,7 +15,7 @@ from hermes_cli import gateway_service_owner
 
 UNIT = (
     "[Service]\n"
-    "ExecStart=/home/ace/.hermes/hermes-agent/.hermes/bin/hermes gateway run\n"
+    "ExecStart=/home/ace/.huntington/hermes-agent/.huntington/bin/hermes gateway run\n"
     "WorkingDirectory={home}\n"
     'Environment="HERMES_HOME={home}"\n'
 )
@@ -23,8 +23,8 @@ UNIT = (
 
 @pytest.fixture
 def unit(tmp_path, monkeypatch):
-    real = tmp_path / "account" / ".hermes"
-    scratch = tmp_path / "scratch" / "fakehome" / ".hermes"
+    real = tmp_path / "account" / ".huntington"
+    scratch = tmp_path / "scratch" / "fakehome" / ".huntington"
     real.mkdir(parents=True)
     scratch.mkdir(parents=True)
     path = tmp_path / "systemd" / "hermes-gateway.service"

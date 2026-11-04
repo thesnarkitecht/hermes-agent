@@ -148,7 +148,7 @@ async def test_single_profile_gateway_serves_a_connector_stamped_profile(tmp_pat
 
 
 def _reserve_homes(tmp_path, monkeypatch, names):
-    root = tmp_path / '.hermes'
+    root = tmp_path / '.huntington'
     root.mkdir(mode=0o700)
     monkeypatch.setattr(Path, 'home', lambda: tmp_path)
     monkeypatch.setenv('HERMES_HOME', str(root))

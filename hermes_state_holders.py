@@ -33,7 +33,7 @@ def read_only_db_uri(db_path) -> str:
 logger = logging.getLogger(__name__)
 
 _IS_WINDOWS = sys.platform == "win32"
-_HERMES_EXECUTABLES = frozenset({"hermes", "hermes-agent", "hermes-acp"})
+_HERMES_EXECUTABLES = frozenset({"hermes", "hermes-agent", "hermes-acp", "huntington"})
 _HERMES_PYTHON_MODULES = frozenset({"acp_adapter", "hermes_cli.main"})
 _HERMES_PYTHON_SCRIPTS = frozenset({"hermes_cli/main.py", "run_agent.py"})
 _PYTHON_SHORT_OPTIONS_WITH_OPERANDS = frozenset({"Q", "W", "X"})
@@ -197,7 +197,7 @@ def _store_install_layout(this_home: str) -> tuple[Optional[str], Optional[str]]
         profile_home = named_profile_home(this_home)
         if profile_home is not None:
             return os.path.abspath(str(profile_home.parent.parent)), profile_home.name
-        if os.path.basename(this_home) == ".hermes":
+        if os.path.basename(this_home) == ".huntington":
             return os.path.abspath(this_home), None
     except Exception:  # constants import/resolution must never break a holder scan
         logger.debug("Could not classify the install layout of %s", this_home, exc_info=True)
@@ -312,7 +312,7 @@ def _argv_scoped_to_other_home(argv: Sequence[str], db_path: Path) -> bool:
             continue  # shared install root: neutral, every served profile lives under it
         if index == 0 and not argv0_locates_home:
             continue
-        if "/.hermes" in normalized or normalized.endswith("/.hermes") or os.path.basename(normalized) in _STATE_DB_NAMES:
+        if "/.huntington" in normalized or normalized.endswith("/.huntington") or os.path.basename(normalized) in _STATE_DB_NAMES:
             other_home_seen = True
     return other_home_seen
 
@@ -603,7 +603,7 @@ def held_store_refusal(db_path: Path, *, command: str, force_hint: Optional[str]
             unknown.append(target)
         else:
             by_pid.setdefault(pid, set()).add(Path(target.removesuffix(" (deleted)")).name)
-    lines = [f"Refusing `hermes sessions {command}`: another process is using {db_path}."]
+    lines = [f"Refusing `huntington sessions {command}`: another process is using {db_path}."]
     lines += [f"  {describe_holder_pid(pid)}: {', '.join(sorted(by_pid[pid]))}" for pid in sorted(by_pid)]
     if unknown:
         lines.append(f"  cannot prove the database is quiet (holder scan incomplete: {unknown[0][:120]})")

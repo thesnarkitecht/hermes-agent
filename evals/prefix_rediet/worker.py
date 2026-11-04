@@ -40,7 +40,7 @@ sys.path.insert(0, os.path.join(HARNESS, "..", "core_tool_deferral"))
 from sandbox import isolate_host
 
 tmp_root = tempfile.mkdtemp(prefix=f"prd-{ARM}-{TASK_ID}-")
-hermes_home = os.path.join(tmp_root, ".hermes")
+hermes_home = os.path.join(tmp_root, ".huntington")
 workspace = os.path.join(tmp_root, "ws")
 os.makedirs(hermes_home)
 os.makedirs(workspace)

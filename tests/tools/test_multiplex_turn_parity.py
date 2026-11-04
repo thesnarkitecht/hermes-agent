@@ -20,7 +20,7 @@ from hermes_constants import reset_hermes_home_override, set_hermes_home_overrid
 @pytest.fixture
 def two_homes(tmp_path, monkeypatch):
     """Launch home A (HERMES_HOME) and routed profile B, differing in every setting under test."""
-    a = tmp_path / ".hermes"
+    a = tmp_path / ".huntington"
     b = a / "profiles" / "b"
     b.mkdir(parents=True)
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
@@ -96,17 +96,17 @@ def test_terminal_backend_consumers_read_the_routed_scope(two_homes):
         return (
             image_source._is_local_terminal_backend(),
             image_generation_tool._agent_cache_base_for_env(None),
-            credential_files.to_agent_visible_cache_path("/host/.hermes/x.png", "/root/.hermes"),
+            credential_files.to_agent_visible_cache_path("/host/.huntington/x.png", "/root/.huntington"),
             sorted(Path(m["host_path"]).name for m in credential_files.get_credential_file_mounts()),
         )
 
     with _profile_runtime_scope(a):
-        assert observe() == (True, None, "/host/.hermes/x.png", ["cred_a.txt"])
+        assert observe() == (True, None, "/host/.huntington/x.png", ["cred_a.txt"])
     with _profile_runtime_scope(b):
         local, cache_base, translated, mounts = observe()
     assert local is False
-    assert cache_base == "/root/.hermes"
-    assert translated != "/host/.hermes/x.png" or mounts == ["cred_b.txt"]
+    assert cache_base == "/root/.huntington"
+    assert translated != "/host/.huntington/x.png" or mounts == ["cred_b.txt"]
     assert mounts == ["cred_b.txt"]
 
 

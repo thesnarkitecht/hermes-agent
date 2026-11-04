@@ -125,7 +125,7 @@ def test_run_gui_uninstall_exits_on_sealed_tree(monkeypatch, tmp_path, capsys):
 
 
 def _make_home(tmp_path: Path) -> Path:
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     (home / "sessions").mkdir(parents=True)
     (home / "sessions" / "s1.json").write_text("{}", encoding="utf-8")
     (home / "logs").mkdir()
@@ -178,7 +178,7 @@ def test_gui_summary_reports_steward_and_gate(monkeypatch, tmp_path):
     import hermes_cli.gui_uninstall as gu
     from hermes_cli import steward as st
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(gu, "packaged_gui_app_paths", list)
     monkeypatch.setattr(gu, "desktop_userdata_dir", lambda: tmp_path / "none")
@@ -207,7 +207,7 @@ def test_gui_summary_classifies_the_agent_root(tmp_path, monkeypatch):
     monkeypatch.setattr(gu, "packaged_gui_app_paths", list)
     monkeypatch.setattr(gu, "desktop_userdata_dir", lambda: tmp_path / "none")
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     gu.gui_install_summary(home)
 
     assert seen == [home / "hermes-agent"]

@@ -21,7 +21,7 @@ def test_kanban_tools_hidden_without_env_var(monkeypatch, tmp_path):
     """Normal `hermes chat` sessions (no HERMES_KANBAN_TASK) must have
     zero kanban_* tools in their schema."""
     monkeypatch.delenv("HERMES_KANBAN_TASK", raising=False)
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
 
@@ -45,7 +45,7 @@ def test_kanban_tools_hidden_without_env_var(monkeypatch, tmp_path):
 def worker_env(monkeypatch, tmp_path):
     """Simulate being a worker: HERMES_HOME isolated, HERMES_KANBAN_TASK set
     after we've created the task."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setenv("HERMES_PROFILE", "test-worker")
@@ -263,8 +263,8 @@ def test_request_review_rejects_unknown_reviewer_without_mutation(monkeypatch, w
     from hermes_cli import kanban_db_connect as kbc
     from tools import kanban_tools as kt
 
-    (tmp_path / ".hermes" / "profiles" / "verifier").mkdir(parents=True)
-    (tmp_path / ".hermes" / "profiles" / "verifier" / "config.yaml").write_text("{}\n", encoding="utf-8")  # identity marker
+    (tmp_path / ".huntington" / "profiles" / "verifier").mkdir(parents=True)
+    (tmp_path / ".huntington" / "profiles" / "verifier" / "config.yaml").write_text("{}\n", encoding="utf-8")  # identity marker
     with kbc.connect() as conn:
         before = kb.get_task(conn, worker_env)
         before_events = kb.list_events(conn, worker_env)
@@ -284,8 +284,8 @@ def test_request_review_accepts_installed_profile(monkeypatch, worker_env, tmp_p
     from hermes_cli import kanban_db_connect as kbc
     from tools import kanban_tools as kt
 
-    (tmp_path / ".hermes" / "profiles" / "verifier").mkdir(parents=True)
-    (tmp_path / ".hermes" / "profiles" / "verifier" / "config.yaml").write_text("{}\n", encoding="utf-8")  # identity marker
+    (tmp_path / ".huntington" / "profiles" / "verifier").mkdir(parents=True)
+    (tmp_path / ".huntington" / "profiles" / "verifier" / "config.yaml").write_text("{}\n", encoding="utf-8")  # identity marker
     with kbc.connect() as conn:
         monkeypatch.setenv("HERMES_KANBAN_RUN_ID", str(kb.get_task(conn, worker_env).current_run_id))
 
@@ -369,7 +369,7 @@ def test_complete_goal_mode_rejected_by_judge(monkeypatch, tmp_path):
     from tools import kanban_tools as kt
 
     # Set up isolated HERMES_HOME
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setenv("HERMES_PROFILE", "test-worker")
@@ -488,7 +488,7 @@ def _make_goal_mode_worker_env(monkeypatch, tmp_path):
     from hermes_cli import kanban_db as kb
     from hermes_cli import kanban_db_connect as kbc
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setenv("HERMES_PROFILE", "test-worker")
@@ -822,7 +822,7 @@ def test_unblock_happy_path(monkeypatch, worker_env):
 
 def test_unblock_with_pending_parents_returns_todo(monkeypatch, tmp_path):
     monkeypatch.delenv("HERMES_KANBAN_TASK", raising=False)
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setenv("HERMES_PROFILE", "orchestrator")
@@ -1036,7 +1036,7 @@ def test_orchestrator_complete_any_task_allowed(monkeypatch, tmp_path):
     """Orchestrator profiles (no HERMES_KANBAN_TASK) can still complete
     any task via explicit task_id. The check only applies to workers."""
     monkeypatch.delenv("HERMES_KANBAN_TASK", raising=False)
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     from pathlib import Path as _P
@@ -1272,7 +1272,7 @@ def test_create_respects_auto_subscribe_on_create_false(monkeypatch, worker_env,
     explicit kanban_notify-subscribe calls per task get that."""
     # worker_env already created <tmp>/.hermes; use a fresh sibling
     # home to avoid mkdir() colliding with the worker's directory.
-    home = tmp_path / "gate-home" / ".hermes"
+    home = tmp_path / "gate-home" / ".huntington"
     home.mkdir(parents=True)
     (home / "config.yaml").write_text(
         "kanban:\n  auto_subscribe_on_create: false\n"

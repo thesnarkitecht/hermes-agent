@@ -12,7 +12,7 @@ from hermes_constants import get_hermes_home
 @pytest.fixture(params=("complete", "record_only"))
 def installation(request, tmp_path, monkeypatch):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
     home = get_hermes_home()
     assert home.resolve().is_relative_to(tmp_path.resolve())
     root = home / "hermes-agent"
@@ -25,7 +25,7 @@ def installation(request, tmp_path, monkeypatch):
         home / "sessions" / "saved.json": b'{"saved": true}',
     }
     record = tmp_path / "desktop-installed-apps.json"
-    bundle = tmp_path / "apps" / "Hermes.app"
+    bundle = tmp_path / "apps" / "Huntington.app"
     userdata = tmp_path / "desktop-data"
     gui_files = {
         root / "apps" / "desktop" / "dist" / "index.html": b"renderer",

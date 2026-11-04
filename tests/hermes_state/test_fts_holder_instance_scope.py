@@ -41,15 +41,15 @@ _REAL_READLINK = os.readlink
 # token lives under /home/demo/.hermes, the binary name matches the Hermes
 # patterns, and nothing references the main instance's home or state.db.
 DEMO_HOME_ARGV = [
-    "/home/demo/.hermes/hermes-agent/hermes",
+    "/home/demo/.huntington/hermes-agent/hermes",
     "gateway",
     "run",
 ]
 
 # Same, spelled through the venv interpreter + hermes launcher script.
 DEMO_VENV_ARGV = [
-    "/home/demo/.hermes/hermes-agent/venv/bin/python",
-    "/home/demo/.hermes/hermes-agent/hermes_cli/main.py",
+    "/home/demo/.huntington/hermes-agent/venv/bin/python",
+    "/home/demo/.huntington/hermes-agent/hermes_cli/main.py",
     "gateway",
 ]
 
@@ -114,7 +114,7 @@ class TestUninspectableHolderInstanceScope:
         DIFFERENT Hermes home → not a holder of our state.db."""
         # A real ``.hermes`` home, as on the field host this test is drawn from: the install
         # location can only identify a home that is itself part of an install layout.
-        db_path = tmp_path / ".hermes" / "state.db"
+        db_path = tmp_path / ".huntington" / "state.db"
         _install_fake_proc(monkeypatch, tmp_path, unreadable_pids=(222,))
         _install_fake_argv(monkeypatch, {222: DEMO_HOME_ARGV})
 
@@ -144,11 +144,11 @@ class TestUninspectableHolderInstanceScope:
         """One process per host serves EVERY profile, so argv naming only the install root does
         not prove the process is another instance: it holds ``<root>/profiles/<name>/state.db``
         too. A DIFFERENT install root is still proof."""
-        root = tmp_path / ".hermes"
+        root = tmp_path / ".huntington"
         db_path = root / "profiles" / "b" / "state.db"
         db_path.parent.mkdir(parents=True)
         multiplexer = ["hermes", "--home", str(root), "gateway", "run"]
-        other_install = ["hermes", "--home", "/home/demo/.hermes", "gateway", "run"]
+        other_install = ["hermes", "--home", "/home/demo/.huntington", "gateway", "run"]
 
         _install_fake_proc(monkeypatch, db_path.parent, unreadable_pids=(222,))
         _install_fake_argv(monkeypatch, {222: multiplexer})
@@ -166,7 +166,7 @@ class TestUninspectableHolderInstanceScope:
         state.db, deferring its FTS rebuild and auto-VACUUM for as long as the sibling lived
         (#92401, inside a single install). The process's own ``-p``/``--profile`` selection decides.
         """
-        root = tmp_path / ".hermes"
+        root = tmp_path / ".huntington"
         db_path = root / "profiles" / "b" / "state.db"
         db_path.parent.mkdir(parents=True)
         shared_binary = str(root / "venv" / "bin" / "hermes")
@@ -190,7 +190,7 @@ class TestUninspectableHolderInstanceScope:
         It sits under our install root, so a blanket own-prefix test read the strongest evidence of
         a different scope as proof of ours.
         """
-        root = tmp_path / ".hermes"
+        root = tmp_path / ".huntington"
         db_path = root / "profiles" / "b" / "state.db"
         db_path.parent.mkdir(parents=True)
         other_store = root / "profiles" / "other" / "state.db"
@@ -216,7 +216,7 @@ class TestUninspectableHolderInstanceScope:
         work = tmp_path / "work"
         db_path = work / "profiles" / "b" / "state.db"
         db_path.parent.mkdir(parents=True)
-        unrelated_home = work / "demo" / ".hermes"
+        unrelated_home = work / "demo" / ".huntington"
         unrelated_home.mkdir(parents=True)
 
         _install_fake_proc(monkeypatch, db_path.parent, unreadable_pids=(222,))
@@ -235,6 +235,6 @@ class TestUninspectableHolderInstanceScope:
 
         _install_fake_proc(monkeypatch, db_path.parent, unreadable_pids=(222,))
         _install_fake_argv(
-            monkeypatch, {222: ["/home/u/.hermes/venv/bin/hermes", "gateway", "run"]})
+            monkeypatch, {222: ["/home/u/.huntington/venv/bin/hermes", "gateway", "run"]})
         holders = hermes_state_holders.foreign_state_db_holders(db_path)
         assert [pid for pid, _ in holders] == [222]

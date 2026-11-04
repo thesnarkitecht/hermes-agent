@@ -46,7 +46,7 @@ class NativeHome:
 
     @property
     def hermes_home(self) -> Path:
-        return self.home / ".hermes"
+        return self.home / ".huntington"
 
     @property
     def project(self) -> Path:

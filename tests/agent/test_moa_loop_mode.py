@@ -12,7 +12,7 @@ def _response(content="done", *, tool_calls=None):
 
 
 def test_moa_virtual_provider_aggregator_is_actor(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text(
         """
@@ -88,7 +88,7 @@ def test_moa_primary_restore_rebuilds_virtual_facade(monkeypatch, tmp_path):
     client from MoA's empty client_kwargs, raising "api_key client option must be
     set" and then "Failed to recreate closed OpenAI client".
     """
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text(
         """
@@ -149,7 +149,7 @@ def test_moa_restored_facade_still_emits_reference_events(monkeypatch, tmp_path)
     display events for the rest of the session. The shared ``build_moa_facade``
     factory rewires the relay to ``agent.tool_progress_callback`` on restore.
     """
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text(
         """
@@ -224,7 +224,7 @@ def test_moa_generic_client_rebuild_preserves_virtual_facade(monkeypatch, tmp_pa
     from agent.chat_completion_helpers import _dispatch_nonstreaming_api_request
     from agent.moa_loop import MoAClient
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text(
         """
@@ -427,7 +427,7 @@ def test_reference_messages_drops_system_but_renders_tools_as_text():
     from agent.moa_loop import _reference_messages
 
     messages = [
-        {"role": "system", "content": "huge hermes system prompt"},
+        {"role": "system", "content": "huge huntington system prompt"},
         {"role": "user", "content": "do the thing"},
         {
             "role": "assistant",
@@ -444,7 +444,7 @@ def test_reference_messages_drops_system_but_renders_tools_as_text():
     assert all(m["role"] in ("user", "assistant") for m in view)
     assert all("tool_calls" not in m for m in view)
     # System prompt is gone.
-    assert all("huge hermes system prompt" not in m["content"] for m in view)
+    assert all("huge huntington system prompt" not in m["content"] for m in view)
     # The agent's action and the tool result are PRESERVED as text.
     joined = "\n".join(m["content"] for m in view)
     assert "[called tool: f(" in joined
@@ -471,7 +471,7 @@ def test_max_iterations_summary_keeps_the_data_use_requirement_on_every_moa_slot
     from agent.chat_completion_helpers import handle_max_iterations
     from agent.message_metadata import data_use_requirement
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text(
         "moa:\n  default_preset: review\n  presets:\n    review:\n"
@@ -1132,7 +1132,7 @@ def test_facade_does_not_cache_interrupted_reference_results(monkeypatch, tmp_pa
     from agent import moa_loop
     from agent.usage_pricing import CanonicalUsage
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text(
         """

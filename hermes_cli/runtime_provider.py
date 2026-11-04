@@ -353,7 +353,7 @@ def _maybe_apply_codex_app_server_runtime(*, provider: str, api_mode: str, model
 # ── base_url / credential helpers ──────────────────────────────────────────────────────────
 
 _ANTHROPIC_DEFAULT_BASE_URL = "https://api.anthropic.com"
-_NO_ANTHROPIC_CREDENTIALS_MSG = ("No Anthropic credentials found. Run 'hermes auth add anthropic' to sign in, "
+_NO_ANTHROPIC_CREDENTIALS_MSG = ("No Anthropic credentials found. Run 'huntington auth add anthropic' to sign in, "
                                  "or set ANTHROPIC_TOKEN / ANTHROPIC_API_KEY.")
 
 
@@ -417,7 +417,7 @@ def _anthropic_token_or_raise(*, model: str | None = None) -> str:
         # user to re-authenticate would send them chasing a cooldown that lifts on its own.
         if model and resolve_anthropic_token():
             raise AuthError(f"Anthropic credentials are rate-limited for {model}; "
-                            "other Claude models remain available (see `hermes auth list`).")
+                            "other Claude models remain available (see `huntington auth list`).")
         raise AuthError(_NO_ANTHROPIC_CREDENTIALS_MSG)
     return token
 
@@ -662,16 +662,16 @@ def _refresh_nous_pool_entry(pool: CredentialPool, entry: Any, pool_api_key: str
     min_ttl = _nous_min_key_ttl()
     if _nous_entry_key_usable(entry, min_ttl):
         return entry, pool_api_key
-    logger.debug("Nous pool entry agent_key expired/missing, refreshing selected pool entry")
+    logger.debug("HIP pool entry agent_key expired/missing, refreshing selected pool entry")
     try:
         refreshed = pool.try_refresh_current()
     except Exception as exc:
-        logger.debug("Nous pool entry refresh failed: %s", exc)
+        logger.debug("HIP pool entry refresh failed: %s", exc)
         refreshed = None
     if refreshed is not None:
         entry, pool_api_key = refreshed, _pool_entry_api_key(refreshed)
     if not pool_api_key or not _nous_entry_key_usable(entry, min_ttl):
-        logger.debug("Nous pool entry agent_key still unavailable, falling through to runtime resolution")
+        logger.debug("HIP pool entry agent_key still unavailable, falling through to runtime resolution")
         pool_api_key = ""
     return entry, pool_api_key
 
@@ -828,7 +828,7 @@ class _OAuthRuntimeSpec:
 # ``resolve_*_runtime_credentials`` names.
 _OAUTH_RUNTIME_PROVIDERS: dict[str, _OAuthRuntimeSpec] = {
     "nous": _OAuthRuntimeSpec(_resolve_nous_creds, nous_api_mode, "portal", "expires_at",
-                              "Auto-detected Nous provider but credentials failed"),
+                              "Auto-detected HIP provider but credentials failed"),
     "openai-codex": _OAuthRuntimeSpec(lambda: resolve_codex_runtime_credentials(), "codex_responses", "hermes-auth-store",
                                       "last_refresh", "Auto-detected Codex provider but credentials failed"),
     "xai-oauth": _OAuthRuntimeSpec(lambda: resolve_xai_oauth_runtime_credentials(), "codex_responses", "hermes-auth-store",
@@ -975,9 +975,9 @@ def _resolve_vertex_runtime(requested_provider: str) -> dict[str, Any]:
         token, base_url = get_vertex_config()
     if not token or not base_url:
         raise AuthError("Vertex AI credentials could not be resolved. Vertex uses OAuth2 (not a static API key): provide a "
-                        "service-account JSON via GOOGLE_APPLICATION_CREDENTIALS (or VERTEX_CREDENTIALS_PATH) in ~/.hermes/.env, "
+                        "service-account JSON via GOOGLE_APPLICATION_CREDENTIALS (or VERTEX_CREDENTIALS_PATH) in ~/.huntington/.env, "
                         "or run 'gcloud auth application-default login' for ADC. Set the GCP project/region under vertex: in "
-                        "config.yaml if they aren't embedded in the credentials. Run `hermes setup` to install Vertex support.")
+                        "config.yaml if they aren't embedded in the credentials. Run `huntington setup` to install Vertex support.")
     return _runtime("vertex", "chat_completions", base_url.rstrip("/"), token, source="vertex-oauth", requested_provider=requested_provider)
 
 

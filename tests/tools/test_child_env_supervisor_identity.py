@@ -72,7 +72,7 @@ def test_external_supervisor_gateways_tool_child_cli_stays_on_the_gateways_profi
     """Losing the supervisor claim must not unpin the agent's own `hermes ...` commands (#74872)."""
     from hermes_cli import main as cli_main
 
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     (root / "profiles" / "work").mkdir(parents=True)
     (root / "profiles" / "work" / "config.yaml").write_text("{}\n")
     (root / "active_profile").write_text("work\n")

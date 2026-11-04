@@ -61,7 +61,7 @@ def hermetic_env(home: Path, extra: dict[str, str] | None = None) -> dict[str, s
            if not (k.endswith(_STRIP_SUFFIXES) or k.startswith(_STRIP_PREFIXES)) and k not in _DROP}
     env.update(
         HOME=str(home),
-        HERMES_HOME=str(home / ".hermes"),
+        HERMES_HOME=str(home / ".huntington"),
         XDG_STATE_HOME=str(home / ".local" / "state"),
         PYTHONPATH=str(REPO_ROOT),
         NO_COLOR="1",

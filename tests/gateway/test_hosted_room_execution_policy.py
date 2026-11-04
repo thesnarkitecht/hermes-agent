@@ -235,7 +235,7 @@ def test_policy_drift_requires_reauthorization_without_retry():
 
 def _two_profile_homes(tmp_path, monkeypatch) -> None:
     """alpha is the launch/active home (``HERMES_PROFILE=alpha``); beta is a served sibling."""
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     for name, turns in (("alpha", 12), ("beta", 7)):
         home = root / "profiles" / name
         home.mkdir(parents=True)

@@ -1041,8 +1041,8 @@ class TestBackgroundOwnershipPolicyConsistency:
 
     def test_repeated_identical_delete_gets_the_same_answer(self, tmp_path, monkeypatch):
         """No stubbing of load_usage: telemetry side effects are live. Both attempts agree."""
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
-        (tmp_path / ".hermes" / "skills").mkdir(parents=True, exist_ok=True)
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
+        (tmp_path / ".huntington" / "skills").mkdir(parents=True, exist_ok=True)
         with _skill_dir(tmp_path):
             _create_skill("flip-skill", VALID_SKILL_CONTENT)
             first = self._bg_delete("flip-skill")
@@ -1055,7 +1055,7 @@ class TestBackgroundOwnershipPolicyConsistency:
     def test_foreground_write_to_unmanaged_skill_still_allowed(self, tmp_path, monkeypatch):
         """Fail-closed applies to AUTONOMOUS writes only. A user-directed
         foreground edit to their own skill must keep working."""
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
         with _skill_dir(tmp_path):
             _create_skill("no-record", VALID_SKILL_CONTENT)
             with patch("tools.skill_usage.load_usage", return_value={}):
@@ -1067,7 +1067,7 @@ class TestBackgroundOwnershipPolicyConsistency:
 
     def test_adoption_lifts_the_autonomous_delete_refusal(self, tmp_path, monkeypatch):
         """Adoption is the documented path from refused to allowed for archival."""
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
         with _skill_dir(tmp_path):
             _create_skill("adopt-me", VALID_SKILL_CONTENT)
             with patch("tools.skill_usage.load_usage", return_value={}):
@@ -1221,7 +1221,7 @@ def _curator_pass(tmp_path, *, monkeypatch):
     here; tests that specifically exercise the ownership guard set their own
     records instead.
     """
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     skills_root = hermes_home / "skills"
     skills_root.mkdir(parents=True, exist_ok=True)
     monkeypatch.setenv("HERMES_HOME", str(hermes_home))
@@ -1342,7 +1342,7 @@ class TestCuratorConsolidationDeleteGuard:
         _reset_background_review_read_marks()
         with _curator_pass(tmp_path, monkeypatch=monkeypatch):
             _create_curator_skill("reviewed", _skill_content("reviewed"))
-            ref = tmp_path / ".hermes" / "skills" / "reviewed" / "references"
+            ref = tmp_path / ".huntington" / "skills" / "reviewed" / "references"
             ref.mkdir()
             (ref / "workflow.md").write_text("old workflow\n", encoding="utf-8")
 
@@ -1405,7 +1405,7 @@ class TestLockedGuard:
     def _profile(tmp_path, monkeypatch, name="default"):
         """Isolated HERMES_HOME whose skills/ dir doubles as the patched SKILLS_DIR, so the lock
         sidecar (<home>/skills/.usage.json) and the skill files share one profile root."""
-        skills = tmp_path / name / ".hermes" / "skills"
+        skills = tmp_path / name / ".huntington" / "skills"
         skills.mkdir(parents=True)
         monkeypatch.setenv("HERMES_HOME", str(skills.parent))
         return skills

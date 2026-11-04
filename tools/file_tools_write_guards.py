@@ -168,9 +168,9 @@ def _check_sensitive_path(filepath: str, task_id: str = "default") -> str | None
     hermes_config = _get_hermes_config_resolved()
     if hermes_config and hermes_config in candidates:
         return (
-            f"Refusing to write to Hermes config file: {filepath}\n"
+            f"Refusing to write to Huntington config file: {filepath}\n"
             "Agent cannot modify security-sensitive configuration. "
-            "Edit ~/.hermes/config.yaml directly or use 'hermes config' instead.")
+            "Edit ~/.huntington/config.yaml directly or use 'huntington config' instead.")
     from tools.skill_lock import path_refusal
     if reason := path_refusal(candidates):
         return f"Refusing to write to {filepath}: {reason}"
@@ -251,7 +251,7 @@ def _protected_instruction_reason(filepath: str, task_id: str = "default",
         # behavior too. Only the IMMEDIATE parent counts — matching any ancestor
         # would gate every write inside a checkout living under ~/.hermes.
         parts = candidate.replace("\\", "/").rstrip("/").split("/")
-        if len(parts) >= 2 and parts[-2] == ".hermes":
+        if len(parts) >= 2 and parts[-2] == ".huntington":
             return candidate
     return None
 
@@ -418,12 +418,12 @@ def _get_container_mirror_prefix_for_task(task_id: str = "default") -> str | Non
         if env is not None:
             persistent_docker = (env.__class__.__name__ == "DockerEnvironment"
                                  and bool(getattr(env, "_persistent", False)))
-            return "/root/.hermes" if persistent_docker else None
+            return "/root/.huntington" if persistent_docker else None
         config = _get_env_config()
     except Exception:
         return None
     if config.get("env_type") == "docker" and config.get("container_persistent", True):
-        return "/root/.hermes"
+        return "/root/.huntington"
     return None
 
 

@@ -18,7 +18,7 @@ _LIVE_PID = 4242
 
 @pytest.fixture
 def fake_root(tmp_path, monkeypatch):
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     root.mkdir()
     monkeypatch.setattr(hermes_constants.Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(root))

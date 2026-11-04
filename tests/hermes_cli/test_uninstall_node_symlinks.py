@@ -20,7 +20,7 @@ def fake_home(tmp_path, monkeypatch):
     home = tmp_path / "home"
     home.mkdir()
     monkeypatch.setattr(Path, "home", classmethod(lambda cls: home))
-    monkeypatch.setenv("HERMES_HOME", str(home / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(home / ".huntington"))
     (home / ".local" / "bin").mkdir(parents=True)
     return home
 
@@ -39,7 +39,7 @@ def _make_hermes_node(hermes_home: Path) -> Path:
 
 @pytest.mark.parametrize("owned", [False, True])
 def test_node_link_cleanup_respects_resolved_owner(fake_home, monkeypatch, owned):
-    home = fake_home / ".hermes"
+    home = fake_home / ".huntington"
     link = fake_home / ".local" / "bin" / "node"
     target = home / "node" / "bin" / "node" if owned else fake_home / "other" / "node"
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -58,7 +58,7 @@ def test_node_link_cleanup_respects_resolved_owner(fake_home, monkeypatch, owned
 @pytest.mark.require_symlinks
 def test_leaves_unrelated_symlinks_untouched(fake_home):
     """A node symlink the user repointed at nvm must survive uninstall."""
-    hermes_home = fake_home / ".hermes"
+    hermes_home = fake_home / ".huntington"
     _make_hermes_node(hermes_home)
     local_bin = fake_home / ".local" / "bin"
 
@@ -90,7 +90,7 @@ def test_removes_fhs_symlinks_in_usr_local_bin(fake_home, tmp_path, monkeypatch)
     We monkeypatch _node_symlink_candidate_dirs to return a temp dir standing
     in for /usr/local/bin so the test doesn't need real root privileges.
     """
-    hermes_home = fake_home / ".hermes"
+    hermes_home = fake_home / ".huntington"
     node_bin = _make_hermes_node(hermes_home)
 
     # Fake /usr/local/bin as a temp dir with our symlinks.

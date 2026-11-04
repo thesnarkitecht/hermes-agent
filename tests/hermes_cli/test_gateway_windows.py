@@ -265,13 +265,13 @@ def test_spawn_detached_warns_and_marks_no_breakaway_fallback(
 
 class TestStableWindowsGatewayWorkingDir:
     def test_stable_gateway_working_dir_uses_hermes_home(self, tmp_path, monkeypatch):
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         home.mkdir()
         monkeypatch.setattr("hermes_cli.config.get_hermes_home", lambda: home)
         assert gateway_windows._stable_gateway_working_dir(tmp_path / "checkout") == str(home.resolve())
 
     def test_stable_gateway_working_dir_falls_back_to_project_root(self, tmp_path, monkeypatch):
-        missing = tmp_path / "missing" / ".hermes"
+        missing = tmp_path / "missing" / ".huntington"
         project = tmp_path / "checkout"
         monkeypatch.setattr("hermes_cli.config.get_hermes_home", lambda: missing)
         assert gateway_windows._stable_gateway_working_dir(project) == str(project)
@@ -305,7 +305,7 @@ def test_elevated_gateway_command_uses_hidden_console_python(monkeypatch):
         shell32 = FakeShell32()
 
     monkeypatch.setattr(gateway_windows, "_current_profile_cli_args", lambda: ["--profile", "alice"])
-    monkeypatch.setattr(gateway_windows.sys, "executable", r"C:\Hermes\venv\Scripts\python.exe")
+    monkeypatch.setattr(gateway_windows.sys, "executable", r"C:\Huntington\venv\Scripts\python.exe")
     monkeypatch.setattr(gateway_windows.ctypes, "windll", FakeWindll(), raising=False)
 
     assert gateway_windows._launch_elevated_gateway_command("install", ["--start-now", "--elevated-handoff"])
@@ -313,7 +313,7 @@ def test_elevated_gateway_command_uses_hidden_console_python(monkeypatch):
     assert len(calls) == 1
     _hwnd, verb, executable, params, cwd, show = calls[0]
     assert verb == "runas"
-    assert executable == r"C:\Hermes\venv\Scripts\python.exe"
+    assert executable == r"C:\Huntington\venv\Scripts\python.exe"
     assert "--profile alice gateway install --start-now --elevated-handoff" in params
     assert show == 0
     assert cwd
@@ -377,8 +377,8 @@ def test_gateway_vbs_script_is_console_less(monkeypatch):
     )
     content = gateway_windows._build_gateway_vbs_script(
         r"C:\venv\Scripts\python.exe",
-        r"C:\Hermes",
-        r"C:\Hermes",
+        r"C:\Huntington",
+        r"C:\Huntington",
         "--profile work",
     )
     assert "cmd.exe" not in content.lower()
@@ -642,7 +642,7 @@ _PRE_HARDENING_TASK_XML = """<?xml version="1.0" encoding="UTF-16"?>
   <Actions Context="Author">
     <Exec>
       <Command>wscript.exe</Command>
-      <Arguments>"C:\\Users\\me\\.hermes\\gateway-service\\Hermes_Gateway.vbs"</Arguments>
+      <Arguments>"C:\\Users\\me\\.huntington\\gateway-service\\Hermes_Gateway.vbs"</Arguments>
     </Exec>
   </Actions>
 </Task>
@@ -652,7 +652,7 @@ _PRE_HARDENING_TASK_XML = """<?xml version="1.0" encoding="UTF-16"?>
 def test_scheduled_task_drift_names_missing_hardening_leaves(monkeypatch):
     """A pre-hardening registration is reported leaf by leaf, and the report is what
     ``hermes gateway status`` prints together with the ``hermes gateway install`` repair hint."""
-    launcher = Path(r"C:\Users\me\.hermes\gateway-service\Hermes_Gateway.vbs")
+    launcher = Path(r"C:\Users\me\.huntington\gateway-service\Hermes_Gateway.vbs")
     template = gateway_windows._build_scheduled_task_xml("Hermes_Gateway", launcher, r"PC\me")
     drift = gateway_windows.compare_scheduled_task_drift(_PRE_HARDENING_TASK_XML, template)
     assert drift == [
@@ -674,7 +674,7 @@ def test_scheduled_task_drift_names_missing_hardening_leaves(monkeypatch):
 def test_scheduled_task_drift_is_silent_when_aligned_or_unqueryable(monkeypatch):
     """The template compared to itself (with the SID-style <UserId> schtasks exports) is not drift, and
     a failed ``schtasks /Query /XML`` prints nothing — status must never nag a healthy install."""
-    launcher = Path(r"C:\Users\me\.hermes\gateway-service\Hermes_Gateway.vbs")
+    launcher = Path(r"C:\Users\me\.huntington\gateway-service\Hermes_Gateway.vbs")
     template = gateway_windows._build_scheduled_task_xml("Hermes_Gateway", launcher, r"PC\me")
     exported = template.replace(r"<UserId>PC\me</UserId>", "<UserId>S-1-5-21-1-2-3-1001</UserId>")
     assert exported != template

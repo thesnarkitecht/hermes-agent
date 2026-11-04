@@ -31,8 +31,8 @@ def _resolve_profile_path(path_value: Any) -> Optional[Path]:
         return None
     from hermes_constants import get_hermes_home
     hermes_home = get_hermes_home()
-    if raw == "~/.hermes" or raw.startswith("~/.hermes/"):
-        return hermes_home / raw[len("~/.hermes/"):]
+    if raw == "~/.huntington" or raw.startswith("~/.huntington/"):
+        return hermes_home / raw[len("~/.huntington/"):]
     path = Path(raw).expanduser()
     return path if path.is_absolute() else hermes_home / path
 
@@ -44,7 +44,7 @@ def _resolve_script_path(script_value: Any) -> tuple[Optional[Path], Optional[st
     from hermes_constants import get_hermes_home
     scripts_root = (get_hermes_home() / "scripts").resolve()
     raw_text = os.path.expandvars(script_value.strip())
-    if raw_text == "~/.hermes" or raw_text.startswith("~/.hermes/"):
+    if raw_text == "~/.huntington" or raw_text.startswith("~/.huntington/"):
         mapped = _resolve_profile_path(raw_text)
         candidate = mapped.resolve() if mapped is not None else scripts_root
     else:

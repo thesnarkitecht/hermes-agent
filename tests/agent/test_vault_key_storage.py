@@ -205,7 +205,7 @@ def test_clone_all_owns_its_key_before_the_source_ever_migrates(home, keychain, 
 
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    source = home(".hermes", key_storage="keychain")
+    source = home(".huntington", key_storage="keychain")
     item = _add(VaultStore())
     clone = create_profile("vault-clone", clone_from="default", clone_all=True, no_alias=True)
 
@@ -222,7 +222,7 @@ def test_clone_all_without_a_reachable_keychain_is_refused_not_published_sharing
 
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    home(".hermes", key_storage="keychain")
+    home(".huntington", key_storage="keychain")
     _add(VaultStore())
     keyring.set_keyring(fail.Keyring())  # e.g. an SSH session that cannot reach the login keychain
     with pytest.raises(ValueError, match="OS keychain"):
@@ -236,7 +236,7 @@ def test_a_clone_that_fails_to_publish_leaves_no_keychain_entry_behind(home, key
 
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    source = home(".hermes", key_storage="keychain")
+    source = home(".huntington", key_storage="keychain")
     item = _add(VaultStore())
 
     def fail_layout(*args, **kwargs):
@@ -258,7 +258,7 @@ def test_a_clone_failing_before_custody_never_deletes_the_source_entry(home, key
 
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    source = home(".hermes", key_storage="keychain")
+    source = home(".huntington", key_storage="keychain")
     item = _add(VaultStore())
     moved = tmp_path / "moved-vault"
 

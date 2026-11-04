@@ -82,7 +82,7 @@ def test_keyless_worker_reads_its_own_profile_home_not_the_default(tmp_path, mon
     the worker's resolution then sees its own key, never the launch (default) profile's."""
     import os
     from gateway.session_managed_worker import _worker_env
-    default = tmp_path / '.hermes'
+    default = tmp_path / '.huntington'
     profile = default / 'profiles' / 'kb5'
     profile.mkdir(parents=True)
     own, other = 'fake-own-' + secrets.token_hex(8), 'fake-default-' + secrets.token_hex(8)

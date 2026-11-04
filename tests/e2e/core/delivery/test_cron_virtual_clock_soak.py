@@ -566,7 +566,7 @@ def soak_env(tmp_path, monkeypatch):
         if key.endswith("_API_KEY") or key in ("INVOCATION_ID", "HERMES_TIMEZONE"):
             monkeypatch.delenv(key, raising=False)
     home_root = tmp_path / "home"
-    hermes_home = home_root / ".hermes"
+    hermes_home = home_root / ".huntington"
     hermes_home.mkdir(parents=True)
     monkeypatch.setenv("HOME", str(home_root))
     monkeypatch.setenv("HERMES_HOME", str(hermes_home))

@@ -67,10 +67,10 @@ class _Ask:
 _CLAIM_BLOCKERS: tuple[tuple[str, Callable[[_Ask], bool]], ...] = (
     ("not the desktop's local backend", lambda _ask: not anon_auth.on_local_desktop_backend()),
     ("guests are switched off", lambda _ask: not anon_auth.guest_allowed()),
-    ("a Nous identity exists", lambda _ask: _has_nous_identity()),
+    ("a HIP identity exists", lambda _ask: _has_nous_identity()),
     ("a provider is configured",
      lambda ask: provider_configured() if ask.configured is None else ask.configured),
-    ("Hermes was used on this machine", lambda ask: _machine_is_used(ask.assume_fresh)),
+    ("Huntington was used on this machine", lambda ask: _machine_is_used(ask.assume_fresh)),
 )
 
 
@@ -104,7 +104,7 @@ def claim_desktop_free_tier(*, assume_fresh: bool = False, force: bool = False) 
                 str(failure.get("error_code") or anon_auth.ANON_SERVER_ERROR),
                 retry_after=failure.get("retry_after"))
         install_state.mark_machine_used()
-    logger.info("Nous free tier: welcome trial claimed on this machine")
+    logger.info("HIP free tier: welcome trial claimed on this machine")
     return state
 
 
@@ -121,7 +121,7 @@ def settle_interrupted_claim() -> bool:
     if not any(anon_auth.is_guest_state(s) and s.get(anon_auth.WELCOME_CLAIM_FLAG) is True for s in stores):
         return False
     mark_machine_used()
-    logger.info("Nous free tier: an interrupted welcome-trial claim was settled")
+    logger.info("HIP free tier: an interrupted welcome-trial claim was settled")
     return True
 
 

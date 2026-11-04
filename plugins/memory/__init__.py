@@ -56,7 +56,7 @@ def _get_project_plugins_dir() -> Optional[Path]:
 
         if not _env_enabled("HERMES_ENABLE_PROJECT_PLUGINS"):
             return None
-        d = Path.cwd() / ".hermes" / "plugins"
+        d = Path.cwd() / ".huntington" / "plugins"
         return d if d.is_dir() else None
     except Exception:
         return None
@@ -517,7 +517,7 @@ def parked_provider_notice(name: str) -> Optional[str]:
     why = (f" An update turned it off ({recorded.get('reason')}) and a later update retries it."
            if isinstance(recorded, dict) and recorded.get("reason") else "")
     return (f"⚠ Memory provider '{name}' is turned off: plugins.disabled lists it, so external memory is off "
-            f"(built-in memory still works).{why} Turn it back on with `hermes plugins enable {name}`.")
+            f"(built-in memory still works).{why} Turn it back on with `huntington plugins enable {name}`.")
 
 
 def _explicitly_disabled(name: str, provider_dir: Path) -> bool:

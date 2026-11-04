@@ -18,7 +18,7 @@ fact = Facts(store / 'facts.json').get('python')
 expected = get_package('python').binary(store / fact['entry'], current_target())
 assert Path(sys._base_executable).resolve() == expected.resolve()
 import hermes_yaml as yaml
-print('PM interpreter and application dependencies load as hermes')
+print('PM interpreter and application dependencies load as huntington')
 """
     result = subprocess.run(
         ["docker", "run", "--rm", "--network", "none", "--user", "hermes",

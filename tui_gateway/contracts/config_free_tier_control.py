@@ -171,7 +171,7 @@ class DiagnosticsShareNousResult(Result):
 
 
 method("diagnostics.share_nous", params=DiagnosticsShareNousParams, result=DiagnosticsShareNousResult,
-       doc="Upload a force-redacted debug bundle to Nous-internal diagnostics storage.")
+       doc="Upload a force-redacted debug bundle to HIP-internal diagnostics storage.")
 
 
 # ── free tier ─────────────────────────────────────────────────────────────────────────────────

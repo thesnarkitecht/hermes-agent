@@ -168,7 +168,7 @@ def is_managed_route(capability: Optional[str] = None) -> bool:
 
 
 def _firecrawl_backend_help_suffix() -> str:
-    return ", or use the Nous Tool Gateway via your subscription (FIRECRAWL_GATEWAY_URL or TOOL_GATEWAY_DOMAIN)" if _backend_helpers.managed_nous_tools_enabled() else ""
+    return ", or use the HIP Tool Gateway via your subscription (FIRECRAWL_GATEWAY_URL or TOOL_GATEWAY_DOMAIN)" if _backend_helpers.managed_nous_tools_enabled() else ""
 
 
 def _get_firecrawl_client(capability: Optional[str] = None) -> Any:
@@ -191,13 +191,13 @@ def _get_firecrawl_client(capability: Optional[str] = None) -> Any:
     def _unconfigured_message() -> str:
         message = "Web tools are not configured. Set FIRECRAWL_API_KEY for cloud Firecrawl or set FIRECRAWL_API_URL for a self-hosted Firecrawl instance."
         if _backend_helpers.managed_nous_tools_enabled():
-            return message + " With your Nous subscription you can also use the Tool Gateway. run `hermes tools` and select Nous Subscription as the web provider."
+            return message + " With your HIP subscription you can also use the Tool Gateway. run `huntington tools` and select HIP Subscription as the web provider."
         return message + " " + _backend_helpers.nous_tool_gateway_unavailable_message("managed Firecrawl web tools")
 
     # (resolved config, log detail, error message) per selection state; the message is built lazily.
     if selected == NOUS_MANAGED_PROVIDER:
-        resolved, log, message = _managed(), "the Nous Subscription web selection is stored but the tool gateway is unavailable.", lambda: selection_error(
-            "web", NOUS_MANAGED_PROVIDER, "the Nous Tool Gateway is not available (not entitled or unreachable)")
+        resolved, log, message = _managed(), "the HIP Subscription web selection is stored but the tool gateway is unavailable.", lambda: selection_error(
+            "web", NOUS_MANAGED_PROVIDER, "the HIP Tool Gateway is not available (not entitled or unreachable)")
     elif selected is not None or _is_explicit_firecrawl_selection():
         # Stored vendor selection (shared name, or a per-capability key naming firecrawl): direct only (no
         # credentials → explicit selection unlocks keyless cloud mode). A per-capability key naming ANOTHER
@@ -384,6 +384,6 @@ class FirecrawlWebSearchProvider(BaseWebSearchProvider):
     def get_setup_schema(self) -> dict[str, Any]:
         return setup_schema(
             "Firecrawl", "keyless/paid · optional gateway",
-            "Full search + extract; supports keyless cloud, direct API, and Nous tool-gateway routing.",
+            "Full search + extract; supports keyless cloud, direct API, and HIP tool-gateway routing.",
             "FIRECRAWL_API_KEY", "Firecrawl API key (optional; blank = keyless cloud or self-hosted)", "https://docs.firecrawl.dev/introduction",
         )

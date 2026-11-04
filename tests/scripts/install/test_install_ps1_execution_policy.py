@@ -62,7 +62,7 @@ def test_installer_runs_runtime_command_from_apostrophe_account_path(tmp_path):
     )
     selected = runtime_command(
         install_root, code="print('setup-runtime-ok')", python=sys.executable,
-        home=install_root.parent / ".hermes",
+        home=install_root.parent / ".huntington",
     )
     env = os.environ.copy()
     env["HERMES_TEST_RUNTIME_COMMAND"] = json.dumps(selected)

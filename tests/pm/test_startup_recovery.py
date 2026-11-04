@@ -29,7 +29,7 @@ def isolated_machine_home(tmp_path, monkeypatch):
     # machine cache and platform-specific home lookup must be isolated there too.
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setenv("USERPROFILE", str(tmp_path))
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
     monkeypatch.delenv("HERMES_INSTALL_ROOT", raising=False)
 
 

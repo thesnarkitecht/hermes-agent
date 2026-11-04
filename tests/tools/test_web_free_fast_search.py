@@ -166,7 +166,7 @@ def test_free_fast_search_eligibility_follows_the_served_profile(monkeypatch, tm
     from gateway.run import _profile_runtime_scope
     from tools import web_tools
 
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     profile_a, profile_b = root / "profiles" / "a", root / "profiles" / "b"
     _write_home(profile_a, monkeypatch, nous_state=_nous_state(EXHAUSTED, "oauth"), config={"web": {"keyless_fallback": False}})
     _write_home(profile_b, monkeypatch, config={"web": {"keyless_fallback": False}})

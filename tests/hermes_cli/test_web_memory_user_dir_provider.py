@@ -15,7 +15,7 @@ import json, os
 from pathlib import Path
 
 def resolve_active_host():
-    return "hermes"
+    return "huntington"
 
 def resolve_config_path():
     return Path(os.environ["HERMES_HOME"]) / "honcho.json"
@@ -96,7 +96,7 @@ def test_oauth_routes_load_the_provider_from_the_requested_profile(tmp_path, mon
     from hermes_cli.web_server import _SESSION_HEADER_NAME, _SESSION_TOKEN, app
     from starlette.testclient import TestClient
 
-    default_home = tmp_path / ".hermes"
+    default_home = tmp_path / ".huntington"
     work_home = default_home / "profiles" / "work"
     work_home.mkdir(parents=True)
     (work_home / "profile.yaml").write_text("name: work\n", encoding="utf-8")

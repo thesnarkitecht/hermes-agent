@@ -18,7 +18,7 @@ def test_requested_service_name_does_not_borrow_callers_home(tmp_path, monkeypat
     requested.mkdir(parents=True)
     monkeypatch.setenv('HERMES_HOME', str(requested))
     installed = _profile_suffix()
-    monkeypatch.setenv('HERMES_HOME', str(tmp_path / '.hermes'))
+    monkeypatch.setenv('HERMES_HOME', str(tmp_path / '.huntington'))
     assert service_suffix(requested) == installed
 
 

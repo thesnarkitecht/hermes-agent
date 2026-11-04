@@ -30,7 +30,7 @@ for key in list(os.environ):
         os.environ.pop(key, None)
 TMP = Path(tempfile.mkdtemp(prefix='hosted-attachment-bench-'))
 os.environ['HOME'] = str(TMP)
-os.environ['HERMES_HOME'] = str(TMP / '.hermes')
+os.environ['HERMES_HOME'] = str(TMP / '.huntington')
 
 from pytest import MonkeyPatch
 

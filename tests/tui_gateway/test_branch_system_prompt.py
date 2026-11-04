@@ -13,7 +13,7 @@ def test_persist_branch_copies_the_parent_system_prompt(tmp_path, monkeypatch):
     from hermes_state import SessionDB
     from tui_gateway import server
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(home))

@@ -22,7 +22,7 @@ from fastapi.testclient import TestClient
 def profile_env(tmp_path, monkeypatch):
     """Path.home() and HERMES_HOME both point into the temp dir (profile ops are HOME-anchored)."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(exist_ok=True)
     monkeypatch.setenv("HERMES_HOME", str(home))
     return tmp_path

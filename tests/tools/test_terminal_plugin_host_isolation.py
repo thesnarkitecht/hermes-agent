@@ -40,7 +40,7 @@ def register(ctx):
 
 
 def _load(tmp_path, monkeypatch, isolation):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     plugin_dir = home / "plugins" / "hostbox"
     plugin_dir.mkdir(parents=True)
     (plugin_dir / "plugin.yaml").write_text(yaml.safe_dump({"name": "hostbox", "version": "1.0"}), encoding="utf-8")

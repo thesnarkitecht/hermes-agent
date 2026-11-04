@@ -12,7 +12,7 @@ import pm
 from pm.package import InstallError, Runner, compose_env
 from pm.workspace import install_node_sidecar
 
-_REAL_HERMES_HOME = Path.home() / ".hermes"  # Captured before per-test HOME isolation.
+_REAL_HERMES_HOME = Path.home() / ".huntington"  # Captured before per-test HOME isolation.
 
 
 def test_no_package_json_never_acquires_npm(tmp_path, monkeypatch):
@@ -45,7 +45,7 @@ def test_real_npm_uses_paired_node_with_empty_ambient_path(tmp_path, monkeypatch
         pytest.skip("npm and node are required")
     if any(Path(executable).absolute().is_relative_to(_REAL_HERMES_HOME)
            for executable in (npm, node)):
-        pytest.skip("requires npm and Node outside the real Hermes home")
+        pytest.skip("requires npm and Node outside the real Huntington home")
     # npm's real JS entrypoint uses /usr/bin/env node. Its paired Node lives
     # in a different PATH entry, just as the two PM packages do.
     npm_cli = next(iter(Path(npm).resolve().parent.parent.glob("lib/npm*/bin/npm-cli.js")), Path(npm).resolve())

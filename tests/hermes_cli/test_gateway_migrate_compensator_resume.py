@@ -31,7 +31,7 @@ def _write_live_gateway(home: Path, served: list[str] | None = None) -> None:
 def stranded(tmp_path, monkeypatch):
     """A host mid-migration: manifest on disk, both secondaries' units already uninstalled,
     nothing serving. Exactly what an apply that died in ``_wait_for_served`` leaves behind."""
-    root = tmp_path / "home" / ".hermes"
+    root = tmp_path / "home" / ".huntington"
     for sub in ("profiles/coder", "profiles/ops"):
         (root / sub).mkdir(parents=True)
         (root / sub / "SOUL.md").write_text("x\n", encoding="utf-8")

@@ -55,7 +55,7 @@ from hermes_cli.update_inventory import (
 @pytest.fixture()
 def receipt_home(tmp_path, monkeypatch):
     """Hermetic HERMES_HOME so receipts never touch the real profile."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(
         "hermes_cli.config.get_hermes_home", lambda: home, raising=False
@@ -249,7 +249,7 @@ class TestRefusalIsNotFailure:
 
         # Run 2: a preflight refusal (venv-holder / concurrent instance).
         ur.begin_update_receipt()
-        ur.record_step("venv_preflight", False, "another hermes holds venv")
+        ur.record_step("venv_preflight", False, "another huntington holds venv")
         refused_path = ur.finalize_pending_update_receipt(2, "sys.exit(2)")
         refused = json.loads(refused_path.read_text(encoding="utf-8"))
 

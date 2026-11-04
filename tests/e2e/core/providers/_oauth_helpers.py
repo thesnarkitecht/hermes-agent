@@ -44,7 +44,7 @@ class FakeHome:
     def env(self, extra: dict[str, str] | None = None) -> dict[str, str]:
         import pwd  # POSIX-only; the suite is Linux-gated
 
-        real_root = Path(pwd.getpwuid(os.getuid()).pw_dir, ".hermes").resolve()
+        real_root = Path(pwd.getpwuid(os.getuid()).pw_dir, ".huntington").resolve()
         fixture = self.hermes_home.resolve()
         assert fixture != real_root and fixture.parent != real_root / "profiles", (
             f"fixture HERMES_HOME {fixture} is the real install's live home")
@@ -77,8 +77,8 @@ class FakeHome:
 
 def make_home(root: Path) -> FakeHome:
     home = root / "home"
-    (home / ".hermes").mkdir(parents=True, exist_ok=True)
-    fh = FakeHome(root=root, home=home, hermes_home=home / ".hermes")
+    (home / ".huntington").mkdir(parents=True, exist_ok=True)
+    fh = FakeHome(root=root, home=home, hermes_home=home / ".huntington")
     fh.write_config({})
     return fh
 

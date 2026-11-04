@@ -276,10 +276,10 @@ def test_dock_exec_line_survives_spaces_in_the_executable_and_profile_paths():
     Exec= follows the Desktop Entry spec: each argument double-quoted, with the reserved characters
     backslash-escaped inside the quotes."""
     exe = "/opt/Google Chrome/chrome"
-    profile = '/home/a b/.hermes/browser "x"/profile'
+    profile = '/home/a b/.huntington/browser "x"/profile'
     line = browser.dock_exec_line(exe, profile)
     assert line.startswith('Exec="/opt/Google Chrome/chrome" ')
-    assert r'"--user-data-dir=/home/a b/.hermes/browser \\"x\\"/profile"' in line  # spec: \" quoted, then \ string-escaped
+    assert r'"--user-data-dir=/home/a b/.huntington/browser \\"x\\"/profile"' in line  # spec: \" quoted, then \ string-escaped
     assert "--remote-debugging-port=0" in line
 
 

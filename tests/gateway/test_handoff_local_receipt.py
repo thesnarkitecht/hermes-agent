@@ -575,7 +575,7 @@ def _serve(tmp_path, monkeypatch):
     own ``state.db``; ``bot`` delivers to a Telegram home channel."""
     from pathlib import Path
     import hermes_state
-    root = tmp_path / '.hermes'
+    root = tmp_path / '.huntington'
     bot = root / 'profiles' / 'bot'
     bot.mkdir(parents=True, mode=0o700)
     (bot / 'config.yaml').write_text(

@@ -50,16 +50,16 @@ def test_scratch_home_does_not_resolve_the_accounts_bare_gateway_unit(tmp_path, 
     """The incident's resolution: HOME=<scratch>, HERMES_HOME unset, the account's real bare unit
     pinning the account home. The scratch home must not name that unit."""
     account, scratch = tmp_path / "account", tmp_path / "scratch"
-    (scratch / ".hermes").mkdir(parents=True)
+    (scratch / ".huntington").mkdir(parents=True)
     real_unit = account / ".config" / "systemd" / "user" / "hermes-gateway.service"
-    _unit(real_unit, account / ".hermes")
+    _unit(real_unit, account / ".huntington")
     monkeypatch.delenv("HERMES_HOME", raising=False)
     monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
     monkeypatch.setenv("HOME", str(scratch))
     monkeypatch.setenv("HERMES_REAL_HOME", str(account))
     monkeypatch.setattr(os, "geteuid", lambda: 1000)
 
-    assert gw.get_hermes_home() == scratch / ".hermes"
+    assert gw.get_hermes_home() == scratch / ".huntington"
     assert gw.get_service_name() != "hermes-gateway"
     assert gw.get_systemd_unit_path() != real_unit
     assert not gw.get_systemd_unit_path().exists()
@@ -79,7 +79,7 @@ def test_lifecycle_verb_refuses_a_user_unit_pinning_another_home(tmp_path, monke
     monkeypatch.setattr(os, "geteuid", lambda: 1000)
     unit = gw.get_systemd_unit_path()
     assert unit.name == "hermes-gateway-coder.service"
-    _unit(unit, account / ".hermes" / "profiles" / "coder")
+    _unit(unit, account / ".huntington" / "profiles" / "coder")
 
     if verb == "uninstall":
         gw._service_call("systemd", verb, False)
@@ -161,7 +161,7 @@ def test_stop_all_leaves_another_homes_gateway_process_alone(monkeypatch, record
     """``kill_gateway_processes(all_profiles=True)`` scans every gateway of this account; a scratch-home
     ``stop --all`` must not SIGTERM a gateway running on another Hermes home."""
     from hermes_cli import dashboard_procs
-    own, other = str(gw.get_hermes_home()), str(tmp_path / "account" / ".hermes")
+    own, other = str(gw.get_hermes_home()), str(tmp_path / "account" / ".huntington")
     monkeypatch.setattr(gw, "find_gateway_pids", lambda *a, **k: [111, 222])
     monkeypatch.setattr(dashboard_procs, "_hermes_home_for_pid", {111: own, 222: other}.get)
 
@@ -198,8 +198,8 @@ def test_sudo_system_stop_checks_the_units_home_not_roots(tmp_path, monkeypatch,
     """``sudo hermes gateway stop --system``: HOME=/root and HERMES_HOME stripped, while the system unit
     runs the invoking user's home. The live-work check must ask the unit's home, without adopting it."""
     import hermes_constants
-    root_home, user_home = tmp_path / "root", tmp_path / "user" / ".hermes"
-    (root_home / ".hermes").mkdir(parents=True)
+    root_home, user_home = tmp_path / "root", tmp_path / "user" / ".huntington"
+    (root_home / ".huntington").mkdir(parents=True)
     user_home.mkdir(parents=True)
     _unit(tmp_path / "systemd" / "hermes-gateway.service", user_home)
     monkeypatch.setattr(gw, "_SYSTEM_UNIT_DIR", tmp_path / "systemd")
@@ -256,7 +256,7 @@ def test_host_served_profile_refuses_before_unserving_its_live_turns(tmp_path, m
     assert exc.value.code == 1 and requests == []
     assert asked == [(host_home, {"profile": "coder"})]
     assert "1 live session(s)" in out and "agent:coder:telegram:dm:7" in out
-    assert f"hermes -p coder gateway {verb} --yes" in out
+    assert f"huntington -p coder gateway {verb} --yes" in out
     assert not (profile_home / "gateway.parked").exists()
 
     command(SimpleNamespace(all=False, system=False, force=False, interrupt=True))

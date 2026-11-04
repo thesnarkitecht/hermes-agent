@@ -100,7 +100,7 @@ def _hermes_home_points_at_production(value: str) -> bool:
         from hermes_state_guard import _real_platform_state_root
 
         resolved = Path(value).expanduser().resolve()
-        real_root = _real_platform_state_root() or (Path.home() / ".hermes").resolve()
+        real_root = _real_platform_state_root() or (Path.home() / ".huntington").resolve()
     except Exception:
         return True
     if resolved == real_root:
@@ -138,7 +138,7 @@ if _HERMES_EXPORTED_TMP:
 
 from hermes_state_guard import _real_platform_state_root
 
-_real_test_root = _real_platform_state_root() or (Path.home() / ".hermes").resolve()
+_real_test_root = _real_platform_state_root() or (Path.home() / ".huntington").resolve()
 _guarded_tmp_roots = [_real_test_root]
 _custom_test_home = os.environ.get("HERMES_HOME")
 if _custom_test_home:
@@ -651,7 +651,7 @@ def _capture_real_kanban_root() -> Path:
         return get_default_hermes_root().resolve()
     # No pre-existing HERMES_HOME: the real root is the platform default,
     # NOT the sandbox tempdir now sitting in the env.
-    return (Path.home() / ".hermes").resolve()
+    return (Path.home() / ".huntington").resolve()
 
 
 _REAL_KANBAN_ROOT = _capture_real_kanban_root()
@@ -706,7 +706,7 @@ def _kanban_write_guard(_hermetic_environment, monkeypatch):
             f"kanban_write_guard: kanban DB path resolved to {resolved}, "
             f"which is under the REAL kanban root ({_REAL_KANBAN_ROOT}). "
             f"Hermetic isolation has been bypassed — refusing to write "
-            f"to the real ~/.hermes. See #69283."
+            f"to the real ~/.huntington. See #69283."
         )
 
     monkeypatch.setattr(_kdbc, "connect", _guarded_connect)
@@ -1073,7 +1073,7 @@ def _relocate_basetemp_outside_operator_home(config) -> None:
     # and, for runs that were killed before that, swept once it is 24h idle.
     safe = Path(tempfile.mkdtemp(prefix="b-", dir=_pytest_disk_temp_root(native)))
     assert not safe.resolve().is_relative_to(native), (
-        f"pytest basetemp {safe} still resolves inside the operator's Hermes home {native}; "
+        f"pytest basetemp {safe} still resolves inside the operator's Huntington home {native}; "
         "refusing to run the suite against the live install (pass --basetemp outside it)"
     )
     factory._given_basetemp = safe
@@ -1225,7 +1225,7 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers",
         f"{_REQUIRES_WAL_MARK}: test needs the runtime to actually enable "
-        "SQLite WAL mode; skipped on builds where Hermes falls back to "
+        "SQLite WAL mode; skipped on builds where Huntington falls back to "
         "journal_mode=DELETE for the WAL-reset bug.",
     )
     config.addinivalue_line(
@@ -1358,7 +1358,7 @@ def pytest_collection_modifyitems(config, items):
         return
 
     reason = (
-        f"SQLite {sqlite3.sqlite_version} has the WAL-reset bug — Hermes uses "
+        f"SQLite {sqlite3.sqlite_version} has the WAL-reset bug — Huntington uses "
         "journal_mode=DELETE here, so no -wal sidecar exists to assert on"
     )
     skip_marker = pytest.mark.skip(reason=reason)
@@ -1589,7 +1589,7 @@ def _capture_real_hermes_root() -> list[Path]:
 
     roots: list[Path] = []
     try:
-        default_root = (Path.home() / ".hermes").resolve()
+        default_root = (Path.home() / ".huntington").resolve()
         roots.append(default_root)
     except Exception:
         pass

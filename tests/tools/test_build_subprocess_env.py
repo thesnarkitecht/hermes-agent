@@ -58,7 +58,7 @@ def test_e2e_scrubbed_env_resolves_bare_hermes_under_minimal_parent_path(monkeyp
     if not bin_dir or not os.path.isfile(
         os.path.join(bin_dir, "hermes.exe" if os.name == "nt" else "hermes")
     ):
-        pytest.skip("no real hermes console-script install available")
+        pytest.skip("no real huntington console-script install available")
 
     # Simulate the service-manager minimal PATH: hermes dir absent. An empty directory, not
     # /usr/bin:/bin — a distro-packaged hermes (/usr/bin/hermes) would already be on those.
@@ -71,7 +71,7 @@ def test_e2e_scrubbed_env_resolves_bare_hermes_under_minimal_parent_path(monkeyp
 
     resolved = shutil.which("hermes", path=env.get("PATH", ""))
     assert resolved is not None, (
-        f"bare 'hermes' must resolve from the child PATH {env.get('PATH')!r}"
+        f"bare 'huntington' must resolve from the child PATH {env.get('PATH')!r}"
     )
     assert os.path.dirname(resolved) == bin_dir
     assert env["PATH"].split(os.pathsep)[0] == bin_dir

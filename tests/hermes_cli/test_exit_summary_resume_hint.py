@@ -66,7 +66,7 @@ class TestExitSummaryResumeHint:
         with patch("hermes_cli.profiles.get_active_profile_name", return_value="dev"):
             cli_obj._print_exit_summary()
         out = capsys.readouterr().out
-        assert 'hermes -c "My Cool Session" -p dev' in out
+        assert 'huntington -c "My Cool Session" -p dev' in out
         assert "hermes --resume 20260524_000001_abc123 -p dev" in out
 
     def test_resume_hint_falls_back_when_profile_lookup_fails(self, capsys):
@@ -104,7 +104,7 @@ class TestTuiExitSummaryResumeHint:
             _print_tui_exit_summary("20260524_000001_abc123")
         out = capsys.readouterr().out
         assert "hermes --tui --resume 20260524_000001_abc123 -p dev" in out
-        assert 'hermes --tui -c "My TUI Session" -p dev' in out
+        assert 'huntington --tui -c "My TUI Session" -p dev' in out
 
     def test_tui_hints_no_profile_flag_on_default(self, capsys):
         with patch("hermes_state.SessionDB", _tui_session_db), patch(

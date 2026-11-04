@@ -60,7 +60,7 @@ echo "=== libc: $(ldd --version 2>&1 | head -n1)"
 bash /work/install.sh --non-interactive </dev/null
 echo "=== install rc=$?"
 echo "=== probes"
-for exe in "$HOME"/.hermes/tools/*/uv "$HOME"/.hermes/tools/*/bin/python3 "$HOME"/.hermes/tools/*/bin/node \
+for exe in "$HOME"/.huntington/tools/*/uv "$HOME"/.huntington/tools/*/bin/python3 "$HOME"/.huntington/tools/*/bin/node \
            "$HOME"/.local/bin/hermes; do
     [ -e "$exe" ] || continue
     timeout 60 "$exe" --version >/dev/null 2>&1
@@ -120,5 +120,5 @@ def test_musl_host_gets_runnable_tools_or_a_refusal_naming_musl(alpine_install):
                       + "\n" + I.describe(cp))
     if rc == 0:
         hermes = [p for code, p in probes if p.endswith("/.local/bin/hermes")]
-        assert hermes, "musl host: install exited 0 but published no hermes command:\n" + I.describe(cp)
+        assert hermes, "musl host: install exited 0 but published no huntington command:\n" + I.describe(cp)
 

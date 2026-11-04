@@ -12,7 +12,7 @@ from hermes_cli import backup
 
 @pytest.mark.parametrize("automatic", [False, True])
 def test_zip_captures_live_wal_and_cleans_failed_staging(tmp_path, monkeypatch, automatic):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)

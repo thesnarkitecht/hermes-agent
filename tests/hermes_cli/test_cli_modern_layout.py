@@ -45,7 +45,7 @@ def test_glyph_layout_scrollback_is_width_independent(monkeypatch, modern):
     start = rows.index("**Planning the change**")
     assert rows[start - 1] == "─" * 40 and rows[start + 1] == "I will read calc.py first.", rows
     assert rows[start + 2] == thought[0], rows
-    assert rows[next(i for i, r in enumerate(rows) if r.startswith("☤ Hermes")) - 1] == "─" * 40, rows
+    assert rows[next(i for i, r in enumerate(rows) if r.startswith("☤ Huntington")) - 1] == "─" * 40, rows
     assert any("Added multiply to calc.py." in line for line in rows)
 
 
@@ -114,7 +114,7 @@ def test_layout_and_busy_default_through_the_config_loader(tmp_path, monkeypatch
     import cli
     from hermes_cli.cli_modern_layout import busy_input_mode_from_config, layout_from_config
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(cli, "_hermes_home", home)

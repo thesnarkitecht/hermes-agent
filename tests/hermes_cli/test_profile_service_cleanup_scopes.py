@@ -16,7 +16,7 @@ from hermes_cli import gateway, profiles
 @pytest.fixture
 def victim(tmp_path, monkeypatch):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    launch = tmp_path / ".hermes"
+    launch = tmp_path / ".huntington"
     victim_dir = launch / "profiles" / "victim"
     victim_dir.mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(launch))

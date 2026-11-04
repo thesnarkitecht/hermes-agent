@@ -16,7 +16,7 @@ import hermes_cli.update_receipt as ur
 
 
 def _setup(monkeypatch, tmp_path, record: dict):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(exist_ok=True)
     monkeypatch.setattr(
         "hermes_cli.version_info.get_code_identity",

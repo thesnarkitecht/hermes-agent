@@ -76,7 +76,7 @@ _KILLED_AFTER_RECORDING = """
     if kind == "systemd":
         entry.update(kind="systemd", scope="user", unit="hermes-gateway-p2probe.service", cgroup=None)
     else:
-        entry["argv"] = ["hermes", "gateway", "run"]
+        entry["argv"] = ["huntington", "gateway", "run"]
     # Discovery is the seam (no real unit or install here); recording is the code under test.
     m._discover_systemd = lambda: [entry] if kind == "systemd" else []
     m._discover_launchd = lambda: []
@@ -160,7 +160,7 @@ def test_a_replayed_gateway_keeps_its_own_exported_token_and_no_one_elses(tmp_pa
     """A named profile's hand-started gateway, replayed by an update launched under that profile,
     starts as the restart watcher started it: with the launcher's environment (an exported bot
     token may be its only credential). Any other profile, and the multiplexing root, never get it."""
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     for name in ("alpha", "beta"):
         (root / "profiles" / name).mkdir(parents=True)
     probe = _child("""

@@ -76,7 +76,7 @@ def _launcher_bound_root(project_root: Path, candidates: list[Path]) -> Path | N
     """The candidate whose ``tools/`` holds the live interpreter the checkout's launcher execs."""
     from hermes_cli._launchers import _launcher_python
 
-    local = project_root / ".hermes" / "bin"
+    local = project_root / ".huntington" / "bin"
     for name in (("hermes.exe", "hermes.cmd") if os.name == "nt" else ("hermes",)):
         python = _launcher_python(local / name)
         if python is None or not python.is_file():
@@ -516,7 +516,7 @@ def activate_dependencies(project_root: Path) -> None:
     # the build-time source snapshot, not this checkout (#124627): a child that resolves
     # `hermes` off PATH must hit the checkout's own launcher first, never the venv's copy.
     # A sealed payload's launchers live in <payload>/bin instead.
-    directories = [payload_command_dir(project_root) or project_root.resolve() / ".hermes" / "bin"]
+    directories = [payload_command_dir(project_root) or project_root.resolve() / ".huntington" / "bin"]
     # A sealed payload's Windows venv redirectors never go on PATH: a shipped venv's still
     # names the build machine, and a generation built since names PM's writable Python copy,
     # which cannot start the package's executables (see venv_command).

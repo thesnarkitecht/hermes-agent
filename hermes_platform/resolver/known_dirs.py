@@ -30,7 +30,7 @@ def node_tool_dirs() -> tuple[str, ...]:
 
 
 def hermes_vendored_dirs() -> tuple[str, ...]:
-    return ("~/.hermes/bin",) if _POSIX else ("%USERPROFILE%/.hermes/bin",)
+    return ("~/.huntington/bin",) if _POSIX else ("%USERPROFILE%/.huntington/bin",)
 
 
 def machine_marker_files() -> tuple[str, ...]:
@@ -38,10 +38,10 @@ def machine_marker_files() -> tuple[str, ...]:
     The first entry is the one written; the rest are read too (Windows: MSIX builds that ran with
     filesystem virtualisation wrote under the package's LocalCache)."""
     if _WIN:
-        return ("%LOCALAPPDATA%/Nous Research/.machine",
-                "%LOCALAPPDATA%/Packages/NousResearch*_*/LocalCache/Local/Nous Research/.machine")
+        return ("%LOCALAPPDATA%/HIP/.machine",
+                "%LOCALAPPDATA%/Packages/NousResearch*_*/LocalCache/Local/HIP/.machine")
     if sys.platform == "darwin":
-        return ("~/Library/Application Support/Nous Research/.machine",)
+        return ("~/Library/Application Support/HIP/.machine",)
     return ("$XDG_STATE_HOME/nous-research/.machine", "~/.local/state/nous-research/.machine")
 
 
@@ -49,9 +49,9 @@ def hermes_home_globs() -> tuple[str, ...]:
     """Every place a Hermes data root can sit by default: suffixed channel roots, the legacy Windows
     root, and the per-package roots of MSIX builds that ran with filesystem virtualisation."""
     if _WIN:
-        return ("%LOCALAPPDATA%/hermes*", "%USERPROFILE%/.hermes",
+        return ("%LOCALAPPDATA%/huntington*", "%USERPROFILE%/.huntington",
                 "%LOCALAPPDATA%/Packages/NousResearch*_*/LocalCache/Local/hermes*")
-    return ("~/.hermes*",)
+    return ("~/.huntington*",)
 
 
 def gateway_service_definition_globs() -> tuple[str, ...]:

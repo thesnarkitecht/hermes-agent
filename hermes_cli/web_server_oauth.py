@@ -53,7 +53,7 @@ def _anthropic_oauth_status() -> dict[str, Any]:
     except Exception:
         hermes_creds = None
     if hermes_creds and hermes_creds.get("accessToken"):
-        return _token_status("hermes_pkce", f"Hermes PKCE ({_get_hermes_oauth_file()})", hermes_creds)
+        return _token_status("hermes_pkce", f"Huntington PKCE ({_get_hermes_oauth_file()})", hermes_creds)
 
     env_var_order: tuple = ("ANTHROPIC_API_KEY", "ANTHROPIC_TOKEN", "CLAUDE_CODE_OAUTH_TOKEN")
     try:
@@ -120,7 +120,7 @@ def _external_process_cli_command(provider_id: str, default: str) -> str:
 # ``flow``: ``device_code`` = show code + URL + poll; ``external`` = delegated to a terminal/CLI.
 _OAUTH_PROVIDER_CATALOG: tuple[dict[str, Any], ...] = (
     # status_fn None → dispatched via auth.get_<provider>_auth_status.
-    {"id": "nous", "name": "Nous Portal", "flow": "device_code", "cli_command": "hermes auth add nous",
+    {"id": "nous", "name": "HIP Portal", "flow": "device_code", "cli_command": "hermes auth add nous",
      "docs_url": "https://portal.nousresearch.com", "status_fn": None},
     {"id": "openai-codex", "name": "ChatGPT or Codex Subscription", "flow": "device_code",
      "cli_command": "hermes auth add openai-codex", "docs_url": "https://platform.openai.com/docs",

@@ -53,7 +53,7 @@ class Rig:
     def env(self, extra: dict[str, str] | None = None) -> dict[str, str]:
         import pwd  # POSIX-only; the suite is Linux-gated
 
-        real_root = Path(pwd.getpwuid(os.getuid()).pw_dir, ".hermes").resolve()
+        real_root = Path(pwd.getpwuid(os.getuid()).pw_dir, ".huntington").resolve()
         fixture = self.hermes_home.resolve()
         assert fixture != real_root and fixture.parent != real_root / "profiles", (
             f"fixture HERMES_HOME {fixture} is the real install's live home")
@@ -139,7 +139,7 @@ def start_rig(root: Path, script: list[Response] | Responder, *, config: dict[st
     ca = make_test_ca(root / "ca", [VENDOR_HOST])
     proxy = TLSInterceptProxy(srv, ca, [VENDOR_HOST]).start()  # type: ignore[arg-type]
     home = root / "home"
-    rig = Rig(root=root, home=home, hermes_home=home / ".hermes", project=root / "project", srv=srv,
+    rig = Rig(root=root, home=home, hermes_home=home / ".huntington", project=root / "project", srv=srv,
               proxy=proxy, ca_pem=ca.ca_pem)
     rig.hermes_home.mkdir(parents=True)
     rig.project.mkdir()

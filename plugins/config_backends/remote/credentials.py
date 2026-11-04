@@ -65,7 +65,7 @@ def _nous_token(home: Path) -> str:
     try:
         from hermes_cli.auth import resolve_nous_access_token
     except Exception as exc:
-        raise PlaneCredentialError(f"cannot load the Nous auth module: {exc}", retryable=False) from exc
+        raise PlaneCredentialError(f"cannot load the HIP auth module: {exc}", retryable=False) from exc
     token = set_hermes_home_override(home)  # auth.json is per profile home
     try:
         return resolve_nous_access_token()
@@ -73,7 +73,7 @@ def _nous_token(home: Path) -> str:
         # A missing login or a revoked session needs a human; a refresh that hit the network can retry.
         fatal = bool(getattr(exc, "relogin_required", False)) or getattr(exc, "code", None) == "nous_auth_missing"
         raise PlaneCredentialError(
-            f"no Nous access token for {home} (auth.json): {exc}", retryable=not fatal) from exc
+            f"no HIP access token for {home} (auth.json): {exc}", retryable=not fatal) from exc
     finally:
         reset_hermes_home_override(token)
 

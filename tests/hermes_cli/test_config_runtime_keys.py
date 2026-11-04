@@ -192,7 +192,7 @@ def test_selected_memory_provider_declares_its_config_keys(hermes_home, capsys):
 
 
 def test_enabled_project_plugin_declares_its_config_keys(hermes_home, tmp_path, monkeypatch, capsys):
-    _plugin(tmp_path / "proj" / ".hermes" / "plugins", "widget-plugin", ["display.widget"])
+    _plugin(tmp_path / "proj" / ".huntington" / "plugins", "widget-plugin", ["display.widget"])
     _write_config(hermes_home, {"plugins": {"enabled": ["widget-plugin"]}})
     monkeypatch.chdir(tmp_path / "proj")
 

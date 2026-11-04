@@ -99,8 +99,8 @@ def _render_active_theme_bootstrap_css() -> str:
 _IMMUTABLE_ASSET_CACHE_CONTROL = "public, max-age=31536000, immutable"
 _NO_STORE = {"Cache-Control": "no-store, no-cache, must-revalidate"}
 _HEADLESS_MSG = (
-    "Headless backend (hermes serve): web UI disabled — use "
-    "`hermes dashboard` for the browser UI."
+    "Headless backend (huntington serve): web UI disabled — use "
+    "`huntington dashboard` for the browser UI."
 )
 
 
@@ -174,7 +174,7 @@ def mount_spa(application: FastAPI):
             # Partial build / wiped dist / permissions: same JSON 404 as a fully-missing dist. The
             # Webapp's bundle is built by `hermes webapp`, not by the dashboard's web project.
             webapp = getattr(application.state, "ui_surface", "dashboard") == "webapp"
-            missing = ("The Webapp is not built. Run: hermes webapp" if webapp
+            missing = ("The Webapp is not built. Run: huntington webapp" if webapp
                        else "Frontend not built. Run: cd web && npm run build")
             return JSONResponse({"error": missing}, status_code=404)
         if getattr(application.state, "ui_surface", "dashboard") == "webapp":
@@ -306,9 +306,9 @@ def mount_spa(application: FastAPI):
 
 # Built-in themes — label + description only; colors live in web/src/themes/presets.ts.
 _BUILTIN_DASHBOARD_THEMES = [
-    {"name": "default",       "label": "Hermes Teal",         "description": "Classic dark teal — the canonical Hermes look"},
-    {"name": "default-large", "label": "Hermes Teal (Large)", "description": "Hermes Teal with bigger fonts and roomier spacing"},
-    {"name": "nous-blue",     "label": "Nous Blue",           "description": "Light mode — vivid Nous-blue accents on cream canvas"},
+    {"name": "default",       "label": "Huntington Teal",         "description": "Classic dark teal — the canonical Huntington look"},
+    {"name": "default-large", "label": "Huntington Teal (Large)", "description": "Huntington Teal with bigger fonts and roomier spacing"},
+    {"name": "nous-blue",     "label": "HIP Blue",           "description": "Light mode — vivid HIP-blue accents on cream canvas"},
     {"name": "midnight",      "label": "Midnight",            "description": "Deep blue-violet with cool accents"},
     {"name": "ember",     "label": "Ember",          "description": "Warm crimson and bronze — forge vibes"},
     {"name": "mono",      "label": "Mono",           "description": "Clean grayscale — minimal and focused"},
@@ -567,7 +567,7 @@ def _dashboard_plugin_search_dirs() -> list[tuple]:
     # ``true`` / ``yes`` / ``on``) so the gate matches ``hermes_cli/plugins.py`` and the documented user
     # contract.
     if env_var_enabled("HERMES_ENABLE_PROJECT_PLUGINS"):
-        search_dirs.append((Path.cwd() / ".hermes" / "plugins", "project"))
+        search_dirs.append((Path.cwd() / ".huntington" / "plugins", "project"))
     return search_dirs
 
 
@@ -699,7 +699,7 @@ def _schedule_check_fn_probe(fn) -> Optional[threading.Thread]:
 def _plugin_login_command(name: str) -> str:
     """A plugin that left core with its own login command (``hermes spotify login``), else ``hermes auth <name>``."""
     from hermes_cli.left_core_migration import LEFT_CORE
-    return next((f"hermes {f.cli} login" for f in LEFT_CORE if f.plugin == name and f.cli), f"hermes auth {name}")
+    return next((f"hermes {f.cli} login" for f in LEFT_CORE if f.plugin == name and f.cli), f"huntington auth {name}")
 
 
 def _plugin_auth_hint(name: str, provides_tools: list) -> tuple:
@@ -1203,7 +1203,7 @@ def _mount_one_plugin_api(app, plugin: dict[str, Any], enabled_set: set, disable
         _log.warning(
             "Plugin %s: ignoring backend api=%s (project plugins may "
             "not auto-import Python code; move the plugin to "
-            "~/.hermes/plugins/ if you trust it)",
+            "~/.huntington/plugins/ if you trust it)",
             plugin["name"], api_file_name,
         )
         return False

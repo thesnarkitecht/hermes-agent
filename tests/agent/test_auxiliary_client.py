@@ -254,7 +254,7 @@ class TestMoaAggregatorSharedResolution:
     def _write_moa_config(tmp_path, monkeypatch, default_preset="opus-gpt"):
         import hermes_yaml as yaml
 
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         home.mkdir(exist_ok=True)
         (home / "config.yaml").write_text(
             yaml.safe_dump(
@@ -458,7 +458,7 @@ class TestNousTagsScoping:
         import agent.auxiliary_client as aux
 
         with aux.scoped_runtime_main({
-            "provider": "nous", "model": "Hermes-4",
+            "provider": "nous", "model": "Huntington-4",
             "base_url": "https://inference-api.nousresearch.com/v1", "api_key": "nous-key",
         }):
             kwargs = aux._build_call_kwargs(
@@ -4904,7 +4904,7 @@ class TestCustomEndpointApiKeyInheritance:
 
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
         monkeypatch.delenv("OPENAI_BASE_URL", raising=False)
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         home.mkdir()
         (home / "config.yaml").write_text(yaml.safe_dump({
             "model": {"provider": "custom", "base_url": "https://gw.example.com/v1",
@@ -4991,7 +4991,7 @@ class TestNoProgressTimeoutTaskConfigGating:
         import hermes_yaml as yaml
         from agent import auxiliary_client as aux
 
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         home.mkdir()
         monkeypatch.setenv("HERMES_HOME", str(home))
 
@@ -5478,7 +5478,7 @@ class TestFastModelTier:
         """
         import hermes_yaml as yaml
 
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir()
         (hermes_home / "config.yaml").write_text(yaml.safe_dump({
             "model": {"default": "test-model"},

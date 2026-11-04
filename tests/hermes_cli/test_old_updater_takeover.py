@@ -195,7 +195,7 @@ def test_takeover_waits_propagates_status_and_never_reenters_old_code(tmp_path, 
     assert result.returncode == status, result.stdout + result.stderr
     assert (home / "runs").read_text() == "child\n"
     assert (home / "cleanup").read_text() == "ran"
-    assert "run `hermes` again" not in result.stderr
+    assert "run `huntington` again" not in result.stderr
 
 
 # Only the copied shim and JSON probe run; this temp checkout has no real updater.

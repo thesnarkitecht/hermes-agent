@@ -514,7 +514,7 @@ def resolve_skill_catalog(entries: list[dict[str, Any]]) -> list[dict[str, Any]]
 # override same-named profile/bundled skills. cwd + trust list are session-fixed
 # so the skills index stays byte-stable.
 
-PROJECT_SKILLS_SUBDIRS = (os.path.join(".hermes", "skills"), os.path.join(".agents", "skills"))
+PROJECT_SKILLS_SUBDIRS = (os.path.join(".huntington", "skills"), os.path.join(".agents", "skills"))
 
 _PROJECT_ROOT_MAX_DEPTH = 64  # walk-up bound for pathological cwds
 

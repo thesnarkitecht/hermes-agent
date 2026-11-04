@@ -137,8 +137,8 @@ def _valid_lock_payload(pid: int, ownership_id: str, spawn_nonce: str) -> dict:
         "port": 0,
         "profile": "default",
         "hermesPath": "/opt/hermes/bin/hermes",
-        "hermesHome": "~/.hermes",
-        "logPath": f"~/.hermes/desktop-ssh/{ownership_id}/{spawn_nonce}.log",
+        "hermesHome": "~/.huntington",
+        "logPath": f"~/.huntington/desktop-ssh/{ownership_id}/{spawn_nonce}.log",
         "startedAt": "2026-08-04T20:00:00Z",
     }
 
@@ -166,7 +166,7 @@ def test_lock_owned_serve_pids_sees_root_home_locks_from_a_profile_home(tmp_path
     profile's live SSH backend on every profile switch (#89811)."""
     import hermes_constants
 
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     profile_home = root / "profiles" / "flocki"
     profile_home.mkdir(parents=True)
     oid = "f" * 32
@@ -205,7 +205,7 @@ def test_valid_lockfile_payload_rejects_wrong_owner_and_shape():
     assert _valid_lockfile_payload(bad_nonce, oid) is False
     # logPath not ending in <oid>/<nonce>.log.
     bad_log = _valid_lock_payload(1, oid, nonce)
-    bad_log["logPath"] = f"~/.hermes/desktop-ssh/{oid}/other.log"
+    bad_log["logPath"] = f"~/.huntington/desktop-ssh/{oid}/other.log"
     assert _valid_lockfile_payload(bad_log, oid) is False
 
 

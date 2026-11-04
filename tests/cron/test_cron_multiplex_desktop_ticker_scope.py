@@ -257,7 +257,7 @@ def test_dashboard_run_now_isolates_a_sibling_profile_fire_like_the_ticker(tmp_p
     from hermes_cli import profiles
     from hermes_constants import reset_hermes_home_override, set_hermes_home_override
 
-    launch = tmp_path / ".hermes"
+    launch = tmp_path / ".huntington"
     routed = launch / "profiles" / "ops"
     probe = tmp_path / "probe"
     probe.mkdir()

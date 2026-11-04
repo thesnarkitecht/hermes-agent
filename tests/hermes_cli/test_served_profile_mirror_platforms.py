@@ -102,7 +102,7 @@ def test_messaging_card_for_the_default_home_rekeys_by_the_profile_not_the_dirna
     "Restart needed" forever while the multiplexer served its flat-keyed adapters (#123088)."""
     from gateway import status
     from hermes_cli.web_routers import messaging
-    root = tmp_path / ".hermes"  # the shipped default root's literal name — never equal to "default"
+    root = tmp_path / ".huntington"  # the shipped default root's literal name — never equal to "default"
     root.mkdir()
     (root / "config.yaml").write_text("gateway: {multiplex_profiles: true}\n", encoding="utf-8")
     record = {

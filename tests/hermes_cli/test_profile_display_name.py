@@ -29,7 +29,7 @@ from hermes_cli.profiles import (
 def profile_env(tmp_path, monkeypatch):
     """Isolated environment: Path.home() and HERMES_HOME under tmp_path."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    default_home = tmp_path / ".hermes"
+    default_home = tmp_path / ".huntington"
     default_home.mkdir(exist_ok=True)
     monkeypatch.setenv("HERMES_HOME", str(default_home))
     return default_home

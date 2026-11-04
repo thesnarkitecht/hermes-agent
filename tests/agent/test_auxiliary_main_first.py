@@ -92,7 +92,7 @@ class TestResolveAutoMainFirst:
         """
         import hermes_yaml as yaml
 
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         home.mkdir()
         (home / "config.yaml").write_text(
             yaml.safe_dump(

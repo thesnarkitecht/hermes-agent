@@ -32,7 +32,7 @@ def embedded_context(tmp_path, monkeypatch):
 
     monkeypatch.setattr(hermes_main, "PROJECT_ROOT", bundle)
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     checkout = home / "hermes-agent"
     checkout.mkdir(parents=True)
     _git(checkout, "init", "-b", "main")

@@ -230,7 +230,7 @@ def test_a_resolution_outcome_reaches_the_first_agent_of_any_process_once(tmp_pa
     assert capsys.readouterr().err == ""
     first, second = _agent_start_in_another_process(), _agent_start_in_another_process()
     assert first.count("GitHub Copilot moved out of core") == 1
-    assert "run `hermes auth add copilot`" in first  # no token the plugin reads: the gh-only hint rides along
+    assert "run `huntington auth add copilot`" in first  # no token the plugin reads: the gh-only hint rides along
     assert "moved out of core" not in second
 
 

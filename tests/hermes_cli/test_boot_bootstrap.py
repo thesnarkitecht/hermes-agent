@@ -227,7 +227,7 @@ def fake_steps(monkeypatch):
 def test_double_check_under_lock(repo, tmp_path, monkeypatch, fake_steps):
     """A racer that finished between our read and our acquire wins."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
     sha = _head_sha(repo)
 
     real_acquire = _RecordLock.acquire
@@ -263,7 +263,7 @@ def test_sealed_tree_bootstrap_end_to_end(tmp_path, monkeypatch):
     from hermes_cli import post_update
 
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
     sealed = tmp_path / "payload"
     sealed.mkdir()
     (sealed / "install-stamp.json").write_text(

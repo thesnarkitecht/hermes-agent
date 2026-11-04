@@ -52,8 +52,8 @@ class _Handler(http.server.BaseHTTPRequestHandler):
 
 @pytest.fixture
 def listener(tmp_path, monkeypatch):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
-    (tmp_path / ".hermes").mkdir()
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
+    (tmp_path / ".huntington").mkdir()
     _Handler.hits = []
     httpd = http.server.ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
@@ -135,4 +135,4 @@ def test_remote_fetch_sites_refuse_internal_targets_before_connect(site, listene
         monkeypatch.delenv("HERMES_ALLOW_PRIVATE_URLS", raising=False)
         url_safety._reset_allow_private_cache()
     assert hits == ["/to-metadata" + suffix]
-    assert not list(Path(tmp_path / ".hermes").rglob("*.png")), "no body may be cached"
+    assert not list(Path(tmp_path / ".huntington").rglob("*.png")), "no body may be cached"

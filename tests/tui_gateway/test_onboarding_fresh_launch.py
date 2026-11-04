@@ -18,7 +18,7 @@ FACTS = Facts(os="macos", arch="arm64", machine_kind="Mac", plugins=())
 
 @pytest.fixture
 def root(tmp_path, monkeypatch) -> Path:
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(home))

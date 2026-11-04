@@ -124,10 +124,10 @@ class ChronosCronScheduler(CronScheduler):
                 return
             self._identity_rejected = True
         logger.warning(
-            "Chronos: NAS rejected this agent's Nous credential for agent-cron (403 invalid_client). "
-            "The Nous token in auth.json is not this instance's provisioned identity (an agent:* client "
-            "or the hosted bootstrap session), so no job can be armed. A normal `hermes auth` re-login "
-            "cannot fix this; the hosted credential has to be restored from the Nous Portal. Falling back "
+            "Chronos: NAS rejected this agent's HIP credential for agent-cron (403 invalid_client). "
+            "The HIP token in auth.json is not this instance's provisioned identity (an agent:* client "
+            "or the hosted bootstrap session), so no job can be armed. A normal `huntington auth` re-login "
+            "cannot fix this; the hosted credential has to be restored from the HIP Portal. Falling back "
             "to the built-in cron ticker for this process so scheduled jobs keep firing on time.")
         if self._stop_event is None:
             return  # start() never ran (e.g. a CLI `hermes cron add`); nothing to tick here

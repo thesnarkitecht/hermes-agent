@@ -26,7 +26,7 @@ class RecordingAdapter:
 
 def setup_runner(tmp_path, monkeypatch):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setenv("HERMES_KANBAN_DB", str(home / "kanban.db"))
     for name in ("yuki", "other"):
@@ -137,7 +137,7 @@ def test_route_denials_leave_events_retryable_at_claim_and_send(tmp_path, monkey
     good = completion()
     # A tombstoned (deleted) owner profile is no longer served by the multiplexer.
     from hermes_constants import clear_named_profile_deleted, mark_named_profile_deleted
-    yuki_home = tmp_path / ".hermes" / "profiles" / "yuki"
+    yuki_home = tmp_path / ".huntington" / "profiles" / "yuki"
     mark_named_profile_deleted(yuki_home)
     assert not collect(runner)
     clear_named_profile_deleted(yuki_home)
@@ -172,7 +172,7 @@ def test_kanban_wakes_install_the_destination_runtime_scope(tmp_path, monkeypatc
     from hermes_constants import get_hermes_home
 
     runner = setup_runner(tmp_path, monkeypatch)
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     (home / ".env").write_text("KANBAN_TEST_SECRET=primary\n", encoding="utf-8")
     observed = []
 
@@ -208,7 +208,7 @@ def test_removed_profile_never_wakes_under_the_primary_runtime(tmp_path, monkeyp
     task = completion(mode="wake")
     rows = collect(runner)
     assert len(rows) == 1
-    shutil.rmtree(tmp_path / ".hermes" / "profiles" / "yuki")
+    shutil.rmtree(tmp_path / ".huntington" / "profiles" / "yuki")
     asyncio.run(deliver(runner, rows))
     assert secondary.handled == []
     assert unseen(task)

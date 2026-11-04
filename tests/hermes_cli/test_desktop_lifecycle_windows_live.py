@@ -101,8 +101,8 @@ def test_live_supervised_serve_suppresses_cold_start(sleeper, monkeypatch, tmp_p
     from hermes_cli import gateway_windows
     from hermes_cli import update_cmd
 
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
-    (tmp_path / ".hermes").mkdir()
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
+    (tmp_path / ".huntington").mkdir()
 
     serve = sleeper()
     _write_ledger([_entry(serve)])
@@ -126,8 +126,8 @@ def test_live_supervised_serve_suppresses_cold_start(sleeper, monkeypatch, tmp_p
 def test_holder_scan_fallback_respects_token_classifier(sleeper, monkeypatch, tmp_path):
     from hermes_cli import update_cmd
 
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
-    (tmp_path / ".hermes").mkdir()
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
+    (tmp_path / ".huntington").mkdir()
     _write_ledger([])  # force the fallback rung
 
     # Real process whose argv carries genuine serve shape, visible to psutil.

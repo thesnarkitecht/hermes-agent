@@ -138,7 +138,7 @@ def test_gateway_reads_the_profile_switch_each_turn(tmp_path, monkeypatch):
     """The owner's chat turns (Desktop, TUI, ``hermes chat``: ``Platform.LOCAL``) run in the gateway, which copies
     the switch onto the turn's agent from the profile's config.yaml, so a flip reaches the next turn of a running chat."""
     from gateway.config import Platform
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     _owner_policies(home, monkeypatch)
     seen = {}
@@ -154,7 +154,7 @@ def test_only_the_owners_own_chats_carry_daybreak(tmp_path, monkeypatch):
     chats, hosted rooms, A2A peers, third-party ``tool`` integrations and editor clients can be other people,
     so with the switch on only the owner's Desktop, TUI and CLI chats carry it."""
     from gateway.config import Platform
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     policies = _owner_policies(home, monkeypatch)
     (home / "config.yaml").write_text("agent:\n  daybreak: true\n", encoding="utf-8")

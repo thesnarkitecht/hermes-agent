@@ -23,7 +23,7 @@ class _StopSpawn(Exception):
 @pytest.fixture
 def profile_b(tmp_path, monkeypatch):
     """A fake HOME so ``profiles/`` never resolves to the live install (see hermes-agent-dev)."""
-    launch = tmp_path / "fakehome" / ".hermes"
+    launch = tmp_path / "fakehome" / ".huntington"
     served = launch / "profiles" / "b"
     served.mkdir(parents=True)
     (served / "config.yaml").write_text(
@@ -79,7 +79,7 @@ def test_worker_for_another_profile_never_inherits_the_dispatchers_credentials(
 
 def test_launch_profiles_own_worker_keeps_its_credentials(tmp_path, monkeypatch):
     """Control: a worker for the LAUNCH profile is not acting for another tenant."""
-    launch = tmp_path / "fakehome" / ".hermes"
+    launch = tmp_path / "fakehome" / ".huntington"
     (launch / "profiles").mkdir(parents=True)
     monkeypatch.setenv("HOME", str(tmp_path / "fakehome"))
     monkeypatch.setenv("HERMES_HOME", str(launch))

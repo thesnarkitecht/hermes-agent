@@ -26,7 +26,7 @@ def owner(tmp_path, monkeypatch):
     (without running an agent turn) into the state.db the dashboard routes read."""
     from hermes_cli import profiles
 
-    home = tmp_path / '.hermes'
+    home = tmp_path / '.huntington'
     (home / 'cron').mkdir(parents=True)
     monkeypatch.setattr(profiles, '_get_default_hermes_home', lambda: home)
     monkeypatch.setattr(profiles, '_get_profiles_root', lambda: home / 'profiles')

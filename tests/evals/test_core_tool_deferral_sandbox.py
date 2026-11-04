@@ -19,7 +19,7 @@ from evals.core_tool_deferral.sandbox import isolate_host
 def test_child_shell_crontab_and_home_stay_inside_the_run_dir(tmp_path, monkeypatch):
     monkeypatch.setattr(os, "environ", dict(os.environ))
     run_root = tmp_path / "run"
-    hermes_home = run_root / ".hermes"
+    hermes_home = run_root / ".huntington"
     hermes_home.mkdir(parents=True)
 
     crontab_file = isolate_host(str(run_root), str(hermes_home))

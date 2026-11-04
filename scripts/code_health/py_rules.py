@@ -272,7 +272,7 @@ def _hermes_home_path(text: str, prefix: str = "") -> bool:
     ``.hermes/x`` matches and ``.hermes-profile-exports`` does not."""
     if not text.startswith(prefix):
         return False
-    return re.split(r"[/\\]", text[len(prefix):].lstrip("/\\"), maxsplit=1)[0] == ".hermes"
+    return re.split(r"[/\\]", text[len(prefix):].lstrip("/\\"), maxsplit=1)[0] == ".huntington"
 
 
 def hardcoded_home(tree: ast.Module, ctx: Ctx) -> Iterable[int]:

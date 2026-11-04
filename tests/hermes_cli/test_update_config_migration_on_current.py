@@ -83,7 +83,7 @@ def test_update_copies_bundled_skill_bytes_to_default_active_and_sibling(tmp_pat
     from pathlib import Path
     from hermes_cli import update_cmd_maint
 
-    home = tmp_path / '.hermes'
+    home = tmp_path / '.huntington'
     homes = [home, home / 'profiles/active', home / 'profiles/sibling'] if named else [home]
     for profile in homes:
         profile.mkdir(parents=True, exist_ok=True)
@@ -105,7 +105,7 @@ def test_active_config_write_failure_still_migrates_siblings_and_restores_snapsh
 
     from hermes_cli import backup, update_cmd_config
 
-    root = tmp_path / '.hermes'
+    root = tmp_path / '.huntington'
     sibling = root / 'profiles' / 'sibling'
     jobs = {'jobs': [{'id': 'nightly', 'name': 'nightly', 'schedule': '0 3 * * *', 'prompt': 'report'}]}
     for home in (root, sibling):

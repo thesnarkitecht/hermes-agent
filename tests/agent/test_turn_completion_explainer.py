@@ -166,7 +166,7 @@ def test_explanation_persistence_corrupt_backups_dir_follows_hermes_home(monkeyp
         "session_persistence_failed", "corrupt"
     )
     assert f"{custom_home / 'backups'}" in out
-    assert "~/.hermes/backups" not in out
+    assert "~/.huntington/backups" not in out
     assert "{backups_dir}" not in out
 
 
@@ -211,7 +211,7 @@ def test_deleted_wal_cause_is_plain_first_steps_not_a_forensic_runbook():
     assert "hermes gateway stop" in out and "hermes doctor" in out
     for jargon in ("manifest", "state.db-wal", "sidecar", "header_only", "--inspect-only", "generation"):
         assert jargon not in out, jargon
-    assert "~/.hermes" not in out  # display_hermes_home(), never a hardcoded path
+    assert "~/.huntington" not in out  # display_hermes_home(), never a hardcoded path
 
 
 @pytest.mark.parametrize("cause", ["replaced", "deleted_wal", "unknown"])
@@ -222,13 +222,13 @@ def test_persistence_commands_are_pinned_to_the_failing_profile(monkeypatch, tmp
     corrupt/fts_index causes already did this; replaced/deleted_wal/default did not."""
     from hermes_constants import profile_cli_selector
 
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes" / "profiles" / "research"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington" / "profiles" / "research"))
     selector = profile_cli_selector()
     assert selector.strip(), "fixture must resolve to a named profile"
     out = AIAgent._format_turn_completion_explanation("session_persistence_failed", cause)
     assert "{profile_arg}" not in out
     assert f"`hermes {selector}doctor" in out
-    assert "`hermes doctor" not in out and "`hermes gateway" not in out
+    assert "`huntington doctor" not in out and "`huntington gateway" not in out
 
 
 def test_explanation_persistence_unknown_cause_is_neutral():

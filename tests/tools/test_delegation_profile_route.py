@@ -23,7 +23,7 @@ def _write_profile(home, *, host, model, key, secret, effort, soul=None):
 
 @pytest.fixture
 def two_profiles(tmp_path, monkeypatch):
-    launch = tmp_path / "os-home" / ".hermes"
+    launch = tmp_path / "os-home" / ".huntington"
     _write_profile(launch, host="launch.invalid", model="launch-model", key="launch-key", secret="launch-secret",
                    effort="medium")
     coder = launch / "profiles" / "coder"

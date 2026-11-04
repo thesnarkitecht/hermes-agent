@@ -152,7 +152,7 @@ def test_startup_recovery_never_asks_a_dependency_question(tmp_path, monkeypatch
     said: list[str] = []
     mig.recover_at_startup(name, say=said.append)
     assert [kw["assume_deps_consent"] for kw in seen] == ([True] if installs else [])
-    assert installs or f"`hermes plugins install {name}`" in said[-1]
+    assert installs or f"`huntington plugins install {name}`" in said[-1]
 
 
 def test_update_asks_once_and_names_each_profile(tmp_path, monkeypatch):
@@ -160,7 +160,7 @@ def test_update_asks_once_and_names_each_profile(tmp_path, monkeypatch):
     (#125794); every line names its profile, and a decline names the rest once with their commands."""
     from hermes_cli import plugins_cmd_install
 
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     homes = [root, root / "profiles" / "work-a", root / "profiles" / "work-b"]
     for profile_home in homes:
         profile_home.mkdir(parents=True, exist_ok=True)
@@ -203,7 +203,7 @@ def test_update_asks_once_and_names_each_profile(tmp_path, monkeypatch):
 
 
 def _profile_homes(tmp_path, monkeypatch, *names):
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     homes = [root, *(root / "profiles" / n for n in names)]
     for profile_home in homes:
         profile_home.mkdir(parents=True, exist_ok=True)
@@ -291,7 +291,7 @@ def test_recovery_copy_without_a_catalog_memory_entry_keeps_the_generic_hint(tmp
     assert mig.catalog_install_hint("honcho", category="tools") is None
     assert mig.catalog_install_hint("no-such-provider") is None
     doctor_state._memory_provider_generic("no-such-provider")
-    assert "run: hermes memory setup" in capsys.readouterr().out
+    assert "run: huntington memory setup" in capsys.readouterr().out
 
 
 def test_startup_recovery_backs_off_after_a_failed_install(tmp_path, monkeypatch):
@@ -310,7 +310,7 @@ def test_startup_recovery_backs_off_after_a_failed_install(tmp_path, monkeypatch
         monkeypatch.setattr(mig, "_attempted", set())  # a fresh process each time
         assert mig.recover_at_startup("hindsight", say=said.append) is False
     assert attempts == ["hindsight"]
-    assert "`hermes plugins install hindsight`" in said[-1]  # still told memory is off, and the fix
+    assert "`huntington plugins install hindsight`" in said[-1]  # still told memory is off, and the fix
     monkeypatch.setattr(mig, "STARTUP_RETRY_SECONDS", 0.0)
     monkeypatch.setattr(mig, "_attempted", set())
     mig.recover_at_startup("hindsight")

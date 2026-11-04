@@ -124,14 +124,14 @@ def _refresh_selected_pool_entry(*, min_key_ttl_seconds: int, min_access_ttl_sec
 
         pool = load_pool("nous")
     except Exception as exc:
-        logger.debug("Nous auth keepalive: credential pool unavailable: %s", exc)
+        logger.debug("HIP auth keepalive: credential pool unavailable: %s", exc)
         return None
     if not pool or not pool.has_credentials():
         return None
     try:
         entry = pool.select()
     except Exception as exc:
-        logger.debug("Nous auth keepalive: credential pool selection failed: %s", exc)
+        logger.debug("HIP auth keepalive: credential pool selection failed: %s", exc)
         return False
     if entry is None:
         return False
@@ -142,7 +142,7 @@ def _refresh_selected_pool_entry(*, min_key_ttl_seconds: int, min_access_ttl_sec
     if access_expiring or not key_usable:
         if pool.try_refresh_current() is None:
             return False
-        logger.debug("Nous auth keepalive: refreshed credential pool entry")
+        logger.debug("HIP auth keepalive: refreshed credential pool entry")
     return True
 
 
@@ -177,13 +177,13 @@ def refresh_nous_auth_keepalive_once(
             from hermes_cli.anon_challenge import background_caller
             with background_caller():
                 resolve_nous_runtime_credentials(timeout_seconds=_timeout_seconds(timeout_seconds))
-            logger.debug("Nous auth keepalive: refreshed singleton auth state")
+            logger.debug("HIP auth keepalive: refreshed singleton auth state")
             return True
         except Exception as exc:
             if isinstance(exc, AuthError) and exc.relogin_required:
-                logger.info("Nous auth keepalive requires re-login: %s", exc)
+                logger.info("HIP auth keepalive requires re-login: %s", exc)
             else:
-                logger.debug("Nous auth keepalive failed: %s", exc)
+                logger.debug("HIP auth keepalive failed: %s", exc)
             return False
 
 
@@ -222,7 +222,7 @@ def start_nous_auth_keepalive(
     from hermes_cli.anon_auth import is_guest_state
     try:
         if is_guest_state(get_provider_auth_state("nous")):
-            logger.debug("Nous auth keepalive skipped: free tier has no refresh token")
+            logger.debug("HIP auth keepalive skipped: free tier has no refresh token")
             return None
     except Exception:
         pass
@@ -241,7 +241,7 @@ def start_nous_auth_keepalive(
             },
         )
         _keepalive_thread.start()
-        logger.debug("Nous auth keepalive started")
+        logger.debug("HIP auth keepalive started")
         return _keepalive_thread
 
 

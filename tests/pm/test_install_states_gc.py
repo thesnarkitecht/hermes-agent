@@ -37,7 +37,7 @@ def test_startup_prune_reclaims_only_provably_deleted_checkouts(tmp_path, monkey
     (unknown / "environments").mkdir(parents=True)
     # A data root shared across a mount boundary records checkouts this process cannot see:
     # a host install from inside a container, a container install from the host.
-    host_install = _state(installs, "eeee", tmp_path / "other-host-home" / ".hermes" / "hermes-agent")
+    host_install = _state(installs, "eeee", tmp_path / "other-host-home" / ".huntington" / "hermes-agent")
     container_install = _state(installs, "ffff", tmp_path / "opt-hermes")
 
     assert orphan_install_states(installs) == [gone_scratch, gone_worktree]
@@ -138,7 +138,7 @@ def test_retention_comes_from_the_store_owner_not_the_active_profile(tmp_path, r
     them, whichever profile runs the collection."""
     from hermes_constants import reset_hermes_home_override, set_hermes_home_override
 
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     named = root / "profiles" / "work"
     named.mkdir(parents=True)
     for home, days in ((root, root_days), (named, profile_days)):

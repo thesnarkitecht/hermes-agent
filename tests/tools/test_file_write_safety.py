@@ -771,7 +771,7 @@ class TestProtectedInstructionFiles:
         assert res.get("error") and "BLOCKED" in res["error"]
 
     def test_project_local_hermes_dir_is_gated(self, tmp_path, approvals):
-        proj = tmp_path / "proj" / ".hermes"
+        proj = tmp_path / "proj" / ".huntington"
         proj.mkdir(parents=True)
         approvals["answer"] = "deny"
         res = self._write(proj / "config.yaml")
@@ -781,7 +781,7 @@ class TestProtectedInstructionFiles:
         """A repo living UNDER a .hermes dir (e.g. ~/.hermes/hermes-agent)
         must not have every write gated — only files directly inside a
         .hermes dir count as project config."""
-        repo = tmp_path / ".hermes" / "some-repo" / "src"
+        repo = tmp_path / ".huntington" / "some-repo" / "src"
         repo.mkdir(parents=True)
         res = self._write(repo / "module.py", "x = 1\n")
         assert not res.get("error"), res
@@ -792,7 +792,7 @@ class TestProtectedInstructionFiles:
     ):
         """~/.hermes itself is governed by existing guards, not this gate."""
         import tools.file_tools_write_guards as ft
-        fake_home = tmp_path / ".hermes"
+        fake_home = tmp_path / ".huntington"
         (fake_home / "notes").mkdir(parents=True)
         monkeypatch.setattr(
             ft, "_get_real_hermes_home", lambda: str(fake_home.resolve())
@@ -994,13 +994,13 @@ class TestProfileHomeExemptsHermesRoot:
 
         _root, profile = self._profile_layout(tmp_path)
         repo = tmp_path / "repo"
-        (repo / ".hermes").mkdir(parents=True)
+        (repo / ".huntington").mkdir(parents=True)
         monkeypatch.delenv("HERMES_HOME", raising=False)
         token = set_hermes_home_override(str(profile))
         try:
-            assert ft._protected_instruction_reason(str(repo / ".hermes" / "config.yaml"))
+            assert ft._protected_instruction_reason(str(repo / ".huntington" / "config.yaml"))
             assert ft._protected_instruction_reason(str(repo / "AGENTS.md")) == "AGENTS.md"
-            target = repo / ".hermes" / "config.yaml"
+            target = repo / ".huntington" / "config.yaml"
             res = self._write(target, "gate: off\n")
         finally:
             reset_hermes_home_override(token)
@@ -1077,4 +1077,4 @@ class TestMultiplexProfileWriteGuardsAreProfileScoped:
         finally:
             reset_hermes_home_override(tok)
         assert err is not None
-        assert "Refusing to write to Hermes config file" in err
+        assert "Refusing to write to Huntington config file" in err

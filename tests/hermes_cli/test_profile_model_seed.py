@@ -18,7 +18,7 @@ from hermes_cli import runtime_provider
 @pytest.fixture
 def create_from_launch(tmp_path, monkeypatch):
     """Write *source* as the launch config, create a fresh profile, return its raw config."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(home))

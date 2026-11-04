@@ -236,8 +236,8 @@ def _aux_config_menu() -> None:
         _say("", "  Auxiliary models — side-task routing", "",
              "  Side tasks (vision, compression, web extraction, etc.) default",
              '  to your main chat model.  "auto" means "use my main model" —',
-             "  Hermes only falls back to a lightweight backend (OpenRouter,",
-             "  Nous Portal) if the main model is unavailable.  Override a",
+             "  Huntington only falls back to a lightweight backend (OpenRouter,",
+             "  HIP Portal) if the main model is unavailable.  Override a",
              "  task below if you want it pinned to a specific provider/model.", "")
 
         menu_tasks = _all_aux_tasks() + [(_DELEGATION_TASK_KEY, _DELEGATION_TASK_NAME, _DELEGATION_TASK_DESC)]
@@ -423,7 +423,7 @@ _DEFAULT_QWEN_PORTAL_MODELS = [
 
 # (mode value, label, description, accepted answers); "" = auto-detect
 _CUSTOM_API_MODES = (
-    ("", "Auto-detect", "Use Hermes URL heuristics; best for standard OpenAI-compatible endpoints.",
+    ("", "Auto-detect", "Use Huntington URL heuristics; best for standard OpenAI-compatible endpoints.",
      ("1", "auto", "detect", "auto-detect")),
     ("chat_completions", "Chat Completions", "Use /chat/completions for standard OpenAI-compatible servers.",
      ("2", "chat", "chat_completions", "completions")),
@@ -754,7 +754,7 @@ def _prompt_api_key(pconfig, existing_key: str, provider_id: str = "", existing_
         return new_key, False
     if choice.startswith("c") and not pool_backed:
         save_env_value(key_env, "")
-        print(f"  API key cleared.  Re-run `hermes setup` to configure {pconfig.name} again.")
+        print(f"  API key cleared.  Re-run `huntington setup` to configure {pconfig.name} again.")
         return "", True
     # Keep (default, or any other input)
     print()
@@ -785,7 +785,7 @@ def _run_anthropic_oauth_flow(save_env_value):
             use_anthropic_claude_code_credentials(save_fn=save_env_value)
             print("  ✓ Claude Code credentials linked.")
             from hermes_constants import display_hermes_home as _dhh_fn
-            print(f"    Hermes will use Claude's credential store directly instead of copying a setup-token into {_dhh_fn()}/.env.")
+            print(f"    Huntington will use Claude's credential store directly instead of copying a setup-token into {_dhh_fn()}/.env.")
             return True
         return False
 
@@ -825,7 +825,7 @@ def _run_anthropic_oauth_flow(save_env_value):
              "    1. Install Claude Code:  npm install -g @anthropic-ai/claude-code",
              "    2. Run:                  claude setup-token",
              "    3. Follow the browser prompts to authorize",
-             "    4. Re-run:               hermes model", "",
+             "    4. Re-run:               huntington model", "",
              "  Or paste an existing setup-token now (sk-ant-oat-...):", "")
         saved = _paste_token("  Setup-token (or Enter to cancel): ")
         if saved is None:

@@ -230,7 +230,7 @@ def test_a_missed_first_launch_stays_due_and_keeps_the_trial(portal, monkeypatch
     assert should_run() is True
     assert welcome_trial.claim_blocker() is None
     assert welcome_trial.claim_desktop_free_tier() is not None
-    assert welcome_trial.claim_blocker() == "a Nous identity exists"
+    assert welcome_trial.claim_blocker() == "a HIP identity exists"
 
 
 def test_a_claim_cut_off_before_its_marker_write_never_claims_twice(portal, monkeypatch):

@@ -34,7 +34,7 @@ async def _desktop(tmp_path, monkeypatch, turns):
     from gateway.session_controls import AuthorityConnection
     from tui_gateway import server
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(home))
@@ -130,8 +130,8 @@ async def test_a_rerun_with_no_model_opens_no_chat(tmp_path, monkeypatch):
     """Nothing can run the chat: error 5080 and no row, never a session whose launch policy cannot be
     restored (every later resume of it would answer storage_unavailable)."""
     desktop = await _desktop(tmp_path, monkeypatch, [])
-    (tmp_path / ".hermes" / "config.yaml").write_text("{}\n", encoding="utf-8")
-    (tmp_path / ".hermes" / ".env").write_text("", encoding="utf-8")
+    (tmp_path / ".huntington" / "config.yaml").write_text("{}\n", encoding="utf-8")
+    (tmp_path / ".huntington" / ".env").write_text("", encoding="utf-8")
     monkeypatch.setattr("gateway.run._resolve_gateway_model", lambda config=None: None)
     try:
         before = {row["id"] for row in desktop.db.search_sessions(limit=100)}
@@ -210,7 +210,7 @@ async def test_start_from_a_secondary_profile_claims_in_the_default_home(tmp_pat
     from hermes_constants import get_hermes_home
     from hermes_state import SessionDB
     desktop = await _desktop(tmp_path, monkeypatch, [])
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     work = home / "profiles" / "work"
     work.mkdir(parents=True)
     (work / "config.yaml").write_text("{}\n", encoding="utf-8")  # nothing to run on in the asking profile

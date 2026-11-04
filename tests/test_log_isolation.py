@@ -27,7 +27,7 @@ import pytest
 
 def _real_hermes_home() -> Path:
     """Where the operator's logs live, ignoring any test sandboxing."""
-    return Path.home() / ".hermes"
+    return Path.home() / ".huntington"
 
 
 def _all_file_destinations() -> list[str]:
@@ -83,6 +83,6 @@ class TestLogIsolation:
         offenders = [p for p in _all_file_destinations() if p.startswith(real_logs)]
 
         assert offenders == [], (
-            "the test session is writing into the operator's real Hermes logs:\n  "
+            "the test session is writing into the operator's real Huntington logs:\n  "
             + "\n  ".join(offenders)
         )

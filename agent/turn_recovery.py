@@ -337,7 +337,7 @@ def _print_nous_401_diagnostics(agent: Any, api_error: Exception) -> None:
             _body_text = str(_body)[:200]
     except Exception:
         pass
-    _plines(agent, "🔐 Nous 401 — Portal authentication failed.")
+    _plines(agent, "🔐 HIP 401 — Portal authentication failed.")
     if _body_text:
         _plines(agent, f"   Response: {_body_text}")
     try:
@@ -345,17 +345,17 @@ def _print_nous_401_diagnostics(agent: Any, api_error: Exception) -> None:
         if is_anonymous_agent(agent):
             # The free tier has no credits, no agent key and no auth.json to inspect: its session
             # ended and could not be replaced. The two doors are a sign-in or another provider.
-            _plines(agent, "   Your session ended and Hermes couldn't start a new one.",
-                    "   Sign in with a Nous account (it's free), or switch providers with /model.")
+            _plines(agent, "   Your session ended and Huntington couldn't start a new one.",
+                    "   Sign in with a HIP account (it's free), or switch providers with /model.")
             return
     except Exception:
         pass
-    if not _print_nous_entitlement_guidance(agent, "Nous model access"):
+    if not _print_nous_entitlement_guidance(agent, "HIP model access"):
         _plines(agent, "   Most likely: Portal OAuth expired, account out of credits, or agent key revoked.")
     _plines(
         agent,
         "   Troubleshooting:",
-        "     • Re-authenticate: hermes auth add nous",
+        "     • Re-authenticate: huntington auth add nous",
         "     • Check credits / billing: https://portal.nousresearch.com",
         f"     • Verify stored credentials: {display_hermes_home()}/auth.json",
         "     • Switch providers temporarily: /model <model> --provider openrouter",
@@ -374,7 +374,7 @@ def _print_anthropic_401_diagnostics(agent: Any, key: Any) -> None:
         _plines(
             agent,
             "   Auth method: Microsoft Entra ID (httpx event hook)",
-            "   Run `hermes doctor` for credential-chain diagnostics, or",
+            "   Run `huntington doctor` for credential-chain diagnostics, or",
             "   `az login` if your developer session expired.",
         )
     else:
@@ -388,13 +388,13 @@ def _print_anthropic_401_diagnostics(agent: Any, key: Any) -> None:
     _plines(
         agent,
         "   Troubleshooting:",
-        f"     • Check ANTHROPIC_TOKEN in {_dhh}/.env for Hermes-managed OAuth/setup tokens",
+        f"     • Check ANTHROPIC_TOKEN in {_dhh}/.env for Huntington-managed OAuth/setup tokens",
         f"     • Check ANTHROPIC_API_KEY in {_dhh}/.env for API keys or legacy token values",
         "     • For API keys: verify at https://platform.claude.com/settings/keys",
-        "     • Hermes login (OAuth): run 'hermes auth add anthropic' to sign in again, then retry",
-        "     • Inspect what Hermes holds: hermes auth list anthropic",
-        "     • Legacy cleanup: hermes config set ANTHROPIC_TOKEN \"\"",
-        "     • Clear stale keys: hermes config set ANTHROPIC_API_KEY \"\"",
+        "     • Huntington login (OAuth): run 'huntington auth add anthropic' to sign in again, then retry",
+        "     • Inspect what Huntington holds: huntington auth list anthropic",
+        "     • Legacy cleanup: huntington config set ANTHROPIC_TOKEN \"\"",
+        "     • Clear stale keys: huntington config set ANTHROPIC_API_KEY \"\"",
     )
 
 
@@ -433,7 +433,7 @@ def _refresh_credentials_after_401(
         # The pool already spent this episode's one forced refresh (and its backoff retries):
         # a second force here would redeem the rotating grant again for a server-side 401.
         if not nous_pool_refreshed_this_turn(agent) and agent._try_refresh_nous_client_credentials(force=True):
-            agent._buffer_vprint("🔐 Nous agent key refreshed after 401. Retrying request...")
+            agent._buffer_vprint("🔐 HIP agent key refreshed after 401. Retrying request...")
             return True
         _print_nous_401_diagnostics(agent, api_error)
     if not _retry.provider_auth_refresh_attempted and (profile := _credential_refresh_profile(agent)) is not None:
@@ -548,7 +548,7 @@ def _recover_format_errors(
 
 _WELCOME_ROUTE_HEAL_COPY = {
     "anon_on_paid_host": "Reconnected to the free model's own route.",
-    "named_on_welcome_host": "Reconnected to your Nous account's own route.",
+    "named_on_welcome_host": "Reconnected to your HIP account's own route.",
     "session_expired": "Renewed the connection to the free model.",
 }
 
@@ -689,7 +689,7 @@ def recover_after_classification(
     ):
         _retry.nous_paid_entitlement_refresh_attempted = True
         if _try_refresh_nous_paid_entitlement_credentials(agent):
-            _vlines(agent, "🔐 Nous paid access verified — refreshed runtime credentials and retrying request...")
+            _vlines(agent, "🔐 HIP paid access verified — refreshed runtime credentials and retrying request...")
             return True, False
 
     recovered_with_pool, _retry.has_retried_429 = agent._recover_with_credential_pool(
@@ -890,7 +890,7 @@ def _print_nonretryable_auth_guidance(
         model=model, unverified=classified.billing_unverified,
     ):
         return
-    if provider == "nous" and _print_nous_entitlement_guidance(agent, "Nous model access"):
+    if provider == "nous" and _print_nous_entitlement_guidance(agent, "HIP model access"):
         return
     if provider in {"openai-codex", "xai-oauth", "nous"} and status_code == 401:
         if provider == "openai-codex":
@@ -899,21 +899,21 @@ def _print_nonretryable_auth_guidance(
             _vlines(
                 agent,
                 "   💡 Codex OAuth token was rejected (HTTP 401). Your token may have been",
-                "      refreshed by another client (Codex CLI, VS Code) or another Hermes profile.",
+                "      refreshed by another client (Codex CLI, VS Code) or another Huntington profile.",
                 f"      Sign this profile in again: `{oauth_relogin_command(provider)}`",
             )
         elif provider == "xai-oauth":
             _vlines(
                 agent,
                 "   💡 xAI OAuth token was rejected (HTTP 401). To fix:",
-                "      re-authenticate with xAI Grok OAuth (SuperGrok / Premium+) from `hermes model`.",
+                "      re-authenticate with xAI Grok OAuth (SuperGrok / Premium+) from `huntington model`.",
             )
         else:  # nous
             _vlines(
                 agent,
-                "   💡 Nous Portal OAuth token was rejected (HTTP 401). Your token may be",
+                "   💡 HIP Portal OAuth token was rejected (HTTP 401). Your token may be",
                 "      expired, revoked, or your account may be out of credits. To fix:",
-                "      1. Re-authenticate: hermes portal",
+                "      1. Re-authenticate: huntington portal",
                 "      2. Check your portal account: https://portal.nousresearch.com",
             )
             # ``:free`` is OpenRouter slug syntax; Nous Portal will reject the model
@@ -922,8 +922,8 @@ def _print_nonretryable_auth_guidance(
                 _vlines(
                     agent,
                     f"      ⚠️  Note: `{model}` looks like an OpenRouter slug (`:free` suffix).",
-                    "         Nous Portal won't recognize that model name. Either switch to a",
-                    f"         Nous catalog model, or run `/model openrouter:{model}` to use OpenRouter.",
+                    "         HIP Portal won't recognize that model name. Either switch to a",
+                    f"         HIP catalog model, or run `/model openrouter:{model}` to use OpenRouter.",
                 )
         return
     from hermes_cli.auth_plugin_providers import plugin_refresh_hook
@@ -935,7 +935,7 @@ def _print_nonretryable_auth_guidance(
     _vlines(
         agent,
         "   💡 Your API key was rejected by the provider. Check:",
-        "      • Is the key valid? Run: hermes setup",
+        "      • Is the key valid? Run: huntington setup",
         f"      • Does your account have access to {model}?",
     )
     if base_url_host_matches(str(base_url), "openrouter.ai"):
@@ -1090,13 +1090,13 @@ def nonretryable_client_error_result(
         _vlines(
             agent,
             f"   💡 {CONTENT_POLICY_NEXT_STEPS}",
-            "      To route future blocks to another provider automatically: hermes fallback add",
+            "      To route future blocks to another provider automatically: huntington fallback add",
         )
     # TLS certificate failures are environment problems — name the knobs for each cause.
     if classified.reason == FailoverReason.ssl_cert_verification:
         _vlines(
             agent,
-            "   💡 Hermes couldn't verify the provider's security certificate. This fails the same",
+            "   💡 Huntington couldn't verify the provider's security certificate. This fails the same",
             "      way on every retry — fix the environment, then try again:",
             "      • Corporate TLS-inspecting proxy? Ask your administrator to install",
             "        its root certificate in the operating system trust store.",
@@ -1802,7 +1802,7 @@ def _is_genuine_nous_rate_limit(agent: Any, api_error: Exception, error_context:
             record_nous_rate_limit(headers=_err_hdrs, error_context=_merged, anonymous=anonymous)
         else:
             logger.info(
-                "Nous 429 looks like upstream capacity "
+                "HIP 429 looks like upstream capacity "
                 "(no exhausted bucket in headers or "
                 "last-known state) -- not tripping "
                 "cross-session breaker."

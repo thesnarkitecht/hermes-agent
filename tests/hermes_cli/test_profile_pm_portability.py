@@ -131,7 +131,7 @@ def test_incoming_runtime_state_never_replaces_target_runtime(
         archive = tmp_path / "legacy.zip"
         with zipfile.ZipFile(archive, "w") as writer:
             for rel, content in (incoming | machine).items():
-                writer.writestr(f".hermes/{rel}", content)
+                writer.writestr(f".huntington/{rel}", content)
         run_import(Namespace(zipfile=str(archive), force=True))
     elif route.startswith("profile"):
         archive = tmp_path / "legacy.tar.gz"
@@ -181,7 +181,7 @@ def test_incoming_runtime_state_never_replaces_target_runtime(
     elif route == "backup":
         # An in-home traversal must not bypass the runtime-root classification.
         with zipfile.ZipFile(archive, "w") as writer:
-            writer.writestr(".hermes/config.yaml", incoming["config.yaml"])
-            writer.writestr(".hermes/skills/../installs/key/facts.json", "foreign generation\n")
+            writer.writestr(".huntington/config.yaml", incoming["config.yaml"])
+            writer.writestr(".huntington/skills/../installs/key/facts.json", "foreign generation\n")
         run_import(Namespace(zipfile=str(archive), force=True))
         assert (target / "installs/key/facts.json").read_text(encoding="utf-8") == "target-owned runtime\n"

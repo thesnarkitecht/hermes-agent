@@ -33,7 +33,7 @@ from hermes_cli.session_lost_and_found import (
 )
 from hermes_cli.sqlite_runtime import is_sqlite_wal_reset_vulnerable
 
-LIVE_DB_SALVAGE_COMMAND = 'sqlite3 ~/.hermes/state.db ".recover"'
+LIVE_DB_SALVAGE_COMMAND = 'sqlite3 ~/.huntington/state.db ".recover"'
 
 # ---------------------------------------------------------------------------
 # The version gate itself

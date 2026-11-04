@@ -101,7 +101,7 @@ def chaos_config(
 def write_chaos_home(root: Path, base_url: str, **cfg: Any) -> tuple[Path, Path]:
     """Create ``root/home`` (fake $HOME) and ``root/home/.hermes`` (HERMES_HOME)."""
     home = root / "home"
-    hermes_home = home / ".hermes"
+    hermes_home = home / ".huntington"
     hermes_home.mkdir(parents=True, exist_ok=True)
     (hermes_home / "config.yaml").write_text(chaos_config(base_url, **cfg), encoding="utf-8")
     (hermes_home / ".env").write_text("OPENAI_API_KEY=sk-fake-chaos\n", encoding="utf-8")

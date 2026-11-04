@@ -16,7 +16,7 @@ def _build_runtime(tmp_path, monkeypatch):
     from gateway.session import SessionStore
     from gateway.session_authorities import SessionAuthorities
     from gateway import run
-    root = tmp_path / '.hermes'
+    root = tmp_path / '.huntington'
     root.mkdir(mode=0o700, exist_ok=True)
     monkeypatch.setenv('HERMES_HOME', str(root))
     # The autouse isolation fixture pins hermes_state.DEFAULT_DB_PATH to its own fake home once

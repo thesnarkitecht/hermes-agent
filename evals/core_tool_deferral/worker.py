@@ -37,7 +37,7 @@ os.environ.pop("HERMES_PROFILE", None)
 from sandbox import isolate_host
 
 tmp_root = tempfile.mkdtemp(prefix=f"ab-{ARM}-{TASK_ID}-")
-hermes_home = os.path.join(tmp_root, ".hermes")
+hermes_home = os.path.join(tmp_root, ".huntington")
 workspace = os.path.join(tmp_root, "ws")
 os.makedirs(hermes_home)
 os.makedirs(workspace)
@@ -237,7 +237,7 @@ agent = AIAgent(
     connection_callback=connection_cb,
 )
 
-PREAMBLE = ("You are running inside the Hermes desktop app on the user's machine. "
+PREAMBLE = ("You are running inside the Huntington desktop app on the user's machine. "
             f"Your working directory (the workspace) is: {workspace}\n\nTask: ")
 
 t0 = time.time()

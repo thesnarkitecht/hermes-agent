@@ -658,9 +658,9 @@ def multiplexed_profile_refusal(profile: Optional[str], verb: str) -> Optional[s
     if _installed_services(profile_dir):
         return None  # a --force-installed fleet member is not NEW; its own service is started normally
     return (f"Profile '{requested}' does not get a gateway of its own: one host gateway serves every "
-            f"profile. Install or start it from the default profile (hermes gateway install), or fold an "
-            f"existing per-profile fleet with `hermes gateway migrate --multiplex`; "
-            f"`hermes -p {requested} gateway install --force` starts a separate one anyway.")
+            f"profile. Install or start it from the default profile (huntington gateway install), or fold an "
+            f"existing per-profile fleet with `huntington gateway migrate --multiplex`; "
+            f"`huntington -p {requested} gateway install --force` starts a separate one anyway.")
 
 
 def live_session_refusal(profile: Optional[str], verb: str) -> Optional[str]:

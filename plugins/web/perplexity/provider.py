@@ -56,7 +56,7 @@ _KEY_URL = "https://www.perplexity.ai/account/api"
 def _headers() -> dict[str, str]:
     return {
         "HTTP-Referer": "https://hermes-agent.nousresearch.com",
-        "X-Title": "Hermes Agent",
+        "X-Title": "HUNTINGTON-AGENT",
         "User-Agent": hermes_user_agent("HermesAgent"),
         "X-Pplx-Integration": "hermes-agent",
     }
@@ -222,7 +222,7 @@ class PerplexityWebSearchProvider(WebSearchProvider):
                 from tools.tool_backend_helpers import NOUS_MANAGED_PROVIDER, selection_error
 
                 raise ValueError(selection_error(
-                    "web", NOUS_MANAGED_PROVIDER, "there is no usable Nous identity (sign in with `/login`)"))
+                    "web", NOUS_MANAGED_PROVIDER, "there is no usable HIP identity (sign in with `/login`)"))
             logger.info("Perplexity search: '%s' (limit=%d%s)", query, limit, ", managed" if gateway else "")
             payload = {
                 "query": query,

@@ -40,10 +40,10 @@ def test_action_command_is_pinned_to_the_failing_profile(monkeypatch, tmp_path):
     whose state.db is not the process default; a bare ``hermes`` follows active_profile)."""
     from hermes_constants import profile_cli_selector
 
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes" / "profiles" / "research"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington" / "profiles" / "research"))
     selector = profile_cli_selector()
     assert selector.strip()
     for exc in (sqlite3.OperationalError("database is locked"), sqlite3.DatabaseError("malformed"), None):
         action = describe_storage_failure(exc).action
         assert "{profile_arg}" not in action
-        assert f"`hermes {selector}" in action and "`hermes doctor" not in action and "`hermes gateway" not in action
+        assert f"`hermes {selector}" in action and "`huntington doctor" not in action and "`huntington gateway" not in action

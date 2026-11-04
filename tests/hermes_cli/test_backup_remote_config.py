@@ -8,7 +8,7 @@ def test_restore_config_model_settings_is_a_no_op_without_file_tooling(tmp_path:
     from hermes_cli import backup, config_backend
     from hermes_cli.backup import create_quick_snapshot, restore_config_model_settings_if_rewritten
 
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     hermes_home.mkdir()
     cfg = hermes_home / "config.yaml"
     cfg.write_text("_config_version: 39\nmodel:\n  provider: custom\n  default: zamba\n", encoding="utf-8")

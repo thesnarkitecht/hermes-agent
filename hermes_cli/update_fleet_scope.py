@@ -132,7 +132,7 @@ def systemd_unit_hermes_home(scope_cmd: list, svc_name: str) -> str | None:
         if sep and key == "HERMES_HOME" and value.strip():
             return value.strip()
     if "--user" in scope_cmd:
-        return str(Path.home() / ".hermes")
+        return str(Path.home() / ".huntington")
     return None
 
 
@@ -164,8 +164,8 @@ def launchd_label_foreign_home(label: str, scope: set[Path] | None = None) -> st
 def describe_skipped_runtime(kind: str, name: str, home: str | None) -> str:
     """One notice line for a runtime the update leaves alone (foreign home or unreadable ownership)."""
     if home is None:
-        return f"  ↷ {name}: {kind} whose Hermes home could not be read — left alone (not restarted)"
-    return f"  ↷ {name}: {kind} of another Hermes home ({home}) — left alone (not restarted)"
+        return f"  ↷ {name}: {kind} whose Huntington home could not be read — left alone (not restarted)"
+    return f"  ↷ {name}: {kind} of another Huntington home ({home}) — left alone (not restarted)"
 
 
 def announce_skipped_runtime(kind: str, name: str, home: str | None) -> None:

@@ -521,7 +521,7 @@ def test_a_skill_installed_in_another_sessions_repo_broadcasts_skills_changed(wa
     repo_a, repo_b = tmp_path / "repo-a", tmp_path / "repo-b"
     for repo in (repo_a, repo_b):
         (repo / ".git").mkdir(parents=True)
-        (repo / ".hermes" / "skills").mkdir(parents=True)
+        (repo / ".huntington" / "skills").mkdir(parents=True)
     (home / "config.yaml").write_text(json.dumps({"skills": {"trusted_project_dirs": [str(repo_a), str(repo_b)]}}))
     monkeypatch.chdir(repo_a)
     st.clear_skills_cache()
@@ -533,7 +533,7 @@ def test_a_skill_installed_in_another_sessions_repo_broadcasts_skills_changed(wa
     server._broadcast_watched_changes(now=0.0)
     assert not [e for e in events if e[0] == "skills.changed"]
 
-    skill = repo_b / ".hermes" / "skills" / "workspace-only"
+    skill = repo_b / ".huntington" / "skills" / "workspace-only"
     skill.mkdir()
     (skill / "SKILL.md").write_text("---\nname: workspace-only\ndescription: d\n---\nbody\n")
     server._broadcast_watched_changes(now=10.0)

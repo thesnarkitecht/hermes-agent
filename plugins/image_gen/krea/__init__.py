@@ -93,7 +93,7 @@ _TERMINAL_STATES = {"completed", "failed", "cancelled"}
 # Krea Enhance — the optional ``upscale`` pass after generation (max 8K).
 _ENHANCE_PATH = "/generate/enhance/krea/enhance"
 _ENHANCE_SCALE_FACTOR = 2
-_USER_AGENT = "Hermes-Agent/1.0 (krea-image-gen)"
+_USER_AGENT = "Huntington-Agent/1.0 (krea-image-gen)"
 
 # Fatal poll outcome (``_poll_krea_job`` ``kind``) → (error_type, message builder).
 _POLL_FAILURES: dict[str, tuple[str, Callable[[str, Any], str]]] = {
@@ -425,11 +425,11 @@ def _submit_job(
             if managed and 400 <= status < 500:
                 hint = (
                     "Krea's shared-key concurrency cap was hit — retry shortly." if status == 429 else
-                    f"Model '{model_id}' may not be enabled/priced on the Nous Portal's Krea gateway. "
+                    f"Model '{model_id}' may not be enabled/priced on the HIP Portal's Krea gateway. "
                     "Set KREA_API_KEY to use Krea directly, or pick a different model via "
-                    "`hermes tools` → Image Generation.")
+                    "`huntington tools` → Image Generation.")
                 return None, submit_fail(
-                    f"Nous Subscription Krea gateway rejected '{model_id}' "
+                    f"HIP Subscription Krea gateway rejected '{model_id}' "
                     f"(HTTP {status}): {err_msg}. {hint}",
                     "api_error")
             return None, submit_fail(failure.error, "api_error")
@@ -482,7 +482,7 @@ def _krea2_payload(
         for what, arg in _MANAGED_UNSUPPORTED:
             if arg in payload:
                 return payload, fail(
-                    f"Managed Krea (Nous Subscription) does not support {what}. "
+                    f"Managed Krea (HIP Subscription) does not support {what}. "
                     f"Set KREA_API_KEY to use Krea directly, or omit `{arg}`.",
                     "unsupported_argument")
     # After the fail-fast above, so a request about to be refused never reads local files.
@@ -527,7 +527,7 @@ class KreaImageGenProvider(StaticImageGenProvider):
     default_model_id = DEFAULT_MODEL
     setup = dict(
         name="Krea", badge="paid",
-        tag="Krea 3 — generates and edits images ($0.03 at 1K, $0.06 at 2K) — and Krea 2 Medium ($0.03), Large ($0.06), Medium Turbo ($0.015) with style transfer and moodboards. Direct key or managed Nous Subscription gateway.",
+        tag="Krea 3 — generates and edits images ($0.03 at 1K, $0.06 at 2K) — and Krea 2 Medium ($0.03), Large ($0.06), Medium Turbo ($0.015) with style transfer and moodboards. Direct key or managed HIP Subscription gateway.",
         key="KREA_API_KEY", prompt="Krea API key", url="https://www.krea.ai/settings/api-tokens")
 
     def is_available(self) -> bool:
@@ -572,11 +572,11 @@ class KreaImageGenProvider(StaticImageGenProvider):
             auth_token = get_secret("KREA_API_KEY")
             if not auth_token:
                 return error_factory("krea", aspect)(
-                    "KREA_API_KEY not set. Run `hermes tools` → Image "
+                    "KREA_API_KEY not set. Run `huntington tools` → Image "
                     "Generation → Krea to configure, get a key at "
                     "https://www.krea.ai/settings/api-tokens, or sign in to "
-                    "a Nous account with the managed Krea gateway enabled "
-                    "(`hermes setup`).",
+                    "a HIP account with the managed Krea gateway enabled "
+                    "(`huntington setup`).",
                     "auth_required")
 
         model_id, meta = _resolve_model(kwargs.get("model"))

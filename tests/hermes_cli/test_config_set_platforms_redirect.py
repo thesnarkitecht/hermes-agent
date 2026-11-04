@@ -30,7 +30,7 @@ def _set(monkeypatch, hermes_home, key, value, force=False):
 
 @pytest.fixture
 def hermes_home(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     # A config that already has a top-level platforms block (connection keys)
     # AND a display.platforms block, mirroring the real-world report.
     cfg = {
@@ -75,7 +75,7 @@ class TestPerPlatformDisplayRedirect:
     def test_no_top_level_platforms_created_when_missing(self, tmp_path, monkeypatch):
         """When there is no pre-existing top-level platforms block, a display
         setting write must not invent one."""
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         _write_config(home, {"model": {"default": "m"}})
         _set(monkeypatch, home, "platforms.telegram.streaming", "true")
         result = yaml.safe_load((home / "config.yaml").read_text())

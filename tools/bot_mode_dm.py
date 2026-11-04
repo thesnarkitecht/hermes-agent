@@ -90,7 +90,7 @@ def message_agent_tool_schema() -> dict:
                 "properties": {
                     "target": {
                         "type": "string",
-                        "description": (f"Who to message ('hermes' is the default agent). Up to {FAN_OUT_MAX} "
+                        "description": (f"Who to message ('huntington' is the default agent). Up to {FAN_OUT_MAX} "
                                         "comma-separated names fan out: one combined reply."),
                     },
                     "message": {
@@ -1062,6 +1062,6 @@ if __name__ == "__main__":  # pragma: no cover - exercised as a background proce
             parsed = _runner_argv(sys.argv[1:])
             if not booted and parsed and os.path.exists(_live_intent_file(parsed[2])):
                 print(_live_outcome_unknown(parsed[2], "the delivery runner could not activate "
-                                                       "Hermes dependencies (see stderr)"))
+                                                       "Huntington dependencies (see stderr)"))
             raise
     raise SystemExit(_delivery_main(sys.argv[1:]))

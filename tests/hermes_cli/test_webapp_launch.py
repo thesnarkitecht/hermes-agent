@@ -214,7 +214,7 @@ def _launch_link(tmp_path, monkeypatch):
     from gateway.webapp_listener import register_control_verbs
     from hermes_cli import web_server as server
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(server.app.state, "ui_surface", "webapp", raising=False)
     monkeypatch.setattr(server.app.state, "auth_required", False, raising=False)

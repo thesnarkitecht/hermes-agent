@@ -16,7 +16,7 @@ from hermes_constants import reset_hermes_home_override, set_hermes_home_overrid
 
 @pytest.fixture
 def two_profiles(tmp_path, monkeypatch):
-    a = tmp_path / ".hermes"
+    a = tmp_path / ".huntington"
     b = a / "profiles" / "b"
     b.mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(a))

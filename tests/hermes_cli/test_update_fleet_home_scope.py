@@ -18,12 +18,12 @@ import pytest
 from hermes_cli import update_cmd_fleet as fleet
 from hermes_cli import dashboard_procs
 
-FOREIGN_HOME = "/srv/other-account-home/.hermes"
+FOREIGN_HOME = "/srv/other-account-home/.huntington"
 
 
 @pytest.fixture
 def own_home(monkeypatch, tmp_path):
-    home = tmp_path / "homeA" / ".hermes"
+    home = tmp_path / "homeA" / ".huntington"
     home.mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(home))
     # The plan inventory is this install only; the fixture home has no profiles dir.

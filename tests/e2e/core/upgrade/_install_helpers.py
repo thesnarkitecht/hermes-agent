@@ -32,7 +32,7 @@ FAKE_KEY = "sk-fake-e2e-install-update"
 
 
 def real_uv() -> str | None:
-    cand = shutil.which("uv") or str(H.REAL_HOME / ".hermes" / "bin" / "uv")
+    cand = shutil.which("uv") or str(H.REAL_HOME / ".huntington" / "bin" / "uv")
     return cand if cand and Path(cand).exists() else None
 
 
@@ -135,7 +135,7 @@ def new_sandbox(root: Path, origin: Path | None = None, *, pythonpath: Path | No
     wrap = root / "wrap"
     env = H.isolated_env(root, extra_path=[wrap], pythonpath=pythonpath)
     home = Path(env["HOME"])
-    shutil.rmtree(home / ".hermes")
+    shutil.rmtree(home / ".huntington")
     (root / "tmp").mkdir(exist_ok=True)
     env["TMPDIR"] = str(root / "tmp")
     env["SHELL"] = "/bin/bash"
@@ -190,7 +190,7 @@ def provider_config(base_url: str, version: int | None, extra: str = "") -> str:
     """A hand-edited user config: comments, a key HEAD does not know, and the fake provider."""
     ver = f"_config_version: {version}\n" if version is not None else ""
     return (
-        "# My Hermes config. Hand-edited; comments must survive.\n"
+        "# My Huntington config. Hand-edited; comments must survive.\n"
         "model:\n"
         "  provider: custom\n"
         f"  base_url: {base_url}  # local fake provider\n"
@@ -198,7 +198,7 @@ def provider_config(base_url: str, version: int | None, extra: str = "") -> str:
         "  context_length: 128000\n"
         "agent:\n"
         "  api_max_retries: 1   # keep it snappy\n"
-        "# A key this Hermes version does not know about (from a plugin or a newer release).\n"
+        "# A key this Huntington version does not know about (from a plugin or a newer release).\n"
         "my_future_section:\n"
         "  nested_flag: true\n"
         "  words: \"unicode é 漢字 and a # that is not a comment\"\n"

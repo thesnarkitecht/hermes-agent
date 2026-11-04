@@ -81,8 +81,8 @@ def _post_enroll(
             pass
         if exc.code == 401:
             message = (
-                "Connector rejected the caller identity (401). Your Nous Portal "
-                "token could not be verified — try `hermes auth add nous` and retry."
+                "Connector rejected the caller identity (401). Your HIP Portal "
+                "token could not be verified — try `huntington auth add nous` and retry."
             )
         elif exc.code == 403:
             message = detail or "Enrollment token invalid, expired, already used, or tenant mismatch (403)."
@@ -114,7 +114,7 @@ def cmd_gateway_enroll(args) -> None:
     # to write there anyway.
     if is_managed():
         _fail(
-            "✗ `hermes gateway enroll` is not available in a managed/hosted install.\n"
+            "✗ `huntington gateway enroll` is not available in a managed/hosted install.\n"
             "  The relay gateway secret is provisioned by the hosting platform."
         )
 
@@ -146,10 +146,10 @@ def cmd_gateway_enroll(args) -> None:
     except AuthError as exc:
         if getattr(exc, "relogin_required", False):
             _fail(
-                "✗ You're not logged into Nous Portal.",
-                "  Run `hermes setup` (or `hermes auth add nous`) first, then retry.",
+                "✗ You're not logged into HIP Portal.",
+                "  Run `huntington setup` (or `huntington auth add nous`) first, then retry.",
             )
-        _fail(f"✗ Could not resolve a Nous Portal access token: {exc}")
+        _fail(f"✗ Could not resolve a HIP Portal access token: {exc}")
     except Exception as exc:
         _fail(f"✗ Could not resolve a caller-identity token: {exc}")
 

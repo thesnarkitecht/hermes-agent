@@ -501,7 +501,7 @@ class TestManualBackendRespawn:
     def test_respawn_adds_no_open_to_dashboard_commands(self, tmp_path, monkeypatch):
         """Respawned `dashboard` argv gains --no-open; `serve` argv untouched."""
         live = self._live()
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
         spawned: list[list[str]] = []
 
         class _FakePopen:
@@ -524,7 +524,7 @@ class TestManualBackendRespawn:
 
     def test_respawn_failure_returned(self, tmp_path, monkeypatch, capsys):
         live = self._live()
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
 
         with patch.object(live.subprocess, "Popen", side_effect=OSError("no such file")), \
              patch.object(live.time, "sleep"):
@@ -537,7 +537,7 @@ class TestManualBackendRespawn:
         this install's launcher command instead of being replayed verbatim after the PM
         takeover rewrote the launcher into a shell shim (#124778)."""
         live = self._live()
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
         spawned: list[list[str]] = []
 
         class _FakePopen:
@@ -569,7 +569,7 @@ class TestManualBackendRespawn:
         must surface as a failure, never as ``✓ restarted`` (#124778), reported with the
         caller's argv so it matches the stopped PID's cmdline (#109290)."""
         live = self._live()
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
 
         class _DyingPopen:
             returncode = 1
@@ -602,7 +602,7 @@ class TestFilterDashboardRespawnCandidates:
             "serve", "--host", "127.0.0.1", "--port", "0",
         ]
         assert _filter_dashboard_respawn_candidates([
-            (42, argv, "/home/u/.hermes/profiles/mini-cat"),
+            (42, argv, "/home/u/.huntington/profiles/mini-cat"),
         ]) == []
 
     def test_skips_legacy_dashboard_port_zero(self):
@@ -667,7 +667,7 @@ class TestFilterDashboardRespawnCandidates:
         b = ["hermes", "dashboard", "--port", "8301"]
         out = _filter_dashboard_respawn_candidates([
             (1, a, None),
-            (2, b, "/home/u/.hermes/profiles/coder"),
+            (2, b, "/home/u/.huntington/profiles/coder"),
         ])
         assert out == [a]
 
@@ -676,7 +676,7 @@ class TestFilterDashboardRespawnCandidates:
 
         a = ["hermes", "--profile", "default", "dashboard", "--port", "8300"]
         b = ["hermes", "dashboard", "--port", "8301"]
-        home = "/home/u/.hermes"
+        home = "/home/u/.huntington"
         out = _filter_dashboard_respawn_candidates(
             [
                 (1, a, home),
@@ -700,10 +700,10 @@ class TestFilterDashboardRespawnCandidates:
         b = ["hermes", "dashboard", "--port", "8301"]
         out = _filter_dashboard_respawn_candidates(
             [
-                (1, a, "/home/u/.hermes"),
-                (2, b, "/work/project/.hermes"),
+                (1, a, "/home/u/.huntington"),
+                (2, b, "/work/project/.huntington"),
             ],
-            own_home="/home/u/.hermes",
+            own_home="/home/u/.huntington",
         )
         assert out == [a]
 
@@ -718,7 +718,7 @@ class TestFilterDashboardRespawnCandidates:
         ]
         out = _filter_dashboard_respawn_candidates(
             [(15364, argv, "/Users/u/.hermes-lifeos")],
-            own_home="/Users/u/.hermes",
+            own_home="/Users/u/.huntington",
         )
         assert out == []
 
@@ -727,8 +727,8 @@ class TestFilterDashboardRespawnCandidates:
 
         argv = ["hermes", "serve", "--host", "127.0.0.1", "--port", "9118"]
         out = _filter_dashboard_respawn_candidates(
-            [(15364, argv, "/Users/u/.hermes")],
-            own_home="/Users/u/.hermes",
+            [(15364, argv, "/Users/u/.huntington")],
+            own_home="/Users/u/.huntington",
         )
         assert out == [argv]
 
@@ -757,7 +757,7 @@ class TestFilterDashboardRespawnCandidates:
         argv = ["hermes", "dashboard", "--port", "8300"]
         out = _filter_dashboard_respawn_candidates(
             [(1, argv, None)],
-            own_home="/home/u/.hermes",
+            own_home="/home/u/.huntington",
         )
         assert out == [argv]
 
@@ -768,7 +768,7 @@ class TestFilterDashboardRespawnCandidates:
         from hermes_cli.dashboard_procs import _filter_dashboard_respawn_candidates
 
         monkeypatch.setattr(
-            hermes_constants, "get_hermes_home", lambda: Path("/home/u/.hermes")
+            hermes_constants, "get_hermes_home", lambda: Path("/home/u/.huntington")
         )
         argv = ["hermes", "serve", "--port", "9118"]
         foreign = _filter_dashboard_respawn_candidates([
@@ -776,7 +776,7 @@ class TestFilterDashboardRespawnCandidates:
         ])
         assert foreign == []
         own = _filter_dashboard_respawn_candidates([
-            (1, argv, "/home/u/.hermes"),
+            (1, argv, "/home/u/.huntington"),
         ])
         assert own == [argv]
 
@@ -821,7 +821,7 @@ class TestCmdlineCapture:
 
         def fake_run(args, *a, **kw):
             assert args == ["ps", "-p", "888", "-o", "command="]
-            return MagicMock(returncode=0, stdout="hermes serve --port 8300\n", stderr="")
+            return MagicMock(returncode=0, stdout="huntington serve --port 8300\n", stderr="")
 
         with patch.object(live.os.path, "exists", return_value=False), \
              patch("subprocess.run", side_effect=fake_run):

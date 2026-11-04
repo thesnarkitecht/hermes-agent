@@ -15,13 +15,13 @@ new upstream features.
 Linux, macOS, WSL2:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/thesnarkitecht/hermes-agent/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/thesnarkitecht/huntington-agent/main/scripts/install.sh | bash
 ```
 
 Windows (PowerShell):
 
 ```powershell
-iex (irm https://raw.githubusercontent.com/thesnarkitecht/hermes-agent/main/scripts/install.ps1)
+iex (irm https://raw.githubusercontent.com/thesnarkitecht/huntington-agent/main/scripts/install.ps1)
 ```
 
 Both installers clone this repository. After installing, reload your shell and run `hermes`:

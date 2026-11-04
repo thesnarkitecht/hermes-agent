@@ -258,7 +258,7 @@ def _run_kanban_cli(argv: list[str]) -> int:
 @pytest.fixture
 def cli_home(tmp_path, monkeypatch):
     """Isolated HERMES_HOME so kanban_db_path() resolves inside tmp_path."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)

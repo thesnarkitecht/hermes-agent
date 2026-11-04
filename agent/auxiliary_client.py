@@ -180,7 +180,7 @@ def _openai_http_client_kwargs(base_url: Optional[str], *, async_mode: bool = Fa
             logger.warning(
                 "agent.process_bootstrap.build_keepalive_http_client is "
                 "unavailable — mixed/stale install detected (#64333). Falling "
-                "back to the SDK default HTTP client. Run `hermes update` (or "
+                "back to the SDK default HTTP client. Run `huntington update` (or "
                 "reinstall the Desktop app) to resync the runtime.")
         client = None
     return {"http_client": client} if client is not None else {}
@@ -749,7 +749,7 @@ def _fast_model_from_catalog(provider_id: str) -> str:
                 from hermes_cli.models_pricing import _resolve_nous_pricing_credentials
                 api_key, base_url = _resolve_nous_pricing_credentials()
             except Exception:
-                logger.debug("No Nous credentials for catalog", exc_info=True)
+                logger.debug("No HIP credentials for catalog", exc_info=True)
         if not base_url:
             base_url = str(getattr(get_provider_profile(provider_id), "base_url", "") or "")
         base_url = base_url.rstrip("/")
@@ -774,7 +774,7 @@ def _fast_model_from_catalog(provider_id: str) -> str:
             from hermes_cli.models_pricing import nous_policy_allowed_ids, restrict_to_nous_policy
             ids = restrict_to_nous_policy(ids, nous_policy_allowed_ids())
         except Exception:
-            logger.debug("Nous policy filter unavailable", exc_info=True)
+            logger.debug("HIP policy filter unavailable", exc_info=True)
     for family in _FAST_MODEL_FAMILIES:
         for model_id in ids:
             lowered = model_id.lower()
@@ -816,7 +816,7 @@ def _get_aux_model_for_provider(provider_id: str, *, prefer_fast: bool = False) 
             if allowed and not restrict_to_nous_policy([picked], allowed):
                 return ""
         except Exception:
-            logger.debug("Nous policy check unavailable", exc_info=True)
+            logger.debug("HIP policy check unavailable", exc_info=True)
     return picked
 
 
@@ -874,7 +874,7 @@ _PROVIDERS_WITHOUT_VISION: frozenset = frozenset({"kimi-coding", "kimi-coding-cn
 # OpenRouter app attribution (always sent). `X-Title` is what the dashboard reads.
 _OR_HEADERS_BASE = {
     "HTTP-Referer": "https://hermes-agent.nousresearch.com",
-    "X-Title": "Hermes Agent",
+    "X-Title": "HUNTINGTON-AGENT",
     "X-OpenRouter-Categories": "productivity,cli-agent",
 }
 
@@ -942,7 +942,7 @@ from hermes_cli.version_info import hermes_user_agent
 
 
 def _ai_gateway_headers() -> dict[str, str]:
-    return {"HTTP-Referer": "https://hermes-agent.nousresearch.com", "X-Title": "Hermes Agent",
+    return {"HTTP-Referer": "https://hermes-agent.nousresearch.com", "X-Title": "HUNTINGTON-AGENT",
             "User-Agent": hermes_user_agent("HermesAgent")}
 
 # Nous Portal attribution tags, built per call. They come from agent.portal_tags so the client=
@@ -1975,7 +1975,7 @@ def _read_nous_auth() -> Optional[dict]:
             return None
         return provider
     except Exception as exc:
-        logger.debug("Could not read Nous auth: %s", exc)
+        logger.debug("Could not read HIP auth: %s", exc)
         return None
 
 
@@ -1997,14 +1997,14 @@ def _resolve_nous_pool_runtime_api(*, force_refresh: bool = False) -> Optional[t
         from hermes_cli.auth import _agent_key_is_usable
         pool = load_pool("nous")
     except Exception as exc:
-        logger.debug("Auxiliary Nous pool credential resolution failed: %s", exc)
+        logger.debug("Auxiliary HIP pool credential resolution failed: %s", exc)
         return None
     if not pool or not pool.has_credentials():
         return None
     try:
         entry = pool.select()
     except Exception as exc:
-        logger.debug("Auxiliary Nous pool selection failed: %s", exc)
+        logger.debug("Auxiliary HIP pool selection failed: %s", exc)
         return None
     if entry is None:
         return None
@@ -2017,7 +2017,7 @@ def _resolve_nous_pool_runtime_api(*, force_refresh: bool = False) -> Optional[t
         try:
             refreshed = pool.try_refresh_current()
         except Exception as exc:
-            logger.debug("Auxiliary Nous pool refresh failed: %s", exc)
+            logger.debug("Auxiliary HIP pool refresh failed: %s", exc)
             refreshed = None
         if refreshed is None:
             return None
@@ -2356,21 +2356,21 @@ def _try_nous(vision: bool = False) -> tuple[Optional[OpenAI], Optional[str]]:
     nous = _read_nous_auth()
     runtime = _resolve_nous_runtime_api(force_refresh=False)
     if runtime is None and not nous:
-        logger.warning("Auxiliary Nous client unavailable: no Nous authentication found (run: hermes auth).")
-        _mark_provider_unhealthy("nous", ttl=60, reason="no Nous authentication found", level=logging.DEBUG)
+        logger.warning("Auxiliary HIP client unavailable: no HIP authentication found (run: huntington auth).")
+        _mark_provider_unhealthy("nous", ttl=60, reason="no HIP authentication found", level=logging.DEBUG)
         return None, None
     if runtime is None and nous:
-        logger.debug("Auxiliary Nous: runtime JWT refresh failed; checking stored auth.json token.")
+        logger.debug("Auxiliary HIP: runtime JWT refresh failed; checking stored auth.json token.")
     if runtime is not None:
         api_key, base_url = runtime
     else:
         api_key = _nous_api_key(nous or {})
         if not api_key:
             logger.warning(
-                "Auxiliary Nous client unavailable: no usable inference JWT found "
-                "(run: hermes auth add nous)."
+                "Auxiliary HIP client unavailable: no usable inference JWT found "
+                "(run: huntington auth add nous)."
             )
-            _mark_provider_unhealthy("nous", ttl=60, reason="no usable Nous inference JWT", level=logging.DEBUG)
+            _mark_provider_unhealthy("nous", ttl=60, reason="no usable HIP inference JWT", level=logging.DEBUG)
             return None, None
         base_url = str(
             (nous or {}).get("inference_base_url") or _scoped_key_env("NOUS_INFERENCE_BASE_URL") or _NOUS_DEFAULT_BASE_URL
@@ -2381,13 +2381,13 @@ def _try_nous(vision: bool = False) -> tuple[Optional[OpenAI], Optional[str]]:
         anonymous = is_anonymous_request("nous", api_key)
         remaining = nous_rate_limit_remaining(anonymous=anonymous)
         if remaining is not None and remaining > 0:
-            logger.debug("Auxiliary: skipping Nous Portal (rate-limited, resets in %.0fs)", remaining)
+            logger.debug("Auxiliary: skipping HIP Portal (rate-limited, resets in %.0fs)", remaining)
             # The health marker is provider-wide, so a full-length anonymous cooldown would
             # outlive signing in mid-cooldown; bound it instead of re-resolving credentials
             # (auth store lock, pool read) on every auxiliary call for the cooldown's duration.
             _mark_provider_unhealthy(
                 "nous", ttl=min(remaining, 60.0) if anonymous else remaining,
-                reason="Nous Portal rate-limited", level=logging.INFO)
+                reason="HIP Portal rate-limited", level=logging.INFO)
             return None, None
     lane = "vision" if vision else "text"
     # The free tier's host serves exactly one model, for every lane: asking it for the Portal's
@@ -2396,9 +2396,9 @@ def _try_nous(vision: bool = False) -> tuple[Optional[OpenAI], Optional[str]]:
     # the request with the upstream's own error, which the ladder handles like any other).
     from hermes_cli.anon_auth import GUEST_MODEL, route_is_welcome_host
     if route_is_welcome_host(base_url):
-        logger.debug("Auxiliary/%s: Nous free tier; using %s", lane, GUEST_MODEL)
+        logger.debug("Auxiliary/%s: HIP free tier; using %s", lane, GUEST_MODEL)
         return _create_openai_client(api_key=api_key, base_url=base_url), GUEST_MODEL
-    logger.debug("Auxiliary client: Nous Portal")
+    logger.debug("Auxiliary client: HIP Portal")
     # Portal recommended-models is authoritative (tier-aware); _NOUS_MODEL when unreachable/null.
     # Probes skip the lookup: exact model is irrelevant and it hits the network.
     model = _NOUS_MODEL
@@ -2431,7 +2431,7 @@ def _refresh_nous_recommended_model(*, vision: bool, stale_model: Optional[str])
         from hermes_cli.models import get_nous_recommended_aux_model
         fresh = get_nous_recommended_aux_model(vision=vision, force_refresh=True)
     except Exception as exc:
-        logger.debug("Nous recommended-model refresh failed (%s); using default %s", exc, _NOUS_MODEL)
+        logger.debug("HIP recommended-model refresh failed (%s); using default %s", exc, _NOUS_MODEL)
     if fresh and fresh.strip().lower() != stale:
         return fresh
     return _NOUS_MODEL if _NOUS_MODEL.strip().lower() != stale else None
@@ -2839,7 +2839,7 @@ def _validate_base_url(base_url: str) -> None:
     except ValueError as exc:
         raise RuntimeError(
             f"Malformed custom endpoint URL: {candidate!r}. "
-            "Run `hermes setup` or `hermes model` and enter a valid http(s) base URL."
+            "Run `huntington setup` or `huntington model` and enter a valid http(s) base URL."
         ) from exc
 
 
@@ -3210,7 +3210,7 @@ def _nous_portal_account_has_fresh_paid_access() -> bool:
         from hermes_cli.nous_account import get_nous_portal_account_info
         return get_nous_portal_account_info(force_fresh=True).paid_service_access is True
     except Exception as exc:
-        logger.debug("Auxiliary Nous paid-entitlement refresh check failed: %s", exc)
+        logger.debug("Auxiliary HIP paid-entitlement refresh check failed: %s", exc)
         return False
 
 
@@ -4445,8 +4445,8 @@ def _warn_stale_openai_base_url(runtime_provider: str) -> None:
         logger.warning(
             "OPENAI_BASE_URL is set (%s) but model.provider is '%s'. "
             "Auxiliary clients may route to the wrong endpoint. "
-            "Run: hermes model to reconfigure, or remove "
-            "OPENAI_BASE_URL from ~/.hermes/.env",
+            "Run: huntington model to reconfigure, or remove "
+            "OPENAI_BASE_URL from ~/.huntington/.env",
             _env_base, _cfg_provider,
         )
         _stale_base_url_warned = True
@@ -4536,7 +4536,7 @@ def _discovery_chain_allowed(main_provider: str, task: Optional[str] = None) -> 
         return True
     logger.warning(
         "Auxiliary %s: main provider %s is unavailable and no fallback_chain / fallback_providers is "
-        "configured — refusing to guess another logged-in provider. Re-authenticate (`hermes model`) "
+        "configured — refusing to guess another logged-in provider. Re-authenticate (`huntington model`) "
         "or declare a fallback.", task or "call", main_provider)
     return False
 
@@ -4922,7 +4922,7 @@ def _resolve_nous_branch(req: _ResolveRequest) -> _ResolveResult:
     client, default = _try_nous(vision=(req.is_vision or model in _PROVIDER_VISION_MODELS.values()
                                         or (model or "").strip().lower() == "mimo-v2-omni"))
     if client is None:
-        logger.warning("resolve_provider_client: nous requested but Nous Portal not configured (run: hermes auth)")
+        logger.warning("resolve_provider_client: nous requested but HIP Portal not configured (run: huntington auth)")
         return None, None
     final_model = _normalize_resolved_model(model or default, req.provider)
     # Dual-wire: anthropic/* → /v1/messages, else /chat/completions. Derive from the catalog id
@@ -4943,7 +4943,7 @@ def _resolve_openai_codex_branch(req: _ResolveRequest) -> _ResolveResult:
                        "model; pass model explicitly (e.g. model.model in config.yaml "
                        "or auxiliary.<task>.model for per-task aux routing).")
         return None, None
-    no_token_msg = "resolve_provider_client: openai-codex requested but no Codex OAuth token found (run: hermes model)"
+    no_token_msg = "resolve_provider_client: openai-codex requested but no Codex OAuth token found (run: huntington model)"
     if req.raw_codex:
         # Raw OpenAI client for callers needing responses.stream() (main agent loop).
         codex_token, base_url = _resolve_codex_credential_and_base()
@@ -4963,7 +4963,7 @@ def _resolve_xai_oauth_branch(req: _ResolveRequest) -> _ResolveResult:
     client, default = _build_xai_oauth_aux_client(req.model)
     return _route_or_warn(req, client, default,
                           "resolve_provider_client: xai-oauth requested but no xAI "
-                          "OAuth token found (run: hermes model -> xAI Grok OAuth — SuperGrok / Premium+)")
+                          "OAuth token found (run: huntington model -> xAI Grok OAuth — SuperGrok / Premium+)")
 
 
 def _resolve_custom_branch(req: _ResolveRequest) -> _ResolveResult:
@@ -5138,7 +5138,7 @@ def _resolve_azure_foundry_branch(req: _ResolveRequest) -> _ResolveResult:
                                                explicit_base_url=req.explicit_base_url, api_mode=req.api_mode)
     return _route_or_warn(req, client, default_model,
                           "resolve_provider_client: azure-foundry requested but "
-                          "runtime resolution failed (run: hermes doctor for diagnostics)")
+                          "runtime resolution failed (run: huntington doctor for diagnostics)")
 
 
 def _api_key_profile_supplied_client(provider: str, **client_kwargs: Any) -> Any | None:
@@ -7330,7 +7330,7 @@ def _resolve_call_client(
                 effective_provider = _effective_provider_for_client(client, "auto")
     if client is None:
         raise AuxiliaryClientUnavailable(f"No LLM provider configured for task={task} "
-                                         f"provider={resolved_provider}. Run: hermes setup")
+                                         f"provider={resolved_provider}. Run: huntington setup")
     return _ResolvedAuxRoute(client, final_model, resolved_provider, effective_provider)
 
 
@@ -7600,7 +7600,7 @@ def _ladder_nous_rungs(
         healed_model = _refresh_nous_recommended_model(
             vision=(task == "vision"), stale_model=kwargs.get("model"))
         if healed_model and healed_model != kwargs.get("model"):
-            logger.warning("Auxiliary %s%s: model %r no longer in Nous catalog; "
+            logger.warning("Auxiliary %s%s: model %r no longer in HIP catalog; "
                            "retrying with refreshed recommendation %r",
                            task or "call", tag, kwargs.get("model"), healed_model)
             kwargs["model"] = healed_model
@@ -7611,7 +7611,7 @@ def _ladder_nous_rungs(
     if _is_payment_error(first_err) and client_is_nous and _nous_portal_account_has_fresh_paid_access():
         step = _refreshed_nous_step(
             route, kwargs,
-            "Auxiliary %s%s: refreshed Nous runtime credentials after paid account check, retrying")
+            "Auxiliary %s%s: refreshed HIP runtime credentials after paid account check, retrying")
         if step is not None:
             resp, first_err = yield from _rung(
                 step, lambda exc: _credential_rung_accepts(exc) or _is_connection_error(exc))
@@ -7619,7 +7619,7 @@ def _ladder_nous_rungs(
                 return resp, None
     if _is_auth_error(first_err) and client_is_nous:
         step = _refreshed_nous_step(
-            route, kwargs, "Auxiliary %s%s: refreshed Nous runtime credentials after 401, retrying")
+            route, kwargs, "Auxiliary %s%s: refreshed HIP runtime credentials after 401, retrying")
         if step is not None:
             resp, first_err = yield from _rung(
                 step, lambda exc: _credential_rung_accepts(exc) or _is_connection_error(exc))

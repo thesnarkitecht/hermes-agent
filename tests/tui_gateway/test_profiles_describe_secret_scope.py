@@ -25,7 +25,7 @@ def hosted(tmp_path, monkeypatch):
     import tui_gateway.launch_profile_policy as policy
     from agent.secret_scope import set_multiplex_active
 
-    launch = tmp_path / ".hermes"
+    launch = tmp_path / ".huntington"
     bot = launch / "profiles" / "bot"
     bot.mkdir(parents=True)
     (bot / ".env").write_text("XAI_API_KEY=xai-bot-only\n", encoding="utf-8")

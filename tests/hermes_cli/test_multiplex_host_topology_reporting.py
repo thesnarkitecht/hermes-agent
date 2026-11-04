@@ -51,7 +51,7 @@ def test_cron_status_names_the_host_gateway_for_a_served_profile(served_host, ca
     assert "not running" not in out.lower()
     # Never route the user to a SECOND host process: per-profile install is legacy-only remediation.
     assert "hermes gateway install" not in out
-    assert "sudo hermes gateway install --system" not in out
+    assert "sudo huntington gateway install --system" not in out
 
 
 def test_doctor_reports_the_single_host_gateway_not_per_profile_slots(served_host, capsys, monkeypatch):

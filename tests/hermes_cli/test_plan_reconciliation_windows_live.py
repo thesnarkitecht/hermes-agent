@@ -47,7 +47,7 @@ def _argv_visible(pid: int, marker: str) -> bool:
 
 
 def test_plan_reconciliation_live_windows(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
 

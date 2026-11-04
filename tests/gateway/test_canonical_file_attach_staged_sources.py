@@ -181,7 +181,7 @@ async def home_in_workspace(request, tmp_path, monkeypatch):
     from hermes_cli import install_identity
 
     monkeypatch.setattr(install_identity, '_INSTALL_ID_CACHE', {'root': None, 'value': None})
-    home = tmp_path / '.hermes'
+    home = tmp_path / '.huntington'
     home.mkdir()
     workspace = tmp_path if request.param == 'home-folder' else home
     authority = await _authority_with_old_desktop_chat(home, monkeypatch, cwd=workspace)

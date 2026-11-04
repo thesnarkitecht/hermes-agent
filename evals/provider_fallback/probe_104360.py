@@ -6,7 +6,7 @@ os.environ.clear()
 home = tempfile.mkdtemp(prefix="hermes-104360-")
 os.environ.update(
     HOME=home,
-    HERMES_HOME=home + "/.hermes",
+    HERMES_HOME=home + "/.huntington",
     PATH="/usr/bin:/bin",
     PYTHONDONTWRITEBYTECODE="1",
 )

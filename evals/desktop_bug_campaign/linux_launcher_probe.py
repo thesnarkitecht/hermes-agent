@@ -27,7 +27,7 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     root = Path(tempfile.mkdtemp(prefix="linux-launcher-", dir=args.output))
     env = {"PATH": "/usr/bin:/bin", "HOME": str(root / "home"),
-           "HERMES_HOME": str(root / "home/.hermes"),
+           "HERMES_HOME": str(root / "home/.huntington"),
            "XDG_DATA_HOME": str(root / "xdg"), "LANG": "C.UTF-8",
            "HERMES_NONINTERACTIVE": "1"}
     Path(env["HERMES_HOME"]).mkdir(parents=True)
@@ -62,7 +62,7 @@ def main():
     original = entry.read_bytes()
     rows["second_install"] = run([str(python), "-c", install], env, "/")
     rows["stable_rewrite"] = entry.read_bytes() == original
-    custom = original.replace(b"Name=Hermes\n", b"Name=Hermes custom\n").replace(b"Terminal=false", b"Terminal=true")
+    custom = original.replace(b"Name=Huntington\n", b"Name=Huntington custom\n").replace(b"Terminal=false", b"Terminal=true")
     entry.write_bytes(custom)
     config = Path(env["HERMES_HOME"]) / "config.yaml"
     config.write_text("desktop:\n  manage_launcher_entry: false\n")

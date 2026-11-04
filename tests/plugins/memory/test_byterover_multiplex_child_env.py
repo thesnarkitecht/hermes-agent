@@ -17,7 +17,7 @@ from plugins.memory import byterover
 
 @pytest.fixture
 def two_profiles(tmp_path, monkeypatch):
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     prof_b = root / "profiles" / "b"
     prof_b.mkdir(parents=True)
     (root / ".env").write_text("BRV_API_KEY=DEFAULT-PROFILE-KEY\nHERMES_MODEL=default-model\n", encoding="utf-8")

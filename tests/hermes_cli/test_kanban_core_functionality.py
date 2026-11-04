@@ -29,7 +29,7 @@ from hermes_cli import kanban_db_workspace as kbw
 
 @pytest.fixture
 def kanban_home(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     # Existing crash-detection tests pre-date the grace window; pin to 0
@@ -337,7 +337,7 @@ def test_max_runtime_terminates_overrun_worker(kanban_home):
 def test_migration_renames_legacy_event_kinds(tmp_path, monkeypatch):
     """A DB created with the old vocab must have its event rows renamed
     in place on init_db()."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
@@ -590,7 +590,7 @@ def test_migration_backfill_idempotent_under_re_run(tmp_path, monkeypatch):
     """init_db must be safe to re-run repeatedly. Each call should leave
     at most one run row per in-flight task, even if called while a
     dispatcher is simultaneously claiming."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
@@ -1324,11 +1324,11 @@ def test_notify_sub_starts_caught_up_on_active_task(kanban_home):
 
 _WORKER_LOG_TAIL = (
     "Query: work kanban task\n"
-    "╭─ ☤ Hermes ───────────────────╮\n"
+    "╭─ ☤ Huntington ───────────────────╮\n"
     "│ the board protocol requires reassigning this card to orchestrator, but the │\n"
     "│ native kanban_* tools available here have no reassignment operation.       │\n"
     "╰──────────────────────────────╯\n"
-    "\nResume this session with:\n  hermes --resume 20260915_000000_abc\n\n"
+    "\nResume this session with:\n  huntington --resume 20260915_000000_abc\n\n"
     "Session:        20260915_000000_abc\nMessages:       3 (1 user, 2 tool calls)\n"
 )
 

@@ -126,7 +126,7 @@ def test_deprecated_env_warning_truth_table(
     """Warning fires only for genuine .env-file entries — never for
     inherited process environment or config.yaml (#88829 #89016 #89389 #90299).
     """
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     hermes_home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(hermes_home))
 

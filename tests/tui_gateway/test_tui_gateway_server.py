@@ -95,7 +95,7 @@ def _reap_leaked_notification_pollers():
 
 
 def test_session_slot_is_claimed_on_first_turn_not_on_create(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text("max_concurrent_sessions: 1\n", encoding="utf-8")
     token = set_hermes_home_override(home)
@@ -2692,7 +2692,7 @@ def test_history_to_messages_types_the_failed_turn_boundary_for_resume():
         {"role": "user", "content": "b"},
         {"role": "assistant", "content": PARTIAL_FAILED_TURN_NOTICE},  # legacy untyped row
         {"role": "user", "content": "c"},
-        {"role": "assistant", "content": f"Quoting Hermes: {FAILED_TURN_NOTICE}"},  # a real reply
+        {"role": "assistant", "content": f"Quoting Huntington: {FAILED_TURN_NOTICE}"},  # a real reply
     ]
 
     assert [m.get("display_kind") for m in server._history_to_messages(history)] == [
@@ -3079,8 +3079,8 @@ def _two_repo_project_skill_sessions(tmp_path, monkeypatch) -> tuple[Path, Path]
     def repo(name: str, skill: str) -> Path:
         r = tmp_path / name
         (r / ".git").mkdir(parents=True)
-        (r / ".hermes" / "skills" / skill).mkdir(parents=True)
-        (r / ".hermes" / "skills" / skill / "SKILL.md").write_text(
+        (r / ".huntington" / "skills" / skill).mkdir(parents=True)
+        (r / ".huntington" / "skills" / skill / "SKILL.md").write_text(
             f"---\nname: {skill}\ndescription: from {name}\n---\n\n# {skill}\n\nBODY OF {skill.upper()}\n")
         return r
 
@@ -9660,7 +9660,7 @@ def test_setup_runtime_check_scopes_launch_profile_in_multiplex_backend(monkeypa
     from agent import secret_scope
     from tui_gateway import launch_profile_policy
 
-    launch_home = tmp_path / ".hermes"
+    launch_home = tmp_path / ".huntington"
     launch_home.mkdir()
     monkeypatch.setenv("HERMES_CODEX_BASE_URL", "https://codex.launch.test/v1")
     monkeypatch.setattr(server, "_hermes_home", launch_home)
@@ -11824,7 +11824,7 @@ def test_file_attach_uses_in_workspace_file_without_copying(monkeypatch, tmp_pat
         assert resp["result"]["ref_text"] == "@file:data/exam.csv"
         # No copy: nothing staged under desktop-attachments or the home
         # attachments dir.
-        assert not (workspace / ".hermes" / "desktop-attachments").exists()
+        assert not (workspace / ".huntington" / "desktop-attachments").exists()
         assert not (tmp_path / "home" / "attachments").exists()
     finally:
         server._sessions.pop("sid", None)
@@ -11928,13 +11928,13 @@ def test_file_attach_workspace_storage_follows_the_owning_profiles_config(monkey
             },
         )
 
-        staged_a = workspace_a / ".hermes" / "attachments" / "report.txt"
+        staged_a = workspace_a / ".huntington" / "attachments" / "report.txt"
         assert resp["result"]["attached"] is True
         assert resp["result"]["path"] == str(staged_a)
         assert staged_a.read_text(encoding="utf-8") == "hello"
         # Workspace staging lands inside the allowed ref root: the ref is
         # workspace-relative, not an absolute out-of-workspace path.
-        assert resp["result"]["ref_text"] == "@file:.hermes/attachments/report.txt"
+        assert resp["result"]["ref_text"] == "@file:.huntington/attachments/report.txt"
         assert not (home_a / "attachments").exists()
 
         # Same serve process, second profile WITHOUT the opt-in: staging stays
@@ -11956,7 +11956,7 @@ def test_file_attach_workspace_storage_follows_the_owning_profiles_config(monkey
         staged_b = home_b / "attachments" / "report.txt"
         assert resp["result"]["path"] == str(staged_b)
         assert staged_b.read_text(encoding="utf-8") == "hello"
-        assert not (workspace_b / ".hermes").exists()
+        assert not (workspace_b / ".huntington").exists()
     finally:
         server._sessions.pop("sid-a", None)
         server._sessions.pop("sid-b", None)
@@ -15947,7 +15947,7 @@ def test_handoff_request_uses_session_profile_home(monkeypatch, tmp_path):
                 home_channel=HomeChannel(
                     platform=Platform.DISCORD,
                     chat_id="discord-home",
-                    name="Hermes / #chat-coding",
+                    name="Huntington / #chat-coding",
                 ),
             )
         return config
@@ -17008,7 +17008,7 @@ def test_model_options_does_not_overwrite_curated_models(monkeypatch):
     curated_providers = [
         {
             "slug": "nous",
-            "name": "Nous",
+            "name": "HIP",
             "models": ["moonshotai/kimi-k2.5", "anthropic/claude-opus-4.7"],
             "total_models": 30,
             "source": "built-in",
@@ -17902,7 +17902,7 @@ def test_verification_status_outside_workspace_is_not_applicable(monkeypatch, tm
 
     monkeypatch.setattr(coding_context, "project_facts_for", lambda _cwd=None: None)
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     token = set_hermes_home_override(home)
     try:
@@ -18359,7 +18359,7 @@ def test_session_save_writes_under_hermes_home_with_system_prompt(monkeypatch, t
     ``os.path.abspath(...)`` (the workspace CWD) and only exported ``model``
     and ``messages``, so ``system_prompt`` was missing.
     """
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
 
@@ -18373,7 +18373,7 @@ def test_session_save_writes_under_hermes_home_with_system_prompt(monkeypatch, t
         model="hermes-test",
         session_id="20260101_120000_abc123",
         session_start=datetime(2026, 1, 1, 12, 0, 0),
-        _cached_system_prompt="You are Hermes.",
+        _cached_system_prompt="You are Huntington.",
     )
     history = [
         {"role": "user", "content": "hi"},
@@ -18405,7 +18405,7 @@ def test_session_save_writes_under_hermes_home_with_system_prompt(monkeypatch, t
     assert payload["model"] == "hermes-test"
     assert payload["id"] == "20260101_120000_abc123"  # importable: import_sessions keys on raw["id"]
     assert payload["started_at"] == datetime(2026, 1, 1, 12, 0, 0).timestamp()
-    assert payload["system_prompt"] == "You are Hermes."
+    assert payload["system_prompt"] == "You are Huntington."
     assert payload["messages"] == history
 
 
@@ -18413,7 +18413,7 @@ def test_session_save_lands_in_the_sessions_own_profile_a_b_a(monkeypatch, tmp_p
     """/save writes under the SESSION's profile home, launch -> secondary -> launch under multiplexing:
     the RPC runs unscoped, so get_hermes_home() alone names the launch profile (#125241)."""
     from agent.secret_scope import set_multiplex_active
-    launch_home = tmp_path / ".hermes"
+    launch_home = tmp_path / ".huntington"
     work_home = launch_home / "profiles" / "s6probe-work"
     work_home.mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(launch_home))
@@ -20569,7 +20569,7 @@ def test_build_persist_message_quotes_paths_containing_spaces(tmp_path):
     with a space parses as a truncated ref with the tail left as loose text.
     Desktop composer images live in the app's userData dir, which on macOS is
     ``~/Library/Application Support/...`` — a space every time."""
-    img_dir = tmp_path / "Application Support" / "Hermes" / "composer-images"
+    img_dir = tmp_path / "Application Support" / "Huntington" / "composer-images"
     img_dir.mkdir(parents=True)
     img = img_dir / "cat.png"
     img.write_bytes(b"png")

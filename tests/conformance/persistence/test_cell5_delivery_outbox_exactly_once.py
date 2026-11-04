@@ -259,7 +259,7 @@ class Cell:
     def __init__(self, tmp_path: Path):
         self.root = tmp_path
         self.home = tmp_path / "home"
-        self.hermes_home = self.home / ".hermes"
+        self.hermes_home = self.home / ".huntington"
         self.hermes_home.mkdir(parents=True)
         (self.hermes_home / "config.yaml").write_text(
             "gateway:\n  delivery_ledger: true\n", encoding="utf-8"

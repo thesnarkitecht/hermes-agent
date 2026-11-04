@@ -26,7 +26,7 @@ GHOST_KEY = "agent:ghost:telegram:dm:400"
 @pytest.fixture
 def homes(tmp_path, monkeypatch):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     root.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(root))
     from hermes_cli.profiles import create_profile

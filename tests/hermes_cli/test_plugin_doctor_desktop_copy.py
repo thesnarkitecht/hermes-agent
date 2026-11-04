@@ -32,7 +32,7 @@ def _stale_warnings(report) -> list[str]:
 
 @pytest.fixture
 def home(tmp_path, monkeypatch) -> Path:
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     return home

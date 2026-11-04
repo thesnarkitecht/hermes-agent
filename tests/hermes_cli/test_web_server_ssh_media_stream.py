@@ -22,7 +22,7 @@ class FakeSshWorkspace:
 
     def __init__(self):
         self.files = {CLIP: BYTES, "/srv/media/notes.txt": b"notes"}
-        self.links = {"/srv/media/linked.mp4": "/home/dev/.hermes/mcp-tokens/token.mp4"}
+        self.links = {"/srv/media/linked.mp4": "/home/dev/.huntington/mcp-tokens/token.mp4"}
         self.reads = []
         self.writes = []
 
@@ -68,7 +68,7 @@ def client():
 def ssh(monkeypatch, tmp_path):
     """A default profile on this host and a ``remote-dev`` profile whose workspace is the fake
     SSH machine; the browser's ticket routes are on (the Webapp)."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     profile = home / "profiles" / "remote-dev"
     profile.mkdir(parents=True)
     (profile / "config.yaml").write_text("{}", encoding="utf-8")

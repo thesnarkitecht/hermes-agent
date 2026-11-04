@@ -29,7 +29,7 @@ def test_remove_dashboard_launchd_jobs_boots_out_and_deletes_matching_plists(
         return path
 
     dashboard = job("com.user.hermes-dashboard",
-                    ["/Users/u/.hermes/hermes-agent/venv/bin/hermes", "dashboard", "--port", "9200"],
+                    ["/Users/u/.huntington/hermes-agent/venv/bin/hermes", "dashboard", "--port", "9200"],
                     agents_dir)
     serve = job("com.user.hermes-serve", ["hermes", "serve"], agents_dir)
     unrelated = job("com.user.keep", ["/usr/bin/say", "hello"], agents_dir)
@@ -70,7 +70,7 @@ def test_remove_dashboard_launchd_jobs_skips_malformed_plists(monkeypatch, tmp_p
 def test_full_uninstall_sweeps_macos_caches_and_dashboard_launchd(monkeypatch, tmp_path):
     """The full-wipe step must reach the caches + launchd sweep, keep-data must not."""
     project_root = tmp_path / "hermes-agent"
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     project_root.mkdir()
     # A .git dir marks the tree as a removable git checkout — without it the
     # install-kind gate refuses before the sweep runs.
@@ -79,7 +79,7 @@ def test_full_uninstall_sweeps_macos_caches_and_dashboard_launchd(monkeypatch, t
 
     removed_caches, removed_jobs = [], []
     cache_dirs = [tmp_path / "caches" / name for name in
-                  ("Hermes", "com.nousresearch.hermes", "hermes-setup",
+                  ("Huntington", "com.nousresearch.hermes", "hermes-setup",
                    "com.nousresearch.hermes.setup")]
     for d in cache_dirs:
         d.mkdir(parents=True)

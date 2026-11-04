@@ -401,11 +401,11 @@ class TestPayloadFilters:
                         "any": [
                             {
                                 "field": "payload.chatId",
-                                "in_file": "~/.hermes/data/watchlist.json",
+                                "in_file": "~/.huntington/data/watchlist.json",
                             },
                             {
                                 "field": "payload.id.remote",
-                                "in_file": "~/.hermes/data/watchlist.json",
+                                "in_file": "~/.huntington/data/watchlist.json",
                             },
                         ]
                     },
@@ -931,7 +931,7 @@ class TestCrossPlatformDeliveryMirror:
         from pathlib import Path
         import hermes_state
         from hermes_cli.profiles import get_profile_dir
-        default_home = tmp_path / ".hermes"
+        default_home = tmp_path / ".huntington"
         default_home.mkdir()
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
         monkeypatch.setenv("HERMES_HOME", str(default_home))

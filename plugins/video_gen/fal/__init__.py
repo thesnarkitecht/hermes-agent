@@ -239,7 +239,7 @@ def _resolve_managed_fal_video_gateway():
     if selected == NOUS_MANAGED_PROVIDER:
         gateway = resolve_managed_tool_gateway("fal-queue")
         if gateway is None:
-            raise ValueError(selection_error("video_gen", NOUS_MANAGED_PROVIDER, "the Nous Tool Gateway is not available (not entitled or unreachable)"))
+            raise ValueError(selection_error("video_gen", NOUS_MANAGED_PROVIDER, "the HIP Tool Gateway is not available (not entitled or unreachable)"))
         return gateway
     if selected is not None:
         if not fal_key_is_configured():
@@ -288,10 +288,10 @@ def _submit_fal_video_request(endpoint: str, arguments: dict[str, Any]):
             billing = _managed_fal_billing_error(exc, "endpoint")
             if billing is not None:
                 raise ValueError(
-                    f"Nous Subscription gateway rejected endpoint '{endpoint}' (HTTP {status}): {billing}") from exc
-            raise ValueError(f"Nous Subscription gateway rejected endpoint '{endpoint}' (HTTP {status}). This model may not yet be enabled "
-                             f"on the Nous Portal's FAL proxy. Either:\n  • Set FAL_KEY in your environment to use FAL.ai directly, or\n"
-                             f"  • Pick a different model via `hermes tools` → Video Generation.") from exc
+                    f"HIP Subscription gateway rejected endpoint '{endpoint}' (HTTP {status}): {billing}") from exc
+            raise ValueError(f"HIP Subscription gateway rejected endpoint '{endpoint}' (HTTP {status}). This model may not yet be enabled "
+                             f"on the HIP Portal's FAL proxy. Either:\n  • Set FAL_KEY in your environment to use FAL.ai directly, or\n"
+                             f"  • Pick a different model via `huntington tools` → Video Generation.") from exc
         raise
 
 
@@ -320,10 +320,10 @@ def _upscale_video(video_url: str, source_request_id: Optional[str] = None) -> O
     return url
 
 
-_NO_BACKEND_MSG = ("No FAL backend available. Either set FAL_KEY (run `hermes tools` → Video Generation → FAL to configure) "
-                   "or sign in to Nous (`hermes setup`) for managed gateway access.")
+_NO_BACKEND_MSG = ("No FAL backend available. Either set FAL_KEY (run `huntington tools` → Video Generation → FAL to configure) "
+                   "or sign in to HIP (`huntington setup`) for managed gateway access.")
 _MODALITY_MISSING_MSG = {
-    "image": "FAL family {fid} has no image-to-video endpoint. Pick a family with image-to-video support via `hermes tools` → Video Generation.",
+    "image": "FAL family {fid} has no image-to-video endpoint. Pick a family with image-to-video support via `huntington tools` → Video Generation.",
     "text": "FAL family {fid} has no text-to-video endpoint. Pass an image_url to use its image-to-video endpoint, or pick a different family.",
 }
 

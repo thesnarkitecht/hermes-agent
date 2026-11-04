@@ -72,9 +72,9 @@ def test_reset_aux_to_auto_resets_plugin_tasks(tmp_path, monkeypatch, patched_ma
     from hermes_cli.config import load_config, save_config
     from hermes_cli.main_provider_setup import _reset_aux_to_auto
 
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    (tmp_path / ".hermes").mkdir(exist_ok=True)
+    (tmp_path / ".huntington").mkdir(exist_ok=True)
 
     manifest = PluginManifest(name="plug")
     ctx = PluginContext(manifest, patched_manager)
@@ -106,7 +106,7 @@ def aux_home(tmp_path, monkeypatch):
     """Empty HERMES_HOME so DEFAULT_CONFIG is the only source of built-in aux values."""
     from pathlib import Path
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)

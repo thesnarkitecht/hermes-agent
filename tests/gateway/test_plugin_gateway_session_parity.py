@@ -73,7 +73,7 @@ async def test_keyed_local_injection_stays_inside_the_plugins_own_profile(tmp_pa
     from hermes_state import SessionDB
     from hermes_state_runtime import begin_runtime_epoch
 
-    launch = tmp_path / ".hermes"
+    launch = tmp_path / ".huntington"
     beta = launch / "profiles" / "beta"
     beta.mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(launch))
@@ -164,7 +164,7 @@ async def test_keyed_messaging_injection_stays_inside_the_plugins_own_profile(tm
     from gateway.run import GatewayRunner
     from gateway.session import SessionEntry, SessionSource
 
-    launch = tmp_path / ".hermes"
+    launch = tmp_path / ".huntington"
     beta = launch / "profiles" / "beta"
     beta.mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(launch))

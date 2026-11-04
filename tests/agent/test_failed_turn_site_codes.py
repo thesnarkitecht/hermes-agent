@@ -111,7 +111,7 @@ def test_persistence_failure_default_copy_is_actionable_and_profile_aware(monkey
     monkeypatch.setenv("HERMES_HOME", "/srv/hermes-profile")
     text = TurnExplainersMixin._format_turn_completion_explanation("session_persistence_failed", "replaced")
     assert "hermes gateway stop" in text and "hermes doctor" in text
-    assert "~/.hermes" not in text and "/srv/hermes-profile" in text
+    assert "~/.huntington" not in text and "/srv/hermes-profile" in text
     assert "manifest" not in text  # the runbook stays in logger.error at hermes_state
 
 

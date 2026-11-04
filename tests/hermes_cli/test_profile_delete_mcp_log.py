@@ -14,7 +14,7 @@ from tools import mcp_tool_config
 @pytest.mark.platforms("windows")
 def test_delete_profile_after_stdio_probe(tmp_path, monkeypatch):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     # Do not manage host services or scan unrelated developer processes in this test.

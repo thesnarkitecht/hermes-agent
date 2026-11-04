@@ -22,7 +22,7 @@ ZSHRC = (
     "export EDITOR=vim\n"
     "alias ll='ls -la'\n"
     "\n"
-    "# Hermes Agent\n"
+    "# HUNTINGTON-AGENT\n"
     'export PATH="$HOME/.local/bin:$PATH"\n'
     "\n"
     "source ~/.work-profile\n"
@@ -35,7 +35,7 @@ def fake_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     home = tmp_path / "home"
     home.mkdir()
     monkeypatch.setattr(Path, "home", classmethod(lambda cls: home))
-    monkeypatch.setenv("HERMES_HOME", str(home / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(home / ".huntington"))
     return home
 
 
@@ -48,7 +48,7 @@ class TestHappyPath:
 
         assert removed == [rc]
         text = rc.read_text(encoding="utf-8")
-        assert "# Hermes Agent" not in text
+        assert "# HUNTINGTON-AGENT" not in text
         # The user's own lines are untouched.
         assert "export EDITOR=vim" in text
         assert "source ~/.work-profile" in text
@@ -117,7 +117,7 @@ class TestCrashDurability:
 
         assert removed == [rc]
         assert rc.is_symlink(), "the symlink was replaced by a regular file"
-        assert "# Hermes Agent" not in real.read_text(encoding="utf-8")
+        assert "# HUNTINGTON-AGENT" not in real.read_text(encoding="utf-8")
         assert "export EDITOR=vim" in real.read_text(encoding="utf-8")
 
     @pytest.mark.platforms("posix")  # POSIX permission bits

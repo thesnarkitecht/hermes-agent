@@ -79,7 +79,7 @@ class _ProfilePeer(BaseHTTPRequestHandler):
         pass
 
 
-_NOT_SERVED = {"error": {"message": "Profile 'hermes' exists on this host but this gateway does not serve it"}}
+_NOT_SERVED = {"error": {"message": "Profile 'huntington' exists on this host but this gateway does not serve it"}}
 
 
 @pytest.mark.parametrize("served,probe_status,refusal,expected", [
@@ -114,7 +114,7 @@ def test_hermes_handle_reaches_the_profile_the_peer_serves(
     if expected is None:
         assert (replies, out) == ([1, 1, 1], [])
         # A generic 404 is ambiguous (names box/default); a distinct refusal is relayed as the peer said it.
-        assert ("Profile 'hermes' exists" if refusal else "box/default") in err
+        assert ("Profile 'huntington' exists" if refusal else "box/default") in err
         assert {hit.split("/")[2] for hit in _ProfilePeer.hits} == {"hermes"}
         return
     assert replies == [0, 0, 0]

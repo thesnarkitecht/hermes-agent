@@ -359,7 +359,7 @@ def test_systemd_install_checks_linger_status(monkeypatch, tmp_path):
         gateway,
         "generate_systemd_unit",
         lambda system=False, run_as_user=None: (
-            '[Service]\nEnvironment="HERMES_HOME=/home/alice/.hermes"\n'
+            '[Service]\nEnvironment="HERMES_HOME=/home/alice/.huntington"\n'
         ),
     )
 

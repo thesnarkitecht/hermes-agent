@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def _run(tmp_path: Path, body: str) -> dict:
     home = tmp_path / "account"
-    state = home / ".hermes"
+    state = home / ".huntington"
     state.mkdir(parents=True)
     script = tmp_path / "receipt_probe.py"
     script.write_text(textwrap.dedent("""

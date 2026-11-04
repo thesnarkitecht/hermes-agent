@@ -214,7 +214,7 @@ class TestDoctorEnvFileEncoding:
     ):
         import pathlib
 
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir()
         # Write a UTF-8 .env containing an em dash (U+2014 = e2 80 94). The
         # 0x94 byte is exactly the one the issue reporter hit: it's invalid
@@ -261,7 +261,7 @@ class TestDoctorEnvFileEncoding:
         self, monkeypatch, tmp_path
     ):
         """cp1252/latin-1 .env with ASCII provider hints must not abort doctor."""
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir()
         env_path = hermes_home / ".env"
         # 0xff is invalid UTF-8; latin-1 decodes it. Keep an ASCII provider key
@@ -341,7 +341,7 @@ class TestDoctorMemoryProviderSection:
 
     def _make_hermes_home(self, tmp_path, provider="", memory_config=None):
         """Create a minimal HERMES_HOME with config.yaml."""
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         home.mkdir(parents=True, exist_ok=True)
         import hermes_yaml as yaml
         config = dict(memory_config or {})
@@ -448,7 +448,7 @@ class TestDoctorMemoryProviderSection:
 
 
 def test_run_doctor_accepts_named_provider_from_providers_section(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
 
     import hermes_yaml as yaml
@@ -502,7 +502,7 @@ def test_run_doctor_accepts_named_provider_from_providers_section(monkeypatch, t
 def test_run_doctor_accepts_stable_key_when_provider_name_differs(
     monkeypatch, tmp_path
 ):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
     (home / "config.yaml").write_text(
         "model:\n"
@@ -548,7 +548,7 @@ def test_run_doctor_accepts_stable_key_when_provider_name_differs(
 
 
 def test_run_doctor_accepts_bare_custom_provider(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
     (home / "config.yaml").write_text(
         "model:\n"
@@ -586,7 +586,7 @@ def test_run_doctor_accepts_bare_custom_provider(monkeypatch, tmp_path):
 
 
 def test_run_doctor_flags_missing_credentials_for_active_openrouter_provider(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
     (home / "config.yaml").write_text(
         "model:\n"
@@ -640,7 +640,7 @@ def test_run_doctor_flags_missing_credentials_for_active_openrouter_provider(mon
 def test_run_doctor_accepts_hermes_provider_ids_that_catalog_aliases(
     monkeypatch, tmp_path, provider, default_model
 ):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
     (home / "config.yaml").write_text(
         "model:\n"
@@ -683,7 +683,7 @@ def test_run_doctor_accepts_hermes_provider_ids_that_catalog_aliases(
 
 
 def test_run_doctor_accepts_vendor_slugs_for_named_custom_provider(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
     (home / "config.yaml").write_text(
         "model:\n"
@@ -742,7 +742,7 @@ def test_run_doctor_vendor_slug_policy_for_openai_api_endpoint(
 ):
     """openai-api behind a custom router owns a vendor/model namespace (#69912); the real
     OpenAI endpoint keeps the warning."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
     (home / "config.yaml").write_text(
         "model:\n"
@@ -785,7 +785,7 @@ def test_run_doctor_vendor_slug_policy_for_openai_api_endpoint(
 
 
 def test_run_doctor_accepts_kimi_coding_cn_provider(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
     (home / ".env").write_text("KIMI_CN_API_KEY=***\n", encoding="utf-8")
     (home / "config.yaml").write_text(
@@ -825,7 +825,7 @@ def test_run_doctor_accepts_kimi_coding_cn_provider(monkeypatch, tmp_path):
 
 def _doctor_env_for_browser(monkeypatch, tmp_path):
     """Shared fixture setup for the Node + Chromium rows of run_doctor."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
     (home / "config.yaml").write_text("memory: {}\n", encoding="utf-8")
     project = tmp_path / "project"
@@ -933,7 +933,7 @@ def test_missing_chromium_is_info_when_config_needs_none(monkeypatch, tmp_path, 
 
 
 def test_run_doctor_kimi_cn_env_is_detected_and_probe_is_null_safe(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
     (home / "config.yaml").write_text("memory: {}\n", encoding="utf-8")
     (home / ".env").write_text("KIMI_CN_API_KEY=sk-test\n", encoding="utf-8")
@@ -981,7 +981,7 @@ def test_run_doctor_kimi_cn_env_is_detected_and_probe_is_null_safe(monkeypatch, 
 
 
 def test_run_doctor_dashscope_retries_china_endpoint_after_intl_unauthorized(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
     (home / "config.yaml").write_text("memory: {}\n", encoding="utf-8")
     (home / ".env").write_text("DASHSCOPE_API_KEY=sk-test\n", encoding="utf-8")
@@ -1037,7 +1037,7 @@ def test_run_doctor_dashscope_retries_china_endpoint_after_intl_unauthorized(mon
 
 @pytest.mark.parametrize("base_url", [None, "https://opencode.ai/zen/go/v1"])
 def test_run_doctor_opencode_go_skips_invalid_models_probe(monkeypatch, tmp_path, base_url):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
     (home / "config.yaml").write_text("memory: {}\n", encoding="utf-8")
     (home / ".env").write_text("OPENCODE_GO_API_KEY=***\n", encoding="utf-8")
@@ -1124,7 +1124,7 @@ def _run_doctor_with_healthy_oauth_fallback(
     minimax_oauth_status: dict,
     xai_oauth_status: dict | None = None,
 ) -> str:
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
     (home / "config.yaml").write_text(
         "model:\n"
@@ -1239,7 +1239,7 @@ class TestDoctorXaiOAuthStatus:
 
     def _run(self, monkeypatch, tmp_path, *, xai_auth_fn) -> str:
         """Run doctor with a controlled xAI auth callable; return stdout."""
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         home.mkdir(parents=True, exist_ok=True)
         (home / "config.yaml").write_text("memory: {}\n", encoding="utf-8")
         project = tmp_path / "project"
@@ -1281,7 +1281,7 @@ class TestDoctorXaiOAuthStatus:
 
     def test_import_failure_does_not_affect_other_providers(self, monkeypatch, tmp_path):
         """Nous / Codex / Gemini / MiniMax rows must survive an xAI import failure."""
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         home.mkdir(parents=True, exist_ok=True)
         (home / "config.yaml").write_text("memory: {}\n", encoding="utf-8")
         project = tmp_path / "project"
@@ -1307,7 +1307,7 @@ class TestDoctorXaiOAuthStatus:
         with contextlib.redirect_stdout(buf):
             doctor_mod.run_doctor(Namespace(fix=False))
         out = buf.getvalue()
-        assert "Nous Portal auth" in out
+        assert "HIP Portal auth" in out
         assert "logged in" in out
 
     def test_function_raises_does_not_crash_doctor(self, monkeypatch, tmp_path):
@@ -1343,7 +1343,7 @@ class TestDoctorStaleMaxIterationsDrift:
         import io
         from argparse import Namespace
 
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir(parents=True)
         (hermes_home / "config.yaml").write_text(
             f"agent:\n  max_turns: {cfg_turns}\n", encoding="utf-8"
@@ -1519,7 +1519,7 @@ def test_run_doctor_warns_when_lightpanda_binary_missing(monkeypatch, tmp_path):
 
     monkeypatch.setattr("tools.browser_lightpanda.using_lightpanda_engine", lambda: True, raising=False)
     monkeypatch.setattr("tools.browser_lightpanda.lightpanda_engine_status",
-                        lambda: (True, "Hermes spawns `lightpanda serve`"), raising=False)
+                        lambda: (True, "Huntington spawns `lightpanda serve`"), raising=False)
     monkeypatch.setattr("tools.browser_lightpanda.find_lightpanda_binary", lambda: None)
     out = helper._run_doctor_and_capture(monkeypatch, tmp_path)
     assert "Lightpanda selected but binary not found" in out
@@ -1566,7 +1566,7 @@ class TestMacOSTCCGrants:
 
     @staticmethod
     def _darwin_bundle(monkeypatch, tmp_path, dr):
-        monkeypatch.setattr(doctor_platform, "_desktop_app_bundle", lambda: tmp_path / "Hermes.app")
+        monkeypatch.setattr(doctor_platform, "_desktop_app_bundle", lambda: tmp_path / "Huntington.app")
         if dr is not ...:
             monkeypatch.setattr(doctor_platform, "_macos_desktop_dr", lambda app: dr)
 
@@ -1660,15 +1660,15 @@ def test_profile_alias_status_follows_the_wrapper_the_profile_really_has(monkeyp
     from hermes_cli import profiles
 
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
     monkeypatch.setattr(hermes_constants, "_default_hermes_root_memo", None)
     monkeypatch.setattr(gm, "duplicate_credential_findings", list)
     for name in ("dev", "ops", "work", "old"):
-        (tmp_path / ".hermes" / "profiles" / name).mkdir(parents=True)
-        (tmp_path / ".hermes" / "profiles" / name / "config.yaml").write_text("model: m\n", encoding="utf-8")
+        (tmp_path / ".huntington" / "profiles" / name).mkdir(parents=True)
+        (tmp_path / ".huntington" / "profiles" / name / "config.yaml").write_text("model: m\n", encoding="utf-8")
     profiles.create_wrapper_script("dev")
     profiles.create_wrapper_script("w", target="work")
-    (tmp_path / ".local" / "bin" / "old").write_text('#!/bin/sh\nexec hermes -p old "$@"\n', encoding="utf-8")
+    (tmp_path / ".local" / "bin" / "old").write_text('#!/bin/sh\nexec huntington -p old "$@"\n', encoding="utf-8")
     for foreign in ("ops.bat", "old.bat"):  # same-named non-Hermes commands
         (tmp_path / ".local" / "bin" / foreign).write_text("@echo off\r\nnotepad %*\r\n", encoding="utf-8")
 

@@ -290,7 +290,7 @@ class TestWriteProviderConfig:
         from hermes_cli.tools_config import _write_provider_config
 
         config = {"tts": {"provider": "edge", "use_gateway": False}}
-        provider = {"name": "Nous Subscription", "tts_provider": "openai"}
+        provider = {"name": "HIP Subscription", "tts_provider": "openai"}
         _write_provider_config(provider, config, managed_feature="tts")
         assert config["tts"]["provider"] == "nous"
         assert "use_gateway" not in config["tts"]
@@ -308,7 +308,7 @@ class TestWriteProviderConfig:
         from hermes_cli.tools_config import _write_provider_config
 
         config = {}
-        provider = {"name": "Nous Subscription", "imagegen_backend": "fal"}
+        provider = {"name": "HIP Subscription", "imagegen_backend": "fal"}
         _write_provider_config(provider, config, managed_feature="image_gen")
         assert config["image_gen"]["provider"] == "nous"
         assert "use_gateway" not in config["image_gen"]

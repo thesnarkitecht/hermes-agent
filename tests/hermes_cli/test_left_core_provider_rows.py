@@ -123,11 +123,11 @@ def test_gh_only_home_is_told_to_log_in_on_every_migration_outcome(tmp_path):
         return {"ok": True}
 
     assert lcm.migrate_home(home, install=install, say=said.append) == ["github-copilot"]
-    assert "✓ GitHub Copilot moved out of core" in said[0] and "run `hermes auth add copilot`" in said[0]
+    assert "✓ GitHub Copilot moved out of core" in said[0] and "run `huntington auth add copilot`" in said[0]
     other = _home(tmp_path / "b", config="model:\n  provider: copilot\n", auth=_GH_ONLY)
     said.clear()
     lcm.migrate_home(other, install=lambda name: {"ok": False, "error": "network down"}, say=said.append)
-    assert "could not be installed automatically" in said[0] and "run `hermes auth add copilot`" in said[0]
+    assert "could not be installed automatically" in said[0] and "run `huntington auth add copilot`" in said[0]
 
 
 def test_update_reads_the_launch_homes_exported_token_for_the_relogin_notice(tmp_path, monkeypatch):
@@ -148,8 +148,8 @@ def test_update_reads_the_launch_homes_exported_token_for_the_relogin_notice(tmp
     lcm.migrate_all_homes(say=said.append)
     by_home = {h: " ".join(m for m in said if lcm._home_label(h) in m) for h in (launch, other)}
     assert "✓ GitHub Copilot moved out of core" in by_home[launch]
-    assert "run `hermes auth add copilot`" not in by_home[launch]
-    assert "run `hermes auth add copilot`" in by_home[other]
+    assert "run `huntington auth add copilot`" not in by_home[launch]
+    assert "run `huntington auth add copilot`" in by_home[other]
 
 
 # ── generic seams through a fake row ─────────────────────────────────────────────────────────────

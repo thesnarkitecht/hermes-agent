@@ -132,7 +132,7 @@ import hermes_cli.main as main_mod
 argvs = json.loads(sys.argv[1])
 results = []
 for argv in argvs:
-    sys.argv = ["hermes", *argv]
+    sys.argv = ["huntington", *argv]
     out, err = io.StringIO(), io.StringIO()
     code = 0
     try:

@@ -47,7 +47,7 @@ def fixture_tree(tmp_path, monkeypatch):
     # Windows resolves its default under LOCALAPPDATA, not HOME.
     if os.name == "nt":
         monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))
-    home = tmp_path / ("hermes" if os.name == "nt" else ".hermes")
+    home = tmp_path / ("hermes" if os.name == "nt" else ".huntington")
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.delenv("HERMES_RUNTIME_DIR", raising=False)
@@ -124,16 +124,16 @@ def test_launcher_resolves_default_home_at_use_not_publication(tmp_path, monkeyp
     new_user_home = tmp_path / "second-user"
     new_user_home.mkdir()
     monkeypatch.setenv("HOME", str(new_user_home))
-    monkeypatch.setenv("HERMES_HOME", str(new_user_home / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(new_user_home / ".huntington"))
     select_generation(repo, "second", "from-second-user")
     env = dict(os.environ)
     env.pop("HERMES_HOME")
     result = subprocess.run([str(launcher)], cwd=tmp_path, env=env,
                             capture_output=True, text=True, encoding="utf-8", timeout=30, check=False)
     assert result.returncode == 7, result.stdout + result.stderr
-    assert json.loads(result.stdout)["home"] == str(new_user_home / ".hermes")
+    assert json.loads(result.stdout)["home"] == str(new_user_home / ".huntington")
     assert json.loads(result.stdout)["value"] == "from-second-user"
-    assert published_home != new_user_home / ".hermes"
+    assert published_home != new_user_home / ".huntington"
 
 
 @pytest.mark.parametrize("publisher", [
@@ -213,7 +213,7 @@ def test_posix_materializer_publishes_only_executable_shell_launchers(tmp_path, 
     assert {p.name for p in launchers} == set(_launchers.ENTRY_POINTS)
     assert all(os.access(p, os.X_OK) for p in launchers)
     assert set(out.iterdir()) == set(launchers)
-    local = repo / ".hermes" / "bin"
+    local = repo / ".huntington" / "bin"
     assert {p.name for p in local.iterdir()} == set(_launchers.ENTRY_POINTS)
     launcher = local / "hermes"
     expected = launcher.read_bytes()
@@ -261,7 +261,7 @@ def test_boot_migrates_legacy_conveniences_to_selected_runtime(tmp_path, monkeyp
                    f'exec "{repo}/venv/bin/hermes" "$@"\n')
     (out / "hermes").write_text(old_wrapper, encoding="utf-8")
     (out / "hermes-acp").write_text(
-        '#!/usr/bin/env bash\n# Hermes Agent — ACP launcher (written by `hermes update`).\n'
+        '#!/usr/bin/env bash\n# HUNTINGTON-AGENT — ACP launcher (written by `huntington update`).\n'
         f'exec "{out}/hermes" acp "$@"\n', encoding="utf-8")
     # Mentions this install only in a comment and runs another checkout's venv.
     foreign = f'#!/bin/sh\n# user note about {repo}/venv/bin/hermes\nexec "{tmp_path}/other/venv/bin/hermes" "$@"\n'
@@ -367,12 +367,12 @@ def test_running_source_launcher_can_republish_itself(tmp_path, monkeypatch, lau
         "from hermes_cli._launchers import ensure_install_launchers, ENTRY_POINTS\n"
         "def main():\n"
         "    root = Path(__file__).resolve().parents[1]\n"
-        "    written = ensure_install_launchers(root, root / '.hermes/bin')\n"
+        "    written = ensure_install_launchers(root, root / '.huntington/bin')\n"
         "    print('published', len(written), len(ENTRY_POINTS), flush=True)\n"
         "    return 0 if len(written) == len(ENTRY_POINTS) else 1\n",
         encoding="utf-8",
     )
-    out = repo / ".hermes/bin"
+    out = repo / ".huntington/bin"
     if launcher_form == "cmd":
         without_distlib(monkeypatch)
     launchers = _launchers.ensure_install_launchers(repo, out)
@@ -396,7 +396,7 @@ def test_repin_without_distlib_retires_stale_native_launcher(tmp_path, monkeypat
     (repo / "hermes_cli/main.py").write_text(
         "import sys\ndef main():\n    print('ready', flush=True)\n    sys.stdin.read()\n    return 0\n",
         encoding="utf-8")
-    local = repo / ".hermes/bin"
+    local = repo / ".huntington/bin"
     original = Path(_launchers.ensure_install_launchers(repo, local)[0])
     assert original.suffix == ".exe"
     new_python = home / "tools" / "repinned" / "python.exe"
@@ -458,7 +458,7 @@ def test_windows_repair_upgrades_healthy_old_pm_external_launchers(tmp_path, mon
     for name in _launchers.ENTRY_POINTS:
         (external / f"{name}.exe").write_bytes(b"old PM launcher without a venv binding")
     assert ensure_windows_bin_launchers(managed, user_path_entries=[])
-    local = managed / ".hermes" / "bin"
+    local = managed / ".huntington" / "bin"
     launcher = local / "hermes.exe"
     if not launcher.exists():
         launcher = local / "hermes.cmd"
@@ -698,7 +698,7 @@ def test_stage_launcher_ignores_an_inherited_runtime_directory(tmp_path, monkeyp
 
     # Publication callers create the bin dir before staging (see
     # ensure_install_launchers); the launcher writer does not invent it.
-    out = repo / ".hermes" / "bin"
+    out = repo / ".huntington" / "bin"
     out.mkdir(parents=True, exist_ok=True)
     published = _launchers.stage_launcher("hermes", repo, out)
 
@@ -731,7 +731,7 @@ def test_service_launcher_binds_the_tree_store_despite_inherited_runtime_overrid
 
     gateway._prepare_service_launcher()
 
-    wrapper = (repo / ".hermes" / "bin" / "hermes").read_text(encoding="utf-8-sig")
+    wrapper = (repo / ".huntington" / "bin" / "hermes").read_text(encoding="utf-8-sig")
     assert "python-A" in wrapper
     assert "python-foreign" not in wrapper
 
@@ -775,7 +775,7 @@ def test_install_launchers_never_bind_a_fixture_store_under_scratch(tmp_path, mo
     _record_store_python(fixture, interpreter)
     monkeypatch.setenv("HERMES_RUNTIME_DIR", str(fixture))
 
-    written = _launchers.ensure_install_launchers(repo, repo / ".hermes" / "bin")
+    written = _launchers.ensure_install_launchers(repo, repo / ".huntington" / "bin")
 
     assert len(written) == len(_launchers.WINDOWS_BIN_LAUNCHERS)
     for path in written:
@@ -795,7 +795,7 @@ def test_publication_uses_the_runtime_store_when_the_tree_records_none(tmp_path,
     python = _record_store_python(runtime, interpreter)
     monkeypatch.setenv("HERMES_RUNTIME_DIR", str(runtime))
 
-    written = _launchers.ensure_install_launchers(repo, repo / ".hermes" / "bin")
+    written = _launchers.ensure_install_launchers(repo, repo / ".huntington" / "bin")
 
     assert len(written) == len(_launchers.WINDOWS_BIN_LAUNCHERS)
     for path in written:

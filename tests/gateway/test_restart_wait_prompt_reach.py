@@ -233,13 +233,13 @@ def test_update_drain_hint_names_the_draining_profile(tmp_path, monkeypatch):
     ``hermes --tui`` opens the default profile, where that session isn't listed (#139041)."""
     from hermes_cli.update_cmd_drain_report import format_drain_report
 
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     (root / "profiles" / "work").mkdir(parents=True)
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setenv("HERMES_HOME", str(root))
     work = [{"kind": "chat", "session": "s1"}]
-    assert "`hermes -p work --tui`" in format_drain_report(work, remaining_s=60, home=root / "profiles" / "work")
-    assert "`hermes --tui`" in format_drain_report(work, remaining_s=60, home=root)
+    assert "`huntington -p work --tui`" in format_drain_report(work, remaining_s=60, home=root / "profiles" / "work")
+    assert "`huntington --tui`" in format_drain_report(work, remaining_s=60, home=root)
 
 
 @pytest.mark.asyncio
@@ -328,7 +328,7 @@ async def test_restart_wait_lets_a_webapp_tab_dial_back_in_to_answer_the_parked_
                              session_authority=None)
     db = SessionDB(tmp_path / "state.db")
     db.create_session("s", source="test")
-    authority = SessionAuthority(runner, profile_id=str(tmp_path / ".hermes"), instance_id="owner", db=db,
+    authority = SessionAuthority(runner, profile_id=str(tmp_path / ".huntington"), instance_id="owner", db=db,
                                  epoch=begin_runtime_epoch(db, instance_id="owner"))
     authority.sessions["s"] = LiveSession(None, "route")
     monkeypatch.setattr(web.app.state, "session_authority", authority, raising=False)

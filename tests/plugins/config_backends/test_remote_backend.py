@@ -1185,7 +1185,7 @@ def test_setting_a_value_that_old_schema_migration_rewrites_is_refused(plane, ca
 @pytest.fixture
 def profile_plane(tmp_path, monkeypatch):
     """``plane`` with a real profiles root (``Path.home()/.hermes``)."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(home))

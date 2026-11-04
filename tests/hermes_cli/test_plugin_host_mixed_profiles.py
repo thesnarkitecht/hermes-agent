@@ -31,7 +31,7 @@ register_provider(Local(name="mixlocal", base_url="acp://mixlocal"))
 def test_create_client_profile_loads_in_process_and_its_sibling_stays_hosted(tmp_path, monkeypatch, caplog):
     import providers
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     plugin_dir = home / "plugins" / "model-providers" / "mixpair"
     plugin_dir.mkdir(parents=True)
     (plugin_dir / "plugin.yaml").write_text("name: mixpair\nkind: model-provider\n", encoding="utf-8")
@@ -66,7 +66,7 @@ def test_a_rescan_keeps_the_hosted_plugin_it_already_loaded(tmp_path, monkeypatc
     is not imported again (no second warning, the same hosted profile object)."""
     import providers
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     plugin_dir = home / "plugins" / "model-providers" / "mixpair"
     plugin_dir.mkdir(parents=True)
     (plugin_dir / "plugin.yaml").write_text("name: mixpair\nkind: model-provider\n", encoding="utf-8")

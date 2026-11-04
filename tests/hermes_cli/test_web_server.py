@@ -612,7 +612,7 @@ class FlatProvMemoryProvider(MemoryProvider):
             {"key": "mode", "label": "Mode", "choices": ["cloud", "local_external"], "default": "cloud"},
             {"key": "api_url", "label": "API URL", "default": ""},
             {"key": "api_key", "label": "API key", "secret": True, "env_var": "FLATPROV_API_KEY"},
-            {"key": "bank_id", "label": "Bank", "default": "hermes"},
+            {"key": "bank_id", "label": "Bank", "default": "huntington"},
             {"key": "recall_budget", "label": "Budget", "choices": ["low", "mid", "high"], "default": "mid"},
         ]
 
@@ -799,7 +799,7 @@ from hermes_constants import get_hermes_home
 
 
 def resolve_active_host():
-    return "hermes"
+    return "huntington"
 
 
 def resolve_config_path():
@@ -1155,7 +1155,7 @@ CONFIG_SCHEMA = ProviderConfigSchema(
         def fail_spawn(*_args, **_kwargs):
             nonlocal spawned
             spawned = True
-            raise AssertionError("docker update guard should not spawn hermes update")
+            raise AssertionError("docker update guard should not spawn huntington update")
 
         # Bypass the managed-externally gate so we reach the docker install check.
         monkeypatch.setattr(_web_server_files, "_dashboard_local_update_managed_externally", lambda: False)
@@ -1193,7 +1193,7 @@ CONFIG_SCHEMA = ProviderConfigSchema(
         def fail_spawn(*_args, **_kwargs):
             nonlocal spawned
             spawned = True
-            raise AssertionError("APT-managed update guard should not spawn hermes update")
+            raise AssertionError("APT-managed update guard should not spawn huntington update")
 
         monkeypatch.setattr(_web_server_files, "_dashboard_local_update_managed_externally", lambda: False)
         # The shared admission gate (#91277 Phase 3) resolves the install
@@ -3040,7 +3040,7 @@ class TestNewEndpoints:
         # Genuinely-free keyless row stays Ready.
         assert by_name["Microsoft Edge TTS"]["status"] == "ready"
         # Keyless ≠ ready for gated rows:
-        assert by_name["Nous Subscription"]["status"] == "needs_auth"
+        assert by_name["HIP Subscription"]["status"] == "needs_auth"
         assert by_name["xAI TTS"]["status"] == "needs_auth"
         assert by_name["KittenTTS"]["status"] == "needs_setup"
         assert by_name["Piper"]["status"] == "needs_setup"
@@ -3068,7 +3068,7 @@ class TestNewEndpoints:
 
         resp = self.client.put(
             "/api/tools/toolsets/browser/provider",
-            json={"provider": "Nous Subscription (Browser Use cloud)"},
+            json={"provider": "HIP Subscription (Browser Use cloud)"},
         )
         assert resp.status_code == 200
         data = resp.json()

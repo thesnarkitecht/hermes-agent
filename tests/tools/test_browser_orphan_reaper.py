@@ -149,25 +149,25 @@ class TestReaperIdentityGuard:
             return launcher._cmdline_names_dir(12345, udd)
 
     def test_real_browser_bound_via_cmdline_is_reapable(self):
-        udd = "/home/u/.hermes/cache/browser/chromium/abc"
+        udd = "/home/u/.huntington/cache/browser/chromium/abc"
         assert self._run(["chrome", "--remote-debugging-port=0", f"--user-data-dir={udd}"], udd) is True
 
     def test_recycled_pid_browser_not_bound_to_our_dir_is_refused(self):
         """A Chromium for a DIFFERENT profile dir must not be reaped (PID reuse / an unrelated browser)."""
-        udd = "/home/u/.hermes/cache/browser/chromium/abc"
-        assert self._run(["chrome", "--user-data-dir=/home/u/.hermes/cache/browser/chromium/OTHER"], udd) is False
+        udd = "/home/u/.huntington/cache/browser/chromium/abc"
+        assert self._run(["chrome", "--user-data-dir=/home/u/.huntington/cache/browser/chromium/OTHER"], udd) is False
 
     def test_recycled_pid_carrying_only_the_dir_as_a_bare_token_is_refused(self):
         """The dir anywhere in argv is not a binding (#116884): a recycled PID whose argv merely mentions
         it (a grep, a shell) must not pass; only the exact ``--user-data-dir=<dir>`` token binds."""
-        udd = "/home/u/.hermes/cache/browser/chromium/abc"
+        udd = "/home/u/.huntington/cache/browser/chromium/abc"
         assert self._run(["grep", udd, "/var/log/syslog"], udd) is False
         assert self._run(["grep", "abc", "/var/log/syslog"], udd) is False
         # Control: the normalized full path as the flag token still binds.
         assert self._run(["chrome", f"--user-data-dir={udd}/"], udd) is True
 
     def test_unreadable_identity_fails_closed(self):
-        udd = "/home/u/.hermes/cache/browser/chromium/abc"
+        udd = "/home/u/.huntington/cache/browser/chromium/abc"
         assert self._run([], udd, no_such=True) is False
         assert self._run([], udd, access_denied=True) is False
 

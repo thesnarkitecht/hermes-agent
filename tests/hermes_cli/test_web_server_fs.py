@@ -266,7 +266,7 @@ def test_a_browser_download_reads_the_ssh_workspace_file_it_listed(client, monke
 
     # The Webapp: the browser's file routes (download tickets) exist only there.
     monkeypatch.setattr(web_server.app.state, "ui_surface", "webapp", raising=False)
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     profile = home / "profiles" / "remote-dev"
     profile.mkdir(parents=True)
     (profile / "config.yaml").write_text("{}", encoding="utf-8")
@@ -771,7 +771,7 @@ class _NotOnTheSshMachine:
 
 def _ssh_profiles(tmp_path, monkeypatch):
     """A default home and a named profile ``remote-dev``, both with an SSH machine as workspace."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     profile = home / "profiles" / "remote-dev"
     profile.mkdir(parents=True)
     (profile / "config.yaml").write_text("{}", encoding="utf-8")

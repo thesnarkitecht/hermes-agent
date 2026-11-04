@@ -41,7 +41,7 @@ from hermes_cli.doctor_report import Finding
 from hermes_cli.main import main
 issues = ['fixture unresolved problem'] if {unresolved!r} else []
 doctor.DOCTOR_CHECKS = ((None, lambda fix: Finding(issues=issues)),)
-sys.argv = ['hermes', 'doctor']
+sys.argv = ['huntington', 'doctor']
 main()
 """
     result = subprocess.run(

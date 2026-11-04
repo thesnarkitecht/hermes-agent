@@ -396,7 +396,7 @@ def test_old_spotify_commands_point_at_the_plugin(tmp_path, monkeypatch):
     home = _home(tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(home))
     hint = lcm.moved_command_hint("hermes auth", "spotify", "status")
-    assert "`hermes auth status spotify` is now `hermes spotify status`" in hint
+    assert "`huntington auth status spotify` is now `huntington spotify status`" in hint
     assert "plugins install spotify" in hint
     assert "plugins install spotify" in lcm.moved_command_hint("hermes", "spotify")
     (home / "plugins" / "spotify").mkdir(parents=True)  # installed but disabled
@@ -418,11 +418,11 @@ def test_old_mcp_serve_spelling_names_the_plugin_command(tmp_path, monkeypatch, 
         parser.parse_args(["mcp", "serve", "--tools"])
     out, err = capsys.readouterr()
     assert exc.value.code == 2 and out == ""
-    assert "`hermes mcp serve` is now `hermes mcp-serve`" in err
+    assert "`huntington mcp serve` is now `huntington mcp-serve`" in err
     assert "plugins install mcp-serve" in err
     (home / "plugins" / "mcp-serve").mkdir(parents=True)
     hint = lcm.moved_command_hint("hermes mcp", "serve")
-    assert "is now `hermes mcp-serve`" in hint and "install" not in hint
+    assert "is now `huntington mcp-serve`" in hint and "install" not in hint
 
 
 def test_mcp_serve_is_never_installed_automatically(tmp_path):

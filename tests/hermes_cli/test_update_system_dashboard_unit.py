@@ -346,7 +346,7 @@ def test_desktop_handoffs_add_the_gateway_hint_only_when_gateways_are_blamed(cap
     ps = (scripts / "windows.ps1").read_text(encoding="utf-8")
     line_pat = re.search(r'\$_ -cmatch "(Update follow-up [^"]+)"', ps).group(1)
     serve_pat = re.search(r'\$_ -cnotmatch "([^"]+)"', ps).group(1)
-    gw_pat = re.search(r'\(\$_ -cmatch "(hermes gateway restart)"\)', ps).group(1)
+    gw_pat = re.search(r'\(\$_ -cmatch "(huntington gateway restart)"\)', ps).group(1)
     lines = [ln for ln in out.splitlines() if re.search(line_pat, ln)]
     serve_only = bool(lines) and not [ln for ln in lines if not re.search(serve_pat, ln) or re.search(gw_pat, ln)]
     assert (not serve_only) is hinted

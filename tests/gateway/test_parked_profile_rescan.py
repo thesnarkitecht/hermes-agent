@@ -19,7 +19,7 @@ def multiplexed(tmp_path, monkeypatch):
     monkeypatch.setattr(run, '_load_gateway_config', lambda *a: {
         'platform_toolsets': {'cli': [], 'tui': []},
         'model': {'provider': 'custom', 'base_url': 'http://127.0.0.1:9/v1', 'api_key': 'test-key'}})
-    root = tmp_path / '.hermes'
+    root = tmp_path / '.huntington'
     root.mkdir(mode=0o700)
     monkeypatch.setattr(Path, 'home', lambda: tmp_path)
     monkeypatch.setenv('HERMES_HOME', str(root))

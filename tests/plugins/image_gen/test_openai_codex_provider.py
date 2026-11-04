@@ -97,7 +97,7 @@ class TestMetadata:
         assert schema["env_vars"] == []
         assert schema["post_setup"] == "openai_codex"
         assert "hermes auth add openai-codex" in schema["post_setup_hint"]
-        assert "hermes auth codex`" not in schema["post_setup_hint"]
+        assert "huntington auth codex`" not in schema["post_setup_hint"]
 
 
 # ── Availability ────────────────────────────────────────────────────────────

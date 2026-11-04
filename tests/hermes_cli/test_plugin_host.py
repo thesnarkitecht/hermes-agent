@@ -45,7 +45,7 @@ def register(ctx):
 
 
 def _home_with_plugins(tmp_path, monkeypatch, plugins: dict, isolation="host"):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True, exist_ok=True)
     for name, body in plugins.items():
         plugin_dir = home / "plugins" / name
@@ -191,7 +191,7 @@ import asyncio, json
 S = {"type": "object", "properties": {}}
 
 def register(ctx):
-    async def whoami(args, **kw):  # async plugin code calling back into Hermes
+    async def whoami(args, **kw):  # async plugin code calling back into Huntington
         return json.dumps({"inner": json.loads(ctx.dispatch_tool("session_probe", {})),
                            "acomplete_awaitable": asyncio.iscoroutinefunction(ctx.llm.acomplete)})
     ctx.register_tool(name="async_whoami", toolset="asyncprobe", schema={"name": "async_whoami",

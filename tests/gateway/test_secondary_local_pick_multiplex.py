@@ -16,7 +16,7 @@ from gateway.runtime_ownership import process_ownership
 
 
 def _reserve_homes(tmp_path, monkeypatch, names=('beta',)):
-    root = tmp_path / '.hermes'
+    root = tmp_path / '.huntington'
     root.mkdir(mode=0o700)
     monkeypatch.setattr(Path, 'home', lambda: tmp_path)
     monkeypatch.setenv('HERMES_HOME', str(root))

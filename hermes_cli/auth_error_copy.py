@@ -21,12 +21,12 @@ DEVICE_FLOW_ERROR_COPY = {
     "expired_token": (
         "The sign-in code expired before it was approved in the browser. Run `{retry}` to get a new code."),
     "access_denied": (
-        "Sign-in was declined in the browser. Run `{retry}` to try again, or `hermes model` to pick a "
+        "Sign-in was declined in the browser. Run `{retry}` to try again, or `huntington model` to pick a "
         "different provider."),
     "invalid_grant": (
         "The sign-in code was not accepted by the server. Run `{retry}` to get a new code."),
     "invalid_client": (
-        "The server did not recognize this copy of Hermes. Run `hermes update`, then `{retry}` again."),
+        "The server did not recognize this copy of Huntington. Run `huntington update`, then `{retry}` again."),
 }
 
 
@@ -105,12 +105,12 @@ def sign_in_failure_lines(
     rules: Sequence[_Rule] = (
         (is_cancelled, "Sign-in was cancelled. Run `{retry}` when you want to try again."),
         (is_network_error,
-         "Could not sign in: Hermes could not reach {host}. Check your internet connection or proxy, "
+         "Could not sign in: Huntington could not reach {host}. Check your internet connection or proxy, "
          "then run `{retry}` again."),
     )
     lead = _classify(
         exc, rules,
-        "Could not sign in. Run `{retry}` to try again, or `hermes model` to pick a different provider.")
+        "Could not sign in. Run `{retry}` to try again, or `huntington model` to pick a different provider.")
     lines = [lead.format(host=service_host, retry=retry_command)]
     if not is_cancelled(exc):
         lines.append(_details_line(exc))
@@ -147,13 +147,13 @@ def unknown_provider_hint(provider_name: str) -> str:
         return ("OpenCode discontinued anonymous free-tier access outside its own client "
                 "(relay 403s FreeTierError), so the keyless 'opencode-free' provider was removed. "
                 "Switch to 'opencode-zen' (pay-as-you-go, OPENCODE_ZEN_API_KEY) or 'opencode-go' "
-                "($10/mo subscription, OPENCODE_GO_API_KEY) via 'hermes model'.")
+                "($10/mo subscription, OPENCODE_GO_API_KEY) via 'huntington model'.")
     try:
         from hermes_cli.config import validate_config_structure
         issues = validate_config_structure()
         if not issues:
             return ""
-        lines = ["Config issue detected — run 'hermes doctor' for full diagnostics:"]
+        lines = ["Config issue detected — run 'huntington doctor' for full diagnostics:"]
         for ci in issues:
             lines.append(f"  [{'ERROR' if ci.severity == 'error' else 'WARNING'}] {ci.message}")
             if ci.hint and ci.hint.splitlines()[0]:

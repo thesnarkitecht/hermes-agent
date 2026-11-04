@@ -342,7 +342,7 @@ def test_unmanaged_root_home_child_ignores_sticky_active_profile(tmp_path, monke
     """Explicit default selection survives the CLI child's own profile bootstrap (F15): with
     active_profile=other sticky, the spawned `gateway run` must still resolve the root home."""
     from hermes_cli import gateway_runtime_start as start
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     (root / "profiles" / "other").mkdir(parents=True)
     (root / "active_profile").write_text("other", encoding="utf-8")
     witness = tmp_path / "resolved.json"
@@ -351,7 +351,7 @@ def test_unmanaged_root_home_child_ignores_sticky_active_profile(tmp_path, monke
     def boundary(argv, **kwargs):
         assert argv[:3] == [sys.executable, "-m", "hermes_cli.main"]
         # Same argv and env as the real child; the module-import bootstrap is what resolves the profile.
-        code = ("import json, os, sys\nsys.argv = ['hermes', *sys.argv[1:]]\nimport hermes_cli.main\n"
+        code = ("import json, os, sys\nsys.argv = ['huntington', *sys.argv[1:]]\nimport hermes_cli.main\n"
                 f"open({str(witness)!r}, 'w').write(json.dumps({{'home': os.environ['HERMES_HOME'], 'argv': sys.argv}}))")
         return real([sys.executable, "-c", code, *argv[3:]], **kwargs)
 
@@ -375,7 +375,7 @@ def test_named_profile_without_multiplex_evidence_starts_the_host_gateway(tmp_pa
     """`gateway run` refuses a profiles/<name> home a gateway of its own, so ensure must start the host."""
     from hermes_cli import gateway_runtime as runtime, gateway_runtime_service as service, gateway_runtime_start as start
 
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     home = root / "profiles" / "alpha"
     home.mkdir(parents=True, mode=0o700)
     if standalone:
@@ -397,7 +397,7 @@ def test_cold_start_target_follows_boot_multiplex_policy(tmp_path, monkeypatch, 
     from hermes_cli import gateway_runtime as runtime, gateway_runtime_service as service, gateway_runtime_start as start
 
     monkeypatch.delenv("GATEWAY_MULTIPLEX_PROFILES", raising=False)
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     home = root / "profiles" / "alpha"
     home.mkdir(parents=True, mode=0o700)
     (root / "config.yaml").write_text(f"gateway:\n  multiplex_profiles: {flag}\n", encoding="utf-8")
@@ -420,7 +420,7 @@ def test_reserved_root_never_suppresses_a_standalone_profile_start(tmp_path, mon
     from gateway.runtime_ownership import ProfileOwnership
     from hermes_cli import gateway_runtime as runtime, gateway_runtime_service as service, gateway_runtime_start as start
 
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     home = root / "profiles" / "alpha"
     home.mkdir(parents=True, mode=0o700)
     (root / "config.yaml").write_text("model: {default: m}\n", encoding="utf-8")
@@ -443,7 +443,7 @@ def _standalone_host(tmp_path, monkeypatch, record):
     from hermes_cli import gateway_runtime as runtime, gateway_runtime_discovery as discovery
     from hermes_cli import gateway_runtime_service as service, gateway_runtime_start as start
 
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     home = root / "profiles" / "alpha"
     home.mkdir(parents=True, mode=0o700)
     if record is not None:
@@ -457,7 +457,7 @@ def _standalone_host(tmp_path, monkeypatch, record):
     return home, spawned
 
 
-_REASON = "duplicate Telegram token; run hermes gateway migrate --multiplex"
+_REASON = "duplicate Telegram token; run huntington gateway migrate --multiplex"
 
 
 def test_ensure_reports_a_standalone_host_reason_for_an_unserved_named_profile(tmp_path, monkeypatch):

@@ -82,7 +82,7 @@ _APIKEY_PROVIDERS = {
 
 # Nous Tool Gateway per-feature state: first matching (predicate(feature, nous_auth), text(feature)).
 _FEATURE_STATES = (
-    (lambda f, _: f.managed_by_nous, lambda f: "active via Nous subscription"),
+    (lambda f, _: f.managed_by_nous, lambda f: "active via HIP subscription"),
     (lambda f, _: f.active, lambda f: f"active via {f.current_provider or 'configured provider'}"),
     (lambda f, auth: f.included_by_default and auth, lambda f: "included by subscription, not currently selected"),
     (lambda f, auth: f.key == "modal" and auth, lambda f: "available via subscription (optional)"))
@@ -128,7 +128,7 @@ def _render_auth_providers(ctx):
     if nous_status.get("free_tier"):
         # Free tier: never rendered as an account login (no account ids, no refresh row).
         from hermes_cli.anon_auth import FREE_TIER_LABEL, GUEST_MODEL, UPGRADE_HINT
-        _status._row("Nous Portal", True, f"{FREE_TIER_LABEL} · {GUEST_MODEL}")
+        _status._row("HIP Portal", True, f"{FREE_TIER_LABEL} · {GUEST_MODEL}")
         _status._detail("", UPGRADE_HINT)
         inference_url = nous_status.get("inference_base_url")
         if inference_url:
@@ -137,9 +137,9 @@ def _render_auth_providers(ctx):
             _oauth_block(name, statuses.get(getter, {}), hint, rows)
         return
     nous_error = nous_status.get("error")
-    _status._row("Nous Portal", logged_in,
-         "logged in" if logged_in else "not logged in (Nous inference key configured)" if inference
-         else "not logged in (run: hermes portal)")
+    _status._row("HIP Portal", logged_in,
+         "logged in" if logged_in else "not logged in (HIP inference key configured)" if inference
+         else "not logged in (run: huntington portal)")
     portal_url = nous_status.get("portal_base_url") or "(unknown)"
     inference_url = nous_status.get("inference_base_url") or (info.inference_base_url if info else None)
     for label, value, show in (
@@ -161,9 +161,9 @@ def _render_auth_providers(ctx):
 def _render_nous_gateway(ctx):
     if managed_nous_tools_enabled():
         features = get_nous_subscription_features(ctx.config)
-        _status._section("Nous Tool Gateway")
-        print("  Nous Portal   ✓ managed tools available" if features.nous_auth_present
-              else "  Nous Portal   ✗ not logged in")
+        _status._section("HIP Tool Gateway")
+        print("  HIP Portal   ✓ managed tools available" if features.nous_auth_present
+              else "  HIP Portal   ✗ not logged in")
         for f in features.items():
             state = next((text(f) for match, text in _FEATURE_STATES if match(f, features.nous_auth_present)),
                          "not configured")
@@ -171,7 +171,7 @@ def _render_nous_gateway(ctx):
     elif ctx.nous_logged_in or ctx.nous_inference_present:
         # Nous OAuth without entitlement, or an opaque inference key without Portal account
         # information, cannot enable the Tool Gateway.
-        _status._section("Nous Tool Gateway")
+        _status._section("HIP Tool Gateway")
         message = format_nous_portal_entitlement_message(
             ctx.nous_account_info, capability="managed web, image, TTS, STT, browser, and Modal tools"
         )
@@ -183,7 +183,7 @@ def _render_apikey_providers(ctx):
     _status._section("API-Key Providers")
     for pname, env_vars in _APIKEY_PROVIDERS.items():
         configured = bool(_status._first_env_value(env_vars))
-        _status._row(pname, configured, "configured" if configured else "not configured (run: hermes model)", 16, " ")
+        _status._row(pname, configured, "configured" if configured else "not configured (run: huntington model)", 16, " ")
 
     # LM Studio reachability: probe only when it is the active provider so users with foreign
     # configs see no noise. Auth rejection vs. a silent empty list is the common support case.

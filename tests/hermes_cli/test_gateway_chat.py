@@ -198,7 +198,7 @@ def test_one_letter_alias_refusal_names_a_flag_the_user_can_type(monkeypatch, ca
     monkeypatch.setattr(gateway_chat, "connect_gateway", lambda: pytest.fail("connected"))
     assert gateway_chat.launch_from_args(argparse.Namespace(w=True)) == 2
     err = capsys.readouterr().err
-    assert "options: -w." in err and "\n  -w: use `hermes --tui -w`" in err and "--w" not in err
+    assert "options: -w." in err and "\n  -w: use `huntington --tui -w`" in err and "--w" not in err
 
 
 @pytest.mark.asyncio

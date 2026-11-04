@@ -18,7 +18,7 @@ from hermes_cli.auth_codex import _codex_refresh_failure_error
 
 @pytest.fixture
 def codex_profile_home(tmp_path, monkeypatch):
-    profile_home = tmp_path / ".hermes" / "profiles" / "codex"
+    profile_home = tmp_path / ".huntington" / "profiles" / "codex"
     profile_home.mkdir(parents=True)
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setenv("HERMES_HOME", str(profile_home))
@@ -34,13 +34,13 @@ def test_missing_and_reused_codex_credential_copy_names_the_profile(codex_profil
     ))
     for err in (missing.value, reused):
         text = str(err)
-        assert "`hermes -p codex auth add openai-codex --type oauth`" in text, text
-        assert "`hermes auth`" not in text, text
+        assert "`huntington -p codex auth add openai-codex --type oauth`" in text, text
+        assert "`huntington auth`" not in text, text
 
 
 def test_format_auth_error_relogin_suffix_names_the_profile(codex_profile_home):
     err = AuthError("Codex token refresh failed: invalid_grant", provider="openai-codex",
                     code="invalid_grant", relogin_required=True)
     rendered = format_auth_error(err)
-    assert "`hermes -p codex model`" in rendered, rendered
-    assert "`hermes model`" not in rendered, rendered
+    assert "`huntington -p codex model`" in rendered, rendered
+    assert "`huntington model`" not in rendered, rendered

@@ -106,10 +106,10 @@ class E2EHome:
         """Hermetic child env: fake HOME (so no ``~/.hermes`` of the real user is reachable)."""
         import pwd  # the suite is Linux-gated
 
-        real_root = Path(pwd.getpwuid(os.getuid()).pw_dir, ".hermes").resolve()  # windows-footgun: ok — module is skipif(not linux)
+        real_root = Path(pwd.getpwuid(os.getuid()).pw_dir, ".huntington").resolve()  # windows-footgun: ok — module is skipif(not linux)
         fixture = self.hermes_home.resolve()
         assert fixture != real_root and fixture.parent != real_root / "profiles", fixture
-        assert fixture == (self.home / ".hermes").resolve(), fixture
+        assert fixture == (self.home / ".huntington").resolve(), fixture
         env = {k: v for k, v in os.environ.items()
                if (k in _PASSTHROUGH_ENV or k.startswith("LC_")) and not k.endswith(_SECRET_ENV_SUFFIXES)}
         env.update({
@@ -141,7 +141,7 @@ def _select_test_dependencies(eh: E2EHome) -> None:
 def build_home(root: Path, base_url: str, *, mcp_servers: dict[str, dict] | None = None,
                extra: dict[str, Any] | None = None) -> E2EHome:
     home = root / "home"
-    hermes_home = home / ".hermes"
+    hermes_home = home / ".huntington"
     project = root / "project"
     for d in (hermes_home, project):
         d.mkdir(parents=True, exist_ok=True)

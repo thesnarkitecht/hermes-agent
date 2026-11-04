@@ -101,7 +101,7 @@ def _concurrent(agent, content):
 
 @pytest.fixture
 def homes(tmp_path):
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     alpha, beta = root / "profiles" / "alpha", root / "profiles" / "beta"
     for home in (alpha, beta):
         home.mkdir(parents=True)

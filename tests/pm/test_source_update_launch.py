@@ -120,7 +120,7 @@ def test_source_python_pin_update_survives_real_gc(source_launch, tmp_path, monk
     pm.sync_venv(explicit=True, project_root=root)
     # Initial installation is allowed to publish. No explicit writer is called
     # after replacement: the source-update owner must refresh this same command.
-    _launchers.ensure_install_launchers(root, root / ".hermes" / "bin")
+    _launchers.ensure_install_launchers(root, root / ".huntington" / "bin")
     command = _launchers.installation_command(root, module="source_probe")
     (site_packages(selected_venv(root)) / "selected_probe.py").write_text("VALUE = 'A'\n")
     child_env = {**os.environ, "HERMES_DISABLE_LAZY_INSTALLS": "1"}
@@ -193,7 +193,7 @@ def test_launcher_publication_failure_retries_without_rebuilding_dependencies(so
     committed = runtime_facts_path(root).read_bytes()
     assert venv_sync.prepare_launch(root, []) == store_python
     assert runtime_facts_path(root).read_bytes() == committed
-    assert (root / ".hermes" / "bin" / "hermes").is_file()
+    assert (root / ".huntington" / "bin" / "hermes").is_file()
 
 
 @pytest.mark.platforms("posix")
@@ -205,7 +205,7 @@ def test_source_publication_leaves_external_install_launchers_alone(source_launc
     )
     if not checkout:
         (root / ".git").rmdir()
-    launcher = root / ".hermes" / "bin" / "hermes"
+    launcher = root / ".huntington" / "bin" / "hermes"
     launcher.parent.mkdir(parents=True)
     launcher.write_text("externally owned launcher\n", encoding="utf-8")
     assert venv_sync.sync(root)["ok"]

@@ -164,7 +164,7 @@ def test_healthy_store_launcher_is_a_noop(tmp_path, monkeypatch):
     _store, _entry = _make_store(tmp_path, monkeypatch)
     bin_dir = home / "bin"
     bin_dir.mkdir()
-    local = root / ".hermes" / "bin"
+    local = root / ".huntington" / "bin"
     local.mkdir(parents=True)
     for name in _WINDOWS_BIN_LAUNCHERS:
         # A launcher that does NOT embed the venv interpreter counts as
@@ -467,6 +467,6 @@ def test_repo_gitignores_the_legacy_bin_dir():
         check=False,
     )
     assert result.returncode == 0, (
-        "bin/hermes.exe is not gitignored — hermes update's autostash "
+        "bin/hermes.exe is not gitignored — huntington update's autostash "
         "(--include-untracked) would sweep pre-migration launchers off disk"
     )

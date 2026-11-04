@@ -47,7 +47,7 @@ class _Agent:
 
 @pytest.fixture
 def moa_config(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text(
         """

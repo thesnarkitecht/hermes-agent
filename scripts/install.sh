@@ -20,14 +20,14 @@ set -u
 # hygiene can't break the locked sync the way it used to before pm owned it.
 export UV_NO_CONFIG=1
 
-REPO_URL="${HERMES_REPO_URL:-https://github.com/thesnarkitecht/hermes-agent.git}"  # HUNTINGTON-AGENT fork
+REPO_URL="${HERMES_REPO_URL:-https://github.com/thesnarkitecht/huntington-agent.git}"  # HUNTINGTON-AGENT fork
 BRANCH="main"
 INSTALL_COMMIT=""
 # The update channel to install: stable (the latest published release, the default for the
 # official repository's main line) or main (every commit). An explicit choice is persisted.
 CHANNEL="${HERMES_INSTALL_CHANNEL:-}"
 INSTALL_DIR="${HERMES_INSTALL_DIR:-}"
-HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
+HERMES_HOME="${HERMES_HOME:-$HOME/.huntington}"
 STAGE=""
 WANT_MANIFEST=false
 JSON=false
@@ -1156,7 +1156,7 @@ stage_setup() {
         log "setup skipped (no terminal); run 'hermes setup' after install"
         return 0
     fi
-    "$INSTALL_DIR/.hermes/bin/hermes" setup </dev/tty || fail "setup failed" setup_failed
+    "$INSTALL_DIR/.huntington/bin/hermes" setup </dev/tty || fail "setup failed" setup_failed
 }
 
 stage_gateway() {
@@ -1166,7 +1166,7 @@ stage_gateway() {
         return 0
     fi
     # Setup installs the service when it handles the gateway; ask only if it did not.
-    "$INSTALL_DIR/.hermes/bin/hermes" gateway install --if-missing </dev/tty || fail "gateway installation failed" gateway_failed
+    "$INSTALL_DIR/.huntington/bin/hermes" gateway install --if-missing </dev/tty || fail "gateway installation failed" gateway_failed
 }
 
 stage_complete() {
@@ -1179,7 +1179,7 @@ stage_complete() {
         mv -f "$INSTALL_DIR/.hermes-bootstrap-complete.tmp" "$INSTALL_DIR/.hermes-bootstrap-complete"
     fi
     if [ -n "$CHANNEL" ]; then
-        "$INSTALL_DIR/.hermes/bin/hermes" update --set-channel "$CHANNEL" \
+        "$INSTALL_DIR/.huntington/bin/hermes" update --set-channel "$CHANNEL" \
             || fail "could not save the $CHANNEL update channel" other
     fi
     log_success "Hermes Agent install complete. Run: hermes"

@@ -20,9 +20,9 @@ def _install_tts_extra(extra: str) -> bool:
         pm.sync_venv([extra], explicit=True)
     except (pm.InstallError, OSError, ValueError) as exc:
         _setup.print_error(f"Failed to install {extra}: {exc}")
-        _setup.print_info("Retry with: hermes setup tts")
+        _setup.print_info("Retry with: huntington setup tts")
         return False
-    _setup.print_success(f"{extra} installed. Restart Hermes to use it.")
+    _setup.print_success(f"{extra} installed. Restart Huntington to use it.")
     return True
 
 
@@ -205,7 +205,7 @@ def _xai_api_key_path():
         _setup.print_success("xAI TTS API key saved")
         return None
     from hermes_constants import display_hermes_home as _dhh
-    return ("No xAI API key provided for TTS. Configure XAI_API_KEY via hermes setup model "
+    return ("No xAI API key provided for TTS. Configure XAI_API_KEY via huntington setup model "
             f"or {_dhh()}/.env to use xAI TTS. Falling back to Edge TTS.")
 
 
@@ -247,7 +247,7 @@ def _setup_tts_provider(config: dict):
     options = list(_TTS_PROVIDER_CHOICES)
     if tool_backend_helpers.managed_nous_tools_enabled() and nous_subscription.get_nous_subscription_features(config).nous_auth_present:
         options.insert(0, ("nous-openai",
-                           "Nous Subscription (managed OpenAI TTS, billed to your subscription)"))
+                           "HIP Subscription (managed OpenAI TTS, billed to your subscription)"))
     choices = [label for _, label in options] + [f"Keep current ({current_label})"]
     keep_current_idx = len(choices) - 1
     idx = _setup.prompt_choice("Select TTS provider:", choices, keep_current_idx)
@@ -256,10 +256,10 @@ def _setup_tts_provider(config: dict):
     selected = options[idx][0]
     if selected == "nous-openai":
         selected = "openai"
-        _setup.print_info("OpenAI TTS will use the managed Nous gateway and bill to your subscription.")
+        _setup.print_info("OpenAI TTS will use the managed HIP gateway and bill to your subscription.")
         if _setup.get_env_value("VOICE_TOOLS_OPENAI_KEY") or _setup.get_env_value("OPENAI_API_KEY"):
             _setup.print_warning("Direct OpenAI credentials are still configured and may take precedence "
-                                 "until removed from ~/.hermes/.env.")
+                                 "until removed from ~/.huntington/.env.")
     elif selected in _TTS_LOCAL_PROVIDERS:
         selected = _tts_local_install_step(selected)
     elif selected in _TTS_API_KEY_PROVIDERS:

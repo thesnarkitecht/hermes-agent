@@ -126,7 +126,7 @@ ai.hermes.gateway = {
 \tpath = /Users/u/Library/LaunchAgents/ai.hermes.gateway.plist
 \tstate = running
 \tpid = 59038
-\tprogram = /Users/u/.hermes/bin/hermes
+\tprogram = /Users/u/.huntington/bin/hermes
 }
 """
 

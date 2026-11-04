@@ -80,7 +80,7 @@ def test_modal_backend_managed_mode_without_feature_flag_logs_clear_error(monkey
 
     assert ok is False
     assert any(
-        "Nous Tool Gateway access is not currently available" in record.getMessage()
+        "HIP Tool Gateway access is not currently available" in record.getMessage()
         for record in caplog.records
     )
 

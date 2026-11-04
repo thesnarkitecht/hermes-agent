@@ -146,7 +146,7 @@ def _register_nous_sign_in(callback_url: str) -> None:
             name=None if existing else f"webapp_{_generate_dashboard_name()}",
             custom_redirect_uri=callback_url, existing_client_id=existing)
     except Exception as exc:
-        raise WebappAccessError(f"Couldn't register Nous sign-in: {exc}") from exc
+        raise WebappAccessError(f"Couldn't register HIP sign-in: {exc}") from exc
     path = home / _REGISTRATION_PATH
     path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     record = {"own_client": True, "portal": portal, "client_id": str(result["client_id"]), "callback": callback_url}
@@ -160,7 +160,7 @@ def plan(mode: str, public_url: Optional[str] = None) -> tuple[str, Optional[int
     claim of a standalone profile that has none (:func:`_port_to_serve`), so Start runs it, in the
     config write scope, before any slow or lasting step. A refusal before that claim writes nothing."""
     if not nous_signed_in():
-        raise WebappAccessError("Sign in to your Nous account under Providers first.")
+        raise WebappAccessError("Sign in to your HIP account under Providers first.")
     if mode == "lan":
         address = lan_address()
         if address is None:
@@ -175,7 +175,7 @@ def plan(mode: str, public_url: Optional[str] = None) -> tuple[str, Optional[int
     else:
         raise WebappAccessError(f"Unknown access mode {mode!r}.")
     if not nous_signed_in():
-        raise WebappAccessError("Sign in to your Nous account under Providers first.")
+        raise WebappAccessError("Sign in to your HIP account under Providers first.")
     return host, port, pinned, f"{url}/auth/callback"
 
 
@@ -213,7 +213,7 @@ def _port_to_serve(home: Path, host: str) -> tuple[int, Optional[int]]:
     _create_user_only(lock)
     try:
         with _file_lock(lock, _PORT_CLAIM_HOLDER, _PORT_CLAIM_TIMEOUT_SECONDS,
-                        "Timed out waiting for another Hermes profile to choose its Webapp port"):
+                        "Timed out waiting for another Huntington profile to choose its Webapp port"):
             claimed = _claimed_ports(home)
             for port in range(DEFAULT_PORT + 1, DEFAULT_PORT + 1 + _PORT_SEARCH):
                 if port not in claimed and _port_free(host, port):
@@ -304,7 +304,7 @@ def build_bundle() -> None:
         prepare_webapp_renderer(get_project_root())
     except WebappBuildError as exc:
         raise WebappAccessError(
-            f"{str(exc).rstrip('.')}. Run hermes webapp --build-only to see the full output, then start again.") from exc
+            f"{str(exc).rstrip('.')}. Run huntington webapp --build-only to see the full output, then start again.") from exc
 
 
 def register(callback_url: str) -> None:

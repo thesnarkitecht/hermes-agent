@@ -28,7 +28,7 @@ def _write(path: Path, text: str) -> Path:
 def machine(monkeypatch, tmp_path):
     """A Hermes root with a standalone profile ``solo`` and a sibling ``other`` that claims 9122; 9121 is
     in use by something else. The process runs as ``solo`` (Web Access scopes to its gateway's home)."""
-    root = _write(tmp_path / ".hermes", "")
+    root = _write(tmp_path / ".huntington", "")
     solo = _write(root / "profiles" / "solo", "gateway:\n  standalone: true\n")
     _write(root / "profiles" / "other", "gateway:\n  standalone: true\nwebapp:\n  port: 9122\n")
     listening = {9121}
@@ -140,7 +140,7 @@ def test_with_no_free_port_start_refuses_and_names_the_setting(machine):
 @pytest.mark.parametrize("mode, url", [("lan", None), ("public", "https://solo.example.test")])
 def test_a_start_refused_for_no_nous_account_saves_no_port(machine, mode, url):
     machine["monkeypatch"].setattr(webapp_access, "nous_signed_in", lambda: False)
-    with pytest.raises(webapp_access.WebappAccessError, match="Sign in to your Nous account"):
+    with pytest.raises(webapp_access.WebappAccessError, match="Sign in to your HIP account"):
         webapp_access.plan(mode, url)
     assert _webapp_block(machine["solo"]) == {} and machine["probed"] == []
 

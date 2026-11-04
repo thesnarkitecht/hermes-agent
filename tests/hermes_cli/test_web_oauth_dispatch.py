@@ -503,7 +503,7 @@ def test_accounts_offers_every_oauth_provider_from_catalog():
     for d in provider_catalog():
         if d.tab == "accounts":
             assert d.slug in offered, (
-                f"{d.slug} is an accounts-tab provider in `hermes model` but is "
+                f"{d.slug} is an accounts-tab provider in `huntington model` but is "
                 f"missing from the desktop Accounts tab (/api/providers/oauth)"
             )
 

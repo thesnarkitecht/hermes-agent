@@ -46,8 +46,8 @@ _FORCE_REFRESH_SKEW = 10**9
 _CLAIMED, _GONE, _RETRY, _FAIL = "claimed", "gone", "retry", "fail"
 # A plain reason per final code; any other code shows only the generic sentence, never the code.
 _FAILURE_COPY = {
-    "client_not_allowed": "This sign-in can't receive them. Sign in again with `hermes auth add nous`.",
-    "account_locked": "This Nous account is locked.",
+    "client_not_allowed": "This sign-in can't receive them. Sign in again with `huntington auth add nous`.",
+    "account_locked": "This HIP account is locked.",
 }
 # The service's refusal codes; anything unlisted retries (``_classify``).
 _REFUSALS = {
@@ -143,7 +143,7 @@ def note_replacement(previous: Any, new: Any) -> None:
         return record
 
     record = _update(path, _token_key(anon_token), change)
-    logger.info("Nous sign-in replaced the free tier; handoff %s (%s)", record["state"],
+    logger.info("HIP sign-in replaced the free tier; handoff %s (%s)", record["state"],
                 _token_key(anon_token)[:8])
 
 
@@ -368,7 +368,7 @@ def result_lines(status: dict[str, Any]) -> list[str]:
     moved = [app_title(slug) for slug in status.get("moved_toolkits") or []]
     dropped = [app_title(slug) for slug in status.get("dropped_toolkits") or []]
     if state in _ACTIVE:
-        return ["Moving your free-tier apps to this account; Hermes keeps trying in the background."]
+        return ["Moving your free-tier apps to this account; Huntington keeps trying in the background."]
     if state == FAILED:
         reason = _FAILURE_COPY.get(str(status.get("error") or ""))
         return ["Your free-tier apps could not be moved." + (f" {reason}" if reason else "")]

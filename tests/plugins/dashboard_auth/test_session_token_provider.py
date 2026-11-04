@@ -168,7 +168,7 @@ class TestRealConfigLoader:
 
     @pytest.fixture
     def home(self, monkeypatch, tmp_path):
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         home.mkdir()
         monkeypatch.setenv("HERMES_HOME", str(home))
         monkeypatch.setenv("HERMES_DASHBOARD_SESSION_TOKEN", _token())
@@ -243,6 +243,6 @@ class TestInteractiveSurfaces:
         providers = asyncio.run(api_auth_providers())
         assert providers == {"providers": []}
 
-        registry.register_global_provider(self._stub("nous", "Nous Research"))
+        registry.register_global_provider(self._stub("nous", "HIP"))
         providers = asyncio.run(api_auth_providers())
         assert [p["name"] for p in providers["providers"]] == ["nous"]

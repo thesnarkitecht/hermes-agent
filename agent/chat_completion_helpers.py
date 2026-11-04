@@ -510,7 +510,7 @@ def _merge_nous_portal_messages_extra_body(agent, anthropic_kwargs: dict, api_me
             anthropic_kwargs.setdefault("extra_body", {}).update(nous_profile.build_extra_body(
                 session_id=getattr(agent, "session_id", None), data_use=data_use_requirement(api_messages)))
     except Exception as exc:
-        logger.debug("Nous Portal extra_body merge failed: %s", exc)
+        logger.debug("HIP Portal extra_body merge failed: %s", exc)
     return anthropic_kwargs
 
 
@@ -1903,7 +1903,7 @@ def _log_fallback_activated(agent, reason, old_model, old_provider, fb_model, fb
         return
     from hermes_constants import get_hermes_home, profile_name_for_home
     profile = profile_name_for_home(get_hermes_home()) or "default"
-    remedy = "hermes model" if profile == "default" else f"hermes -p {profile} model"
+    remedy = "hermes model" if profile == "default" else f"huntington -p {profile} model"
     logger.warning(
         "Profile %s: %s via %s refused for billing/credits — using fallback %s via %s. "
         "Top up credits, or run `%s` to pick a model this account can use.",

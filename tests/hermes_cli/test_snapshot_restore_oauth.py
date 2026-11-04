@@ -22,7 +22,7 @@ def test_quick_snapshot_restore_keeps_live_oauth_and_restores_static_auth(
 ):
     from hermes_cli.backup import restore_quick_snapshot
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
 

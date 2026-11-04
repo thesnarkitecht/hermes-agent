@@ -49,7 +49,7 @@ from hermes_cli.profile_distribution import (
 @pytest.fixture()
 def profile_env(tmp_path, monkeypatch):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    default_home = tmp_path / ".hermes"
+    default_home = tmp_path / ".huntington"
     default_home.mkdir(exist_ok=True)
     monkeypatch.setenv("HERMES_HOME", str(default_home))
     return tmp_path
@@ -170,7 +170,7 @@ class TestVersionRequires:
         if ok:
             check_hermes_requires(spec, cur)
         else:
-            with pytest.raises(DistributionError, match="requires Hermes"):
+            with pytest.raises(DistributionError, match="requires Huntington"):
                 check_hermes_requires(spec, cur)
 
     def test_parse_semver_handles_prerelease(self):
@@ -416,7 +416,7 @@ class TestInstall:
             hermes_requires=">=99.0.0",
         )
         staged = _make_staging_dir(profile_env, "future", manifest=mf)
-        with pytest.raises(DistributionError, match="requires Hermes"):
+        with pytest.raises(DistributionError, match="requires Huntington"):
             install_distribution(str(staged), name="future")
 
 
@@ -691,7 +691,7 @@ class TestDescribe:
 
 
     def test_describe_missing_profile_raises(self, profile_env):
-        with pytest.raises(DistributionError, match="No profile named .*hermes profile list"):
+        with pytest.raises(DistributionError, match="No profile named .*huntington profile list"):
             describe_distribution("nonexistent")
 
 

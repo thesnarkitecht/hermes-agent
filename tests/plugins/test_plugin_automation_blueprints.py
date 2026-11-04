@@ -55,7 +55,7 @@ def homes(tmp_path, monkeypatch):
     """Default profile home (active) plus a second profile home, both isolated."""
     from hermes_cli import profiles
 
-    default_home = tmp_path / ".hermes"
+    default_home = tmp_path / ".huntington"
     profiles_root = default_home / "profiles"
     other_home = profiles_root / "other"
     for home in (default_home, other_home):
