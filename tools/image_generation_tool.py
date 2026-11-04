@@ -187,11 +187,17 @@ def _read_configured_image_provider():
 
 
 def _plugin_provider_name() -> Optional[str]:
-    """Configured provider that must go through the plugin registry; None for unset/fal/nous."""
+    """HUNTINGTON-AGENT: the OpenAI image backend, always through the plugin registry. A configured
+    ``openai`` (API key) or ``openai-codex`` (ChatGPT sign-in) wins; otherwise the first available."""
+    from hermes_cli.huntington import IMAGE_GEN_PROVIDERS
     configured = _read_configured_image_provider()
-    if not configured or configured in ("fal", NOUS_MANAGED_PROVIDER):
-        return None
-    return configured
+    if configured in IMAGE_GEN_PROVIDERS:
+        return configured
+    for name in IMAGE_GEN_PROVIDERS:
+        provider = _get_plugin_provider(name)
+        if provider is not None and provider.is_available():
+            return name
+    return IMAGE_GEN_PROVIDERS[0]
 
 
 def _resolve_fal_model() -> tuple:
@@ -582,14 +588,7 @@ def _get_plugin_provider(name: str, *, force: bool = False):
 
 
 def check_image_generation_requirements() -> bool:
-    """True if FAL or the explicitly configured image backend is available."""
-    try:
-        if check_fal_api_key():
-            # Lazy import doubles as the SDK presence check: ImportError falls through to plugins.
-            _load_fal_client()
-            return True
-    except ImportError:
-        pass
+    """True if the OpenAI image backend (API key or ChatGPT sign-in) is available."""
     configured = _plugin_provider_name()
     if configured is None:
         return False

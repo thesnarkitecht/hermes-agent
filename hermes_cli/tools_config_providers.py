@@ -168,7 +168,8 @@ def _visible_providers(
     builder = _PLUGIN_ROW_BUILDERS.get(cat.get("name"))
     if builder is not None:
         visible.extend(builder())
-    return visible
+    from hermes_cli.huntington import tool_row_supported
+    return [row for row in visible if tool_row_supported(row)]
 
 
 def provider_readiness_status(provider: dict, config: dict, *, features=None, is_active: Optional[bool] = None) -> str:

@@ -240,6 +240,9 @@ def _is_backend_available(backend: str) -> bool:
     #32698). Built-in backends keep their cheap hardcoded probes below.
     """
     backend = (backend or "").lower().strip()
+    from hermes_cli.huntington import WEB_SEARCH_BACKENDS
+    if backend not in WEB_SEARCH_BACKENDS:
+        return False
     provider = None if backend in _LEGACY_WEB_BACKENDS else _registered_web_provider(backend)
     if provider is not None:
         return _probe(provider, "is_available") or False

@@ -136,6 +136,9 @@ def provider_tier(name: str) -> str:
 def use_keyless(name: str, api_key: str) -> bool:
     """Single chokepoint for search + extract: ``free`` → keyless even with a key; ``paid`` → keyed even
     without one (the keyed path raises its usual missing-key error); ``auto`` → keyless only when no key + tier enabled."""
+    from hermes_cli.huntington import WEB_SEARCH_BACKENDS
+    if name not in WEB_SEARCH_BACKENDS:
+        return False
     tier = provider_tier(name)
     if tier in ("free", "paid"):
         return tier == "free"

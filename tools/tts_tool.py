@@ -145,8 +145,9 @@ def _load_tts_config() -> dict[str, Any]:
 def _get_provider(tts_config: dict[str, Any]) -> str:
     """Configured provider or the free default (inference credentials never imply consent to paid
     speech); ``nous`` is serviced by the OpenAI path through the managed openai-audio gateway."""
+    from hermes_cli.huntington import TTS_PROVIDERS
     provider = (tts_config.get("provider") or DEFAULT_PROVIDER).lower().strip()
-    return "openai" if provider == NOUS_MANAGED_PROVIDER else provider
+    return provider if provider in TTS_PROVIDERS else TTS_PROVIDERS[0]
 
 
 # Platforms whose native voice-bubble delivery requires Ogg/Opus (MP3 renders broken there).

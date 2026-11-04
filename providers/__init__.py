@@ -391,10 +391,11 @@ def unlisted_provider_names() -> set[str]:
     turns by name. A raising ``listed()`` counts as unlisted, because a broken gate must never
     advertise a dark launch.
     """
+    from hermes_cli.huntington import provider_supported
     hidden: set[str] = set()
     for profile in list_providers():
         try:
-            if not profile.listed():
+            if not provider_supported(profile.name) or not profile.listed():
                 hidden.add(profile.name)
         except Exception:
             logger.debug("provider %s listed() raised; hiding it", profile.name, exc_info=True)

@@ -276,7 +276,8 @@ def setup_terminal_backend(config: dict):
                  "This affects tool execution, file access, and isolation.",
                  f"   Guide: {_setup._DOCS_BASE}/user-guide/configuration#terminal-backend-configuration", None)
     current_backend = _setup.cfg_get(config, "terminal", "backend", default="local")
-    backends = list(_BUILTIN_TERMINAL_BACKENDS)
+    from hermes_cli.huntington import terminal_backend_supported
+    backends = [b for b in _BUILTIN_TERMINAL_BACKENDS if terminal_backend_supported(b[0])]
     # Plugin-registered backends (~/.hermes/plugins/). Fail-soft: a broken plugin must not take
     # the wizard down.
     plugin_backend_names = []

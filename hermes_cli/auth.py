@@ -1590,6 +1590,9 @@ def _env_key_auto_detected(
     for pid, pconfig in _canonical_registry_rows():
         if pconfig.auth_type != "api_key" or pid in _NO_AUTO_DETECT_PROVIDERS or pid in ambient:
             continue
+        from hermes_cli.huntington import provider_supported
+        if not provider_supported(pid):
+            continue
         for env_var in pconfig.api_key_env_vars:
             if has_usable_secret(scoped_key_env(env_var)):
                 if oauth_active and oauth_active != pid:
@@ -1646,8 +1649,10 @@ def resolve_provider(
     if cfg_provider:
         return cfg_provider
 
+    # HUNTINGTON-AGENT: "auto" only ever lands on a supported provider (explicit choices above win).
+    from hermes_cli.huntington import provider_supported
     _scoped_key_env = _scoped_key_env_reader()
-    if _openrouter_auto_detected(_scoped_key_env):
+    if provider_supported("openrouter") and _openrouter_auto_detected(_scoped_key_env):
         _refuse_env_adoption_if_config_corrupt()
         return "openrouter"
 
@@ -1662,7 +1667,7 @@ def resolve_provider(
     # checks, so a stale login silently overrode explicit intent).
     # Logged-in OAuth provider (auth.json `active_provider`) — a LAST-RESORT fallback, chosen only when the
     # user expressed no other preference above. Demoted here so explicit intent always wins. See #29285.
-    if _oauth_active:
+    if _oauth_active and provider_supported(_oauth_active):
         if isinstance(_model_cfg, dict) and _model_cfg and not _model_cfg.get("provider"):
             logger.warning(
                 "Provider resolved to logged-in OAuth provider %r because "
@@ -1677,7 +1682,7 @@ def resolve_provider(
     # keys, a sign-in); the boto chain below is implicit host state, and a leftover ~/.aws profile
     # used to win the first turn of a fresh install (NS-829). The rung never CREATES the identity:
     # only the desktop's trial claim does (welcome_trial), so provider resolution stays free of network.
-    if not skip_free_tier:
+    if not skip_free_tier and provider_supported("nous"):
         try:
             from hermes_cli.anon_auth import free_inference_active
             if free_inference_active():
@@ -1689,7 +1694,7 @@ def resolve_provider(
     try:
         from agent.bedrock_adapter import has_aws_credentials
         from hermes_cli.anon_auth import on_local_desktop_backend  # a laptop: no EC2 metadata lookup
-        if has_aws_credentials(instance_metadata=not on_local_desktop_backend()):
+        if provider_supported("bedrock") and has_aws_credentials(instance_metadata=not on_local_desktop_backend()):
             return "bedrock"
     except ImportError:
         pass  # boto3 not installed

@@ -280,6 +280,11 @@ def _create_environment(env_type: str, image: str, cwd: str, timeout: int,
     the host dir bound into Docker when cwd mounting is enabled. ``probe_only`` asks ssh for a throwaway
     connection with no remote setup/sync (the prompt-time probe). Unknown types fall through to plugin backends."""
     builder = _ENV_BUILDERS.get(env_type)
+    from hermes_cli.huntington import SUPPORTED_TERMINAL_BACKENDS, terminal_backend_supported
+    if builder is not None and not terminal_backend_supported(env_type):
+        raise ValueError(f"terminal backend {env_type!r} is not available in HUNTINGTON-AGENT "
+                         f"(supported: {', '.join(sorted(SUPPORTED_TERMINAL_BACKENDS))}); "
+                         "set terminal.backend: local")
     kwargs = dict(image=image, cwd=cwd, timeout=timeout, cc=container_config or {}, task_id=task_id,
                   ssh_config=ssh_config, local_config=local_config, host_cwd=host_cwd, probe_only=probe_only)
     if builder is not None:

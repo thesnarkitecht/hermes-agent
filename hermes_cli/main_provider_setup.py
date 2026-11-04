@@ -969,10 +969,11 @@ def _build_provider_picker_rows(config: dict, active: str, provider_labels: dict
 
     from hermes_cli.model_setup_flows_local import local_models_available
     from hermes_cli.providers import LLAMACPP_ALIASES
-    if not _cli_excluded & set(LLAMACPP_ALIASES) and local_models_available():
+    from hermes_cli.huntington import provider_supported
+    if provider_supported("llamacpp") and not _cli_excluded & set(LLAMACPP_ALIASES) and local_models_available():
         _add("llamacpp", "Local models (run open models on this machine — no account or API key)", [],
              active == "llamacpp")
-    ordered.append(("custom", "Custom endpoint (enter URL manually)", []))
+    ordered.append(("custom", "Ollama (local) or custom endpoint (e.g. http://localhost:11434/v1)", []))
     if isinstance(config.get("custom_providers"), list) and config.get("custom_providers"):
         ordered.append(("remove-custom", "Remove a saved custom provider", []))
     ordered.append(("reasoning", "Reasoning effort for the current model...", []))

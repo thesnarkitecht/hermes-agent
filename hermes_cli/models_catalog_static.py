@@ -490,8 +490,9 @@ def listed_canonical_providers() -> list[ProviderEntry]:
     LIST offers. Typed paths (``provider:model``, labels, ``--provider``) keep the full table."""
     from hermes_cli import models  # the binding every list consumer read before this filter existed
     from providers import unlisted_provider_names
+    from hermes_cli.huntington import provider_supported
     hidden = unlisted_provider_names()
-    return [p for p in models.CANONICAL_PROVIDERS if p.slug not in hidden]
+    return [p for p in models.CANONICAL_PROVIDERS if p.slug not in hidden and provider_supported(p.slug)]
 
 
 # ---------------------------------------------------------------------------
