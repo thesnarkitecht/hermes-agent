@@ -60,6 +60,17 @@ SOURCE_RULES: dict[str, tuple[tuple[str, str], ...]] = {
     "hermes_constants.py": (('return base / ("hermes" + suffix)', 'return base / ("huntington" + suffix)'),),
     "pm/shell.py": (('ntpath.join(env["LOCALAPPDATA"], "hermes", "git")',
                      'ntpath.join(env["LOCALAPPDATA"], "huntington", "git")'),),
+    "scripts/install.sh": (
+        ('"│             ☤ Hermes Agent Installer                    │"', '"│               ◆ HUNTINGTON-AGENT Installer              │"'),
+        ('"│  An open source AI agent by Nous Research.              │"', '"│               A terminal AI agent by HIP.               │"'),
+        ("run 'hermes setup' after install", "run 'huntington setup' after install"),
+        ('install complete. Run: hermes"', 'install complete. Run: huntington"'),
+    ),
+    "scripts/install.ps1": (
+        ('"|             * Hermes Agent Installer                    |"', '"|               * HUNTINGTON-AGENT Installer              |"'),
+        ('"|  An open source AI agent by Nous Research.              |"', '"|               A terminal AI agent by HIP.               |"'),
+        ('Run: hermes" }', 'Run: huntington" }'),
+    ),
 }
 
 
@@ -162,7 +173,10 @@ def rewrite_file_text(rel: str, source: str) -> str:
     for old, new in SOURCE_RULES.get(rel, ()):
         source = source.replace(old, new)
     if rel in SHELL_FILES:
-        return rewrite_paths(source)
+        # Shell may execute a bare `hermes`, so only the capitalised wording and paths change there.
+        for pattern, replacement in _RULES[:4]:
+            source = pattern.sub(replacement, source)
+        return rewrite_paths(source.replace("☤ HUNTINGTON-AGENT", "◆ HUNTINGTON-AGENT"))
     if rel.endswith(".py"):
         return rewrite_python(source)
     if rel.endswith((".yaml", ".yml")) and rel.startswith("locales/"):
