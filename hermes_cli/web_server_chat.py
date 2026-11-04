@@ -510,14 +510,15 @@ def _resolve_chat_argv(
     from hermes_cli.web_server_profiles import _config_profile_scope, _resolve_profile_dir
     from hermes_cli.web_server_sessions import _open_session_db_for_profile, _session_latest_descendant
     from hermes_cli.main import PROJECT_ROOT
-    from hermes_cli.main_tui_launch import _apply_tui_python_env, _make_tui_argv
+    from hermes_cli.main_tui_launch import _apply_tui_python_env
 
     profile_dir: Optional[Path] = None
     requested = (profile or "").strip()
     if requested and requested.lower() != "current":
         profile_dir = _resolve_profile_dir(requested)
 
-    argv, cwd = _make_tui_argv(PROJECT_ROOT / "ui-tui", tui_dev=False)
+    # HUNTINGTON-AGENT: no Ink TUI; the dashboard PTY hosts the classic CLI.
+    argv, cwd = [sys.executable, "-m", "hermes_cli.main", "chat", "--cli"], PROJECT_ROOT
     # Secrets kept — the spawned agent needs provider creds.  An explicit profile
     # scope overrides HERMES_HOME before config is bridged into the env.
     from tools.environments.local import build_subprocess_env
@@ -564,6 +565,7 @@ def _resolve_chat_argv(
         if latest_resume:
             resume = latest_resume
         env["HERMES_TUI_RESUME"] = resume
+        argv += ["--resume", resume]
 
     if sidecar_url:
         env["HERMES_TUI_SIDECAR_URL"] = sidecar_url

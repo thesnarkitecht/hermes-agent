@@ -1,0 +1,120 @@
+# Paths HUNTINGTON-AGENT removes from upstream NousResearch/hermes-agent.
+# scripts/huntington/sync-upstream.sh re-deletes these after every upstream merge,
+# so upstream edits to them never conflict. One path (file or directory) per line.
+
+# Electron desktop app, its browser-hosted "Webapp" build, and the Tauri GUI installer
+apps/desktop
+apps/bootstrap-installer
+scripts/build/desktop.mjs
+scripts/build/desktop-reuse.mjs
+scripts/build/electron-runtime.mjs
+scripts/build/webapp.mjs
+scripts/bundles/desktop.py
+scripts/bundles/desktop_inputs.py
+scripts/bundles/desktop_prepare.py
+scripts/bundles/desktop_toolchain.py
+scripts/bundles/dmgbuild_diagnostics.py
+scripts/bundles/set_dmg_volume_icon.sh
+scripts/msix-shared.mjs
+scripts/bundle-store-msixbundle.mjs
+scripts/stage-msixbundle.mjs
+scripts/desktop-update
+scripts/desktop-update.ps1
+scripts/dump_desktop_slash_registry.py
+scripts/ci/desktop_build_cache.py
+scripts/ci/desktop_commands.py
+hermes_cli/subcommands/gui.py
+hermes_cli/subcommands/webapp.py
+nix/desktop.nix
+.github/workflows/bootstrap-installer-build.yml
+.github/workflows/desktop-bundle-smoke.yml
+.github/workflows/desktop-bundled-release.yml
+.github/workflows/e2e-desktop.yml
+.github/workflows/e2e-desktop-core.yml
+.github/workflows/e2e-desktop-update.yml
+.github/workflows/windows-bundle-sdk.yml
+.github/workflows/windows-desktop-attach-e2e.yml
+website/docs/user-guide/desktop.md
+website/docs/user-guide/multi-connection-desktop.md
+
+# Ink TUI (the classic prompt_toolkit CLI is the only interface)
+ui-tui
+scripts/build/tui.mjs
+website/docs/user-guide/tui.md
+
+# Docker install method
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.windows.yml
+docker
+.github/workflows/docker.yml
+.github/workflows/docker-lint.yml
+.github/workflows/sandbox-image.yml
+website/docs/user-guide/docker.md
+
+# Nix / Python-wheel install method
+nix
+flake.nix
+flake.lock
+.github/workflows/nix.yml
+website/docs/getting-started/nix-setup.md
+
+# Upstream's release publishing (Nous Research infrastructure)
+.github/workflows/stable-release.yml
+.github/workflows/stable-release-publication.yml
+.github/workflows/canary-release.yml
+
+# Messaging platforms: only Microsoft Teams, email and A2A remain
+plugins/platforms/bluebubbles
+plugins/platforms/buzz
+plugins/platforms/dingtalk
+plugins/platforms/discord
+plugins/platforms/feishu
+plugins/platforms/google_chat
+plugins/platforms/irc
+plugins/platforms/line
+plugins/platforms/matrix
+plugins/platforms/mattermost
+plugins/platforms/ntfy
+plugins/platforms/photon
+plugins/platforms/qqbot
+plugins/platforms/raft
+plugins/platforms/signal
+plugins/platforms/simplex
+plugins/platforms/slack
+plugins/platforms/sms
+plugins/platforms/telegram
+plugins/platforms/wecom
+plugins/platforms/weixin
+plugins/platforms/whatsapp
+plugins/platforms/whatsapp_cloud
+plugins/platforms/yuanbao
+scripts/whatsapp-bridge
+scripts/discord-voice-doctor.py
+hermes_cli/subcommands/whatsapp.py
+hermes_cli/subcommands/slack.py
+
+# Tools for removed platforms
+tools/yuanbao_tools.py
+
+# Cloud browser vendors (the local Chromium browser is the only bundled backend)
+plugins/browser/browser_use
+plugins/browser/browserbase
+plugins/browser/firecrawl
+evals/browser_use
+
+# Image generation: OpenAI (API key + ChatGPT sign-in) only
+plugins/image_gen/deepinfra
+plugins/image_gen/fal
+plugins/image_gen/krea
+plugins/image_gen/meta-ai
+plugins/image_gen/openrouter
+plugins/image_gen/xai
+
+# Upstream translations of the README / contributing / security docs (the fork ships English only)
+README.es.md
+README.ur-pk.md
+README.zh-CN.md
+CONTRIBUTING.es.md
+SECURITY.es.md

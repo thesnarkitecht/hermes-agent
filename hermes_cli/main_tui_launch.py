@@ -633,27 +633,13 @@ def _sync_bundled_skills_quietly() -> None:
 
 
 def _resolve_use_tui(args) -> bool:
-    """Decide whether to launch the TUI: ``--cli`` → classic; ``--tui`` → TUI; no TTY → classic;
-    ``HERMES_TUI=1`` → TUI; ``display.interface`` config; default classic.
+    """HUNTINGTON-AGENT ships the classic CLI only: the Ink TUI (ui-tui/) is removed.
 
-    The TTY gate is load-bearing: ambient preferences must never hijack a piped
-    ``hermes chat -q`` (kanban workers, cron) — the Ink no-TTY bail-out exits 0 and
-    the worker dies with a protocol violation. Explicit ``--tui`` still bails out.
+    ``--tui`` / ``HERMES_TUI=1`` / ``display.interface: tui`` fall back to the CLI with a notice.
     """
-    if getattr(args, "cli", False):
-        return False
-    if getattr(args, "tui", False) or getattr(args, "tui_native", False):
-        return True
-    try:
-        if not (sys.stdin.isatty() and sys.stdout.isatty()):
-            return False
-    except Exception:
-        return False
-    if os.environ.get("HERMES_TUI") == "1":
-        return True
-    try:
-        from hermes_cli.config import load_config
-        iface = (load_config().get("display", {}) or {}).get("interface", "cli")
-        return isinstance(iface, str) and iface.strip().lower() == "tui"
-    except Exception:
-        return False
+    asked = (getattr(args, "tui", False) or getattr(args, "tui_native", False)
+             or os.environ.get("HERMES_TUI") == "1")
+    if asked and not getattr(args, "cli", False):
+        print("HUNTINGTON-AGENT: the TUI is not included in this build; starting the CLI.",
+              file=sys.stderr)
+    return False

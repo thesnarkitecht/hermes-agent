@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Merge NousResearch/hermes-agent main into this fork and keep HUNTINGTON-AGENT's removals removed.
+#
+#   scripts/huntington/sync-upstream.sh            # fetch + merge upstream/main, re-delete removed paths
+#   scripts/huntington/sync-upstream.sh --apply    # only re-delete removed paths (no fetch/merge)
+#
+# Every path in huntington/removed-paths.txt is deleted again after the merge. That turns the
+# modify/delete conflicts upstream's edits would cause into automatic resolutions, and also drops
+# any new file upstream adds under a removed directory. Files in huntington/fork-owned-paths.txt
+# keep the fork's version on conflict. Conflicts in other files the fork edits (the
+# rebrand, the CLI-only switch) are left for you to resolve; the script stops and lists them.
+set -euo pipefail
+
+root=$(git rev-parse --show-toplevel)
+cd "$root"
+manifest=huntington/removed-paths.txt
+owned=huntington/fork-owned-paths.txt
+upstream_url=https://github.com/NousResearch/hermes-agent.git
+upstream_branch=${UPSTREAM_BRANCH:-main}
+
+remove_paths() {
+    local path
+    grep -v '^\s*#' "$manifest" | sed '/^\s*$/d' | while IFS= read -r path; do
+        git rm -r -q --cached --ignore-unmatch -- "$path" >/dev/null
+        rm -rf -- "$path"
+    done
+}
+
+if [ "${1:-}" = "--apply" ]; then
+    remove_paths
+    echo "Removed paths re-applied. Review with: git status"
+    exit 0
+fi
+
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "Working tree has uncommitted changes; commit or stash them first." >&2
+    exit 1
+fi
+
+git remote get-url upstream >/dev/null 2>&1 || git remote add upstream "$upstream_url"
+git fetch upstream "$upstream_branch"
+
+keep_fork_owned() {
+    local path
+    grep -v '^\s*#' "$owned" | sed '/^\s*$/d' | while IFS= read -r path; do
+        if git diff --name-only --diff-filter=U -- "$path" | grep -q .; then
+            git checkout --ours -- "$path" && git add -- "$path"
+        fi
+    done
+}
+
+merge_status=0
+git merge --no-ff --no-commit "upstream/$upstream_branch" || merge_status=$?
+remove_paths
+keep_fork_owned
+
+unresolved=$(git diff --name-only --diff-filter=U || true)
+if [ -n "$unresolved" ]; then
+    echo
+    echo "Upstream merged; removed paths re-deleted. These files still need a manual resolution:"
+    echo "$unresolved" | sed 's/^/  /'
+    echo "Resolve them, 'git add' them, then: git commit"
+    exit 1
+fi
+
+if git diff --cached --quiet && [ "$merge_status" -eq 0 ] && ! git rev-parse -q --verify MERGE_HEAD >/dev/null; then
+    echo "Already up to date with upstream/$upstream_branch."
+    exit 0
+fi
+
+git commit -q --no-edit -m "Merge upstream NousResearch/hermes-agent $upstream_branch"
+echo "Merged upstream/$upstream_branch. Run the tests (scripts/run_tests.sh) before pushing."
