@@ -4,11 +4,9 @@
 
 # HUNTINGTON-AGENT
 
-A terminal-first AI agent for Huntington, built on the open-source
-[Hermes Agent](https://github.com/NousResearch/hermes-agent) by Nous Research (MIT). It keeps the
-upstream engine (memory, skills, subagents, scheduled jobs, the terminal and browser tools) and
-narrows the product to what Huntington uses. `scripts/huntington/sync-upstream.sh` keeps pulling in
-new upstream features.
+A terminal-first AI agent by HIP. It is built on an open-source, MIT-licensed agent engine
+(memory, skills, subagents, scheduled jobs, the terminal and browser tools), narrowed to what
+Huntington uses. `scripts/huntington/sync-upstream.sh` keeps pulling in new engine features.
 
 ## Install (terminal)
 
@@ -24,27 +22,42 @@ Windows (PowerShell):
 iex (irm https://raw.githubusercontent.com/thesnarkitecht/huntington-agent/main/scripts/install.ps1)
 ```
 
-Both installers clone this repository. After installing, reload your shell and run `hermes`:
+Both installers clone this repository into `~/.huntington` (Windows: `%LOCALAPPDATA%\huntington`),
+which also holds your configuration, keys, sessions and skills. The repository is private, so the
+one-line install needs GitHub access; see "Installing from a private repository" below. After
+installing, reload your shell and run `huntington`:
 
 ```bash
-hermes            # chat in the CLI
-hermes setup      # pick a model provider, tools and messaging
-hermes model      # switch provider or model
-hermes update     # update from this repository
+huntington            # chat in the CLI
+huntington setup      # pick a model provider, tools and messaging
+huntington model      # switch provider or model
+huntington update     # update from this repository
 ```
 
-The command is still `hermes`. Upstream's docs, skills and installer all depend on that name, and
-keeping it is what lets upstream merges apply cleanly.
+`hermes` still works as an alias for `huntington`: the engine's skills and scripts call it.
+
+### Installing from a private repository
+
+`raw.githubusercontent.com` and `git clone` both need credentials for a private repository. Either
+make the repository public, or install with a GitHub token that can read it:
+
+```bash
+export GITHUB_TOKEN=<token with read access to thesnarkitecht/huntington-agent>
+curl -fsSL -H "Authorization: token $GITHUB_TOKEN" https://raw.githubusercontent.com/thesnarkitecht/huntington-agent/main/scripts/install.sh | HERMES_REPO_URL="https://x-access-token:$GITHUB_TOKEN@github.com/thesnarkitecht/huntington-agent.git" bash
+```
+
+That token ends up in the installed checkout's git remote (`~/.huntington/hermes-agent/.git/config`)
+so `huntington update` can pull. Use a fine-grained, read-only token for this one repository.
 
 ## What this build includes
 
 | Area | Supported | Planned |
 |---|---|---|
-| Interface | Classic CLI. `hermes dashboard` hosts the same CLI in the browser. | |
+| Interface | Classic CLI. `huntington dashboard` hosts the same CLI in the browser. | |
 | Model providers | Anthropic (API key, or Claude subscription sign-in) · OpenAI (API key, or ChatGPT sign-in) · MiniMax (API key, or browser sign-in) · Moonshot / Kimi (API key) · Ollama (local server, or Ollama Cloud API key) | |
 | Terminal backend | `local` | Huntington VM service (a terminal-backend plugin) |
 | Browser | Local Chromium (Lightpanda optional) | |
-| Web search | Off by default; opt in with `hermes tools`. Backends: xAI, Brave Search, DuckDuckGo, Perplexity | |
+| Web search | Off by default; opt in with `huntington tools`. Backends: xAI, Brave Search, DuckDuckGo, Perplexity | |
 | Image generation | OpenAI (API key, or ChatGPT sign-in) | Local image generation |
 | Text-to-speech | Microsoft Edge TTS (default), Piper (local) | Qwen TTS |
 | Messaging | Microsoft Teams, email, A2A | |
@@ -81,12 +94,13 @@ scripts/run_tests.sh tests/hermes_cli tests/tools
 [`huntington/TRIM-ANALYSIS.md`](huntington/TRIM-ANALYSIS.md) covers what else could be trimmed
 from the engine.
 
-## Upstream documentation
+## Engine documentation
 
-Upstream's documentation at <https://hermes-agent.nousresearch.com/docs/> still describes the
-shared engine: configuration, skills, memory, cron and tools. Where it covers features listed as
-removed above, it does not apply to this build.
+The upstream engine's documentation (<https://hermes-agent.nousresearch.com/docs/>) still describes
+configuration, skills, memory, cron and tools; read its `hermes` commands as `huntington` and
+`~/.hermes` as `~/.huntington`. Where it covers features listed as removed above, it does not apply.
 
 ## License
 
-MIT, as upstream. See [LICENSE](LICENSE).
+MIT. The engine is the open-source Hermes Agent project; its copyright and license notice are in
+[LICENSE](LICENSE) and must stay with every copy.
