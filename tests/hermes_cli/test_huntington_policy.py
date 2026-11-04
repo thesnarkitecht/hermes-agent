@@ -213,3 +213,18 @@ def test_hosted_portal_commands_refuse(capsys):
 
     assert portal_command(argparse.Namespace(portal_command="info")) == 1
     assert "not available in HUNTINGTON-AGENT" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("command", [
+    r"type C:\Users\ann\AppData\Local\huntington\.env", "pkill -f huntington",
+])
+def test_approval_layer_flags_huntington_secrets_and_self_kill(command):
+    from tools.approval_detection import detect_dangerous_command
+
+    assert detect_dangerous_command(command)[0]
+
+
+def test_serve_unit_validator_accepts_huntington_units():
+    from hermes_cli.update_restart_recovery import _UNIT_RE
+
+    assert _UNIT_RE.fullmatch("huntington-serve.service") and _UNIT_RE.fullmatch("huntington-dashboard-ops.service")

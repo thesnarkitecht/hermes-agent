@@ -299,7 +299,7 @@ DANGEROUS_PATTERNS = [
     (r'\bsc(?:\.exe)?\s+(?:stop|delete)\b', "stop/delete service (sc)"),
     # Windows-form credential paths; the POSIX ~/.ssh patterns never match drive-letter or backslash spellings.
     (r'\busers[\\/][^\\/\s]+[\\/]\.ssh\b', "access to SSH keys (Windows path)"),
-    (r'\bappdata[\\/](?:local|roaming)[\\/]hermes[^\n]*\.env\b', "access to Huntington secrets (Windows path)"),
+    (r'\bappdata[\\/](?:local|roaming)[\\/](?:hermes|huntington)[^\n]*\.env\b', "access to Huntington secrets (Windows path)"),
     # ── end of Windows tier
     (r'\bchmod\s+(-[^\s]*\s+)*(777|666|o\+[rwx]*w|a\+[rwx]*w)\b', "world/other-writable permissions"),
     (r'\bchmod\s+--recursive\b.*(777|666|o\+[rwx]*w|a\+[rwx]*w)', "recursive world/other-writable (long flag)"),
@@ -411,7 +411,7 @@ DANGEROUS_PATTERNS = [
     (r'gateway\s+run\b.*(&\s*$|&\s*;|\bdisown\b|\bsetsid\b)', "start gateway outside systemd (use 'systemctl --user restart huntington-gateway')"),
     (r'\bnohup\b.*gateway\s+run\b', "start gateway outside systemd (use 'systemctl --user restart huntington-gateway')"),
     # Self-termination protection: prevent agent from killing its own process
-    (r'\b(pkill|killall)\b.*\b(hermes|gateway|cli\.py)\b', "kill hermes/gateway process (self-termination)"),
+    (r'\b(pkill|killall)\b.*\b(hermes|huntington|gateway|cli\.py)\b', "kill hermes/gateway process (self-termination)"),
     # Self-termination via kill + $(pgrep/pidof): the substitution is opaque to the name-based
     # pattern above, so catch the structural form.
     (r'\bkill\b.*\$\(\s*(pgrep|pidof)\b', "kill process via pgrep/pidof expansion (self-termination)"),

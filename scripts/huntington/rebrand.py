@@ -62,6 +62,8 @@ _SERVICE_RULES: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"(?<![\w.-])hermes-(gateway|serve|dashboard)(?!-ticket|-v1|-metrics|-loop|-command|r)"),
      r"huntington-\1"),
     (re.compile(r"(?<![\w-])ai\.hermes(?=[.*\"'`]|$)"), "ai.huntington"),
+    # The same names written as a regex: ^hermes-(serve|dashboard)... in unit-name validators.
+    (re.compile(r"(?<![\w.-])hermes-(?=\((?:\?:)?(?:serve|dashboard|gateway))"), "huntington-"),
 )
 _COMMAND_LITERAL = re.compile(r"^hermes(?:\s+[\w.:=/-]+)*$")
 _PATH_RULE = (re.compile(r"(?<![\w-])\.hermes(?![\w-])"), ".huntington")

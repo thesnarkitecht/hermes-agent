@@ -63,7 +63,7 @@ _VERIFY_TIMEOUT = 15
 from hermes_constants import PROFILE_ID_RE as _PROFILE_ID_RE
 
 _SUPERVISOR_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
-_UNIT_RE = re.compile(r"^hermes-(serve|dashboard)(-[a-z0-9][a-z0-9_-]{0,63})?\.service$")
+_UNIT_RE = re.compile(r"^huntington-(serve|dashboard)(-[a-z0-9][a-z0-9_-]{0,63})?\.service$")
 _SERVE_UNIT_PATTERNS = ("huntington-serve*", "huntington-dashboard*")
 _SCOPE_LABELS = ("user", "system")
 _UNIT_RESTART_TIMEOUT = 60
