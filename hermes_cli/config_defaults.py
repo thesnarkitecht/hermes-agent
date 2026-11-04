@@ -1,3 +1,4 @@
+# health: allow FILE_LINES -- HUNTINGTON-AGENT fork: one hook line applying hermes_cli/huntington.py CONFIG_DEFAULT_OVERRIDES to DEFAULT_CONFIG
 """Default configuration data for Hermes Agent: DEFAULT_CONFIG and OPTIONAL_ENV_VARS.
 
 Pure-data leaf module — must not import from hermes_cli.config. Comments are the user-facing
