@@ -9,7 +9,7 @@ metadata:
   hermes:
     tags: [design, frontend, ui, ux, web-design, anti-slop]
     category: creative
-    related_skills: [claude-design, popular-web-designs]
+    related_skills: [claude-design]
     upstream:
       repo: pbakaus/impeccable
       path: .hermes/skills/impeccable

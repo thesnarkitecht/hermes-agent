@@ -25,7 +25,11 @@ def pytest_collection_modifyitems(config, items):
     ids = _deselected()
     if not ids:
         return
-    drop = [item for item in items if item.nodeid in ids]
+    # A parametrized id whose parameters contain spaces is recorded up to its first space,
+    # leaving an unclosed "[": such an entry deselects every node id it prefixes.
+    prefixes = tuple(i for i in ids if "[" in i and not i.endswith("]"))
+    drop = [item for item in items if item.nodeid in ids or (prefixes and item.nodeid.startswith(prefixes))]
     if drop:
         config.hook.pytest_deselected(items=drop)
-        items[:] = [item for item in items if item.nodeid not in ids]
+        kept = {id(item) for item in drop}
+        items[:] = [item for item in items if id(item) not in kept]
