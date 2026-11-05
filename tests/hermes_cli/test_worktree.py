@@ -262,7 +262,7 @@ class TestWorktreeLockPredicate:
 
     def test_unparseable_hermes_lock_reason_fails_safe_to_live(self, git_repo):
         # N5: a hermes lock this version cannot read is never evidence that its owner is gone.
-        p = self._mk_locked(git_repo, "hermes-future", "huntington owner=v2 pid=12x")
+        p = self._mk_locked(git_repo, "hermes-future", "hermes owner=v2 pid=12x")
         assert worktree_ops._worktree_lock_is_live(str(git_repo), str(p)) == "live"
 
     def test_bad_repo_root_fails_safe_to_live(self, tmp_path):

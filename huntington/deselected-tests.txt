@@ -1569,3 +1569,5 @@ tests/agent/test_verification_evidence.py::test_workspace_verify_clears_stale_on
 tests/pm/test_node_resolution.py::test_npm_consumers_execute_with_pm_node[
 tests/pm/test_node_resolution.py::test_missing_npm_acquires_npm_closure_at_install_boundary[
 tests/pm/test_node_resolution.py::test_runtime_npm_refusal_never_falls_back_to_literal_npm[
+# Plugin requires_hermes refusals read 'requires huntington <spec>' (same engine version).
+tests/hermes_cli/test_plugin_manifest_v2.py::TestRequiresHermes::test_unsatisfied_requires_hermes_skips_without_importing

@@ -54,7 +54,7 @@ _RULES: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"(?<![\w.-])Nous Research(?!\w)"), "HIP"),
     (re.compile(r"(?<![\w./-])Nous(?![\w])"), "HIP"),
     (re.compile(r"(?<![\w./-])Hermes(?![\w])"), "Huntington"),
-    (re.compile(r"(?<![\w./~$\\-])(?<!setuidgid )hermes(?![ \t]+(?:pid|session)=)(?=(?:[ \t]+(?:--?[a-z]|[a-z][a-z0-9-]*|\{)|`))"), "huntington"),
+    (re.compile(r"(?<![\w./~$\\-])(?<!setuidgid )hermes(?![ \t]+\w+=)(?=(?:[ \t]+(?:--?[a-z]|[a-z][a-z0-9-]*|\{)|`))"), "huntington"),
 )
 # Host-wide service identities (systemd units, launchd labels): HUNTINGTON-AGENT must not share
 # them with an upstream Hermes install on the same machine, or each would adopt the other's service
