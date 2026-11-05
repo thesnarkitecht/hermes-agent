@@ -1565,3 +1565,7 @@ tests/hermes_cli/test_serve_runtime_inventory.py::test_inventory_classifies_laun
 # Verification evidence keeps upstream's canonical command name `hermes verify` (model-facing).
 tests/agent/test_verification_stop.py::test_nudge_drops_the_unscored_run_warning_once_hermes_verify_records
 tests/agent/test_verification_evidence.py::test_workspace_verify_clears_stale_on_other_session
+# WhatsApp/Photon npm consumers: both adapters are removed (the shared fixture imports them).
+tests/pm/test_node_resolution.py::test_npm_consumers_execute_with_pm_node[
+tests/pm/test_node_resolution.py::test_missing_npm_acquires_npm_closure_at_install_boundary[
+tests/pm/test_node_resolution.py::test_runtime_npm_refusal_never_falls_back_to_literal_npm[

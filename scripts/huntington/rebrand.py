@@ -37,7 +37,9 @@ ROOT = Path(__file__).resolve().parents[2]
 PY_DIRS = ("hermes_cli", "agent", "gateway", "tools", "cron", "plugins", "acp_adapter", "tui_gateway",
            "providers", "tests", "pm", "hermes_platform", "scripts", "skills", "optional-skills", "evals")
 SHELL_FILES = ("scripts/install.sh", "scripts/install.ps1", "scripts/install.cmd", "setup-hermes.sh",
-               "setup-hermes.ps1", "activate", "activate.fish", "activate.ps1")
+               "setup-hermes.ps1", "activate", "activate.fish", "activate.ps1",
+               # Install e2e drivers: they locate the checkout's launchers under .huntington/bin.
+               "tests/install/e2e-assets/source-driver.sh", "tests/install/e2e-assets/source-driver.ps1")
 PY_ROOT_GLOBS = ("*.py",)
 YAML_GLOBS = ("locales/*.yaml",)
 # Skill documents the agent reads and follows: their commands and paths must name this install.

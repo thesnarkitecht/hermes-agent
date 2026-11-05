@@ -54,6 +54,20 @@ jobs:
       # The PM toolchain from pm/lock.json, as upstream's setup-pm action installs it (without
       # its NousResearch caches): the pinned Python, uv on PATH (the PM, install and plugin
       # admission suites drive real uv) and the isolated dev+test environment in HERMES_PYTHON.
+      - name: Install ripgrep (prebuilt binary)
+        # The search tool's tests drive real rg; the same pinned release upstream's CI installs.
+        run: |
+          set -euo pipefail
+          RG_VERSION=15.1.0
+          RG_SHA256=1c9297be4a084eea7ecaedf93eb03d058d6faae29bbc57ecdaf5063921491599
+          RG_TARBALL=ripgrep-${RG_VERSION}-x86_64-unknown-linux-musl.tar.gz
+          curl -sSfL --retry 3 --retry-delay 5 -o "$RG_TARBALL" \
+            "https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/${RG_TARBALL}"
+          echo "${RG_SHA256}  ${RG_TARBALL}" | sha256sum -c -
+          tar -xzf "$RG_TARBALL"
+          sudo mv "ripgrep-${RG_VERSION}-x86_64-unknown-linux-musl/rg" /usr/local/bin/rg
+          rm -rf "$RG_TARBALL" "ripgrep-${RG_VERSION}-x86_64-unknown-linux-musl"
+          rg --version
       - name: Install the locked Python and uv
         run: |
           python3 -S scripts/ci/setup_toolchain.py prepare --toolchain python --extras '' --home "$RUNNER_TEMP/setup-pm"
