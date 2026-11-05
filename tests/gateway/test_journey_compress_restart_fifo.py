@@ -191,6 +191,9 @@ def test_followers_survive_compression_and_restart_in_order_exactly_once(tmp_pat
         with daemon(root, home, env, barrier=False) as (_, desc):
             final = asyncio.run(second(desc))
         sid, compacting = before['sid'], before['compacting']
+        # TEMP (HUNTINGTON-AGENT CI diagnosis): request sequence, shown by pytest on failure.
+        print('DBG compacting', compacting['input_id'], [(r['model'], r['text'][:12], len(r['wire'])) for r in peer.requests])
+        print('DBG system', json.loads(peer.requests[0]['wire'])[0]['content'][-3000:])
         order = [r['text'] for r in peer.requests if r['model'] == 'original' and r['text'] in FOLLOWERS]
         assert order == list(FOLLOWERS), order
         assert executed(compacting['text'][:12]) == before['compacting_requests'], 'compacted turn replayed'
