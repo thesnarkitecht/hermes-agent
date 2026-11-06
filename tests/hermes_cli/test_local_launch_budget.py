@@ -26,7 +26,7 @@ MODEL_ID = "Qwen3.8-27B-UD-Q4_K_M"
 
 @pytest.fixture
 def hermes_home(tmp_path, monkeypatch):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
     return tmp_path
 
 

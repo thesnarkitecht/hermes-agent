@@ -24,6 +24,7 @@ SCANNER_VERSION = "skills-guard-v10"
 TRUSTED_REPOS = {
     "openai/skills", "anthropics/skills", "huggingface/skills", "NVIDIA/skills",
     "wandb/skills", "qdrant/skills", "pinecone-io/skills",
+    "makenotion/skills", "Airtable/skills", "Shopify/Shopify-AI-Toolkit",
 }
 
 INSTALL_POLICY = {
@@ -72,7 +73,7 @@ MODIFY_VERB_RE = (
     r'|\breplac(?:e|es|ed|ing)\b|\balter(?:s|ed|ing)?\b|\badd(?:s|ed|ing)\b)')
 
 _AGENT_CONFIG_FILES = r'(?:AGENTS\.md|CLAUDE\.md|\.cursorrules|\.clinerules)'
-_HERMES_CONFIG_FILES = r'\.hermes/(?:config\.yaml|SOUL\.md)'
+_HERMES_CONFIG_FILES = r'\.huntington/(?:config\.yaml|SOUL\.md)'
 # Path prefixes (real files are e.g. .claude/settings.json): consume trailing filename chars.
 _OTHER_AGENT_CONFIG_FILES = r'\.(?:claude/settings|codex/config)[\w.]*'
 
@@ -174,8 +175,8 @@ THREAT_PATTERNS = [
     (r'\$HOME/\.kube|\~/\.kube', "kube_dir_access", "high", "exfiltration", "references Kubernetes config directory"),
     (r'\$HOME/\.docker|\~/\.docker',
      "docker_dir_access", "high", "exfiltration", "references Docker config (may contain registry creds)"),
-    (r'\$HOME/\.hermes/\.env|\~/\.hermes/\.env',
-     "hermes_env_access", "critical", "exfiltration", "directly references Hermes secrets file"),
+    (r'\$HOME/\.huntington/\.env|\~/\.huntington/\.env',
+     "hermes_env_access", "critical", "exfiltration", "directly references Huntington secrets file"),
     # `cat <secrets-file>` reads credentials; `cat >`/`cat >>` WRITES one (setup heredocs) — not exfil.
     (r'cat\s+(?!>)[^\n]*(\.env|credentials|\.netrc|\.pgpass|\.npmrc|\.pypirc)',
      "read_secrets_file", "critical", "exfiltration", "reads known secrets file"),
@@ -468,11 +469,11 @@ THREAT_PATTERNS = [
     (r'AGENTS\.md|CLAUDE\.md|\.cursorrules|\.clinerules',
      "agent_config_ref", "low", "persistence", "references agent config files (informational; only modification intent is scored)"),
     (_prose_modify_re(_HERMES_CONFIG_FILES),
-     "hermes_config_mod", "high", "persistence", "modification language aimed at Hermes configuration files (verify intent)"),
+     "hermes_config_mod", "high", "persistence", "modification language aimed at Huntington configuration files (verify intent)"),
     (_shell_write_re(_HERMES_CONFIG_FILES),
-     "hermes_config_mod_shell", "critical", "persistence", "shell write (redirect/sed -i/tee/cp/mv) targeting Hermes configuration files"),
-    (r'\.hermes/config\.yaml|\.hermes/SOUL\.md',
-     "hermes_config_ref", "low", "persistence", "references Hermes configuration files (informational; only modification intent is scored)"),
+     "hermes_config_mod_shell", "critical", "persistence", "shell write (redirect/sed -i/tee/cp/mv) targeting Huntington configuration files"),
+    (r'\.huntington/config\.yaml|\.huntington/SOUL\.md',
+     "hermes_config_ref", "low", "persistence", "references Huntington configuration files (informational; only modification intent is scored)"),
     (_prose_modify_re(_OTHER_AGENT_CONFIG_FILES),
      "other_agent_config_mod", "high", "persistence", "modifies other agents' configuration files"),
     (_shell_write_re(_OTHER_AGENT_CONFIG_FILES),
@@ -796,7 +797,7 @@ def scan_skill_cached(skill_path: Path, source: str = "community", *, source_url
     source_identity = hashlib.sha256(f"{source}\0{source_url}".encode()).hexdigest()[:16]
     cache_file = cache_root / f"{digest}-{source_identity}.json"
     expected = {"bundle_hash": f"sha256:{digest}", "scanner_version": SCANNER_VERSION, "source": source,
-                "source_url": source_url}
+                "source_url": source_url, "trust_level": _resolve_trust_level(source)}
     cached = None
     with suppress(OSError, json.JSONDecodeError):
         cached = json.loads(cache_file.read_text(encoding="utf-8-sig"))

@@ -89,7 +89,7 @@ def two_profile_homes(tmp_path, monkeypatch):
     """default + worker profile homes under a temp HOME; MCP connections shut down afterwards."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
-    default_home = tmp_path / ".hermes"
+    default_home = tmp_path / ".huntington"
     worker_home = default_home / "profiles" / "worker"
     worker_home.mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(default_home))

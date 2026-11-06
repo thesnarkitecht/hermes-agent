@@ -17,7 +17,7 @@ from hermes_cli.gateway_multiplex_mode import SINGLE_PROFILE_REASON
 
 @pytest.fixture
 def standalone_host(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     (home / "profiles").mkdir(parents=True)
     (home / "config.yaml").write_text("model: {default: m}\n", encoding="utf-8")
     monkeypatch.setenv("HERMES_HOME", str(home))

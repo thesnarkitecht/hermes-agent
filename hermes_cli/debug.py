@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 # Prepended to upload-bound content when redaction is enabled so paste reviewers know.
 _REDACTION_BANNER = (
-    "[hermes debug share: log content redacted at upload time. "
+    "[huntington debug share: log content redacted at upload time. "
     "run with --no-redact to disable]\n")
 _PASTE_RS_URL = "https://paste.rs/"  # primary; dpaste.com is the fallback
 _DPASTE_COM_URL = "https://dpaste.com/api/"
@@ -134,7 +134,7 @@ after 6 hours, but may be archived by third parties in the meantime.
 
 If paste.rs is unreachable, uploads fall back to dpaste.com: those pastes
 stay public for the --expire window (default: 1 day) and CANNOT be deleted
-with `hermes debug delete`.
+with `huntington debug delete`.
 
 Use --local to view the report without uploading.
 """
@@ -142,7 +142,7 @@ Use --local to view the report without uploading.
 _GATEWAY_PRIVACY_NOTICE = (
     "⚠️ **Privacy notice:** This uploads system info + recent log tails "
     "(may contain conversation fragments) to a public paste service. "
-    "Full logs are NOT included from the gateway — use `hermes debug share` "
+    "Full logs are NOT included from the gateway — use `huntington debug share` "
     "from the CLI for full log uploads.\n"
     "Pastes auto-delete after 6 hours (dpaste.com fallback pastes: kept for "
     "1 day, cannot be deleted).")
@@ -256,7 +256,7 @@ def _primary_log_path(log_name: str) -> Optional[Path]:
 # share`; a bare "(file not found)" would read as "the app logged nothing" and misdirect triage.
 _CLIENT_SIDE_LOGS = {
     "desktop": (
-        "written by Hermes Desktop on the machine running the app, not by this "
+        "written by Huntington Desktop on the machine running the app, not by this "
         "backend. If the desktop connects to a remote/docker/SSH backend, collect "
         "it on that client machine")}
 
@@ -564,7 +564,7 @@ def run_debug_share(args):
         result = build_debug_share(log_lines=log_lines, expiry=expiry, redact=redact)
     except RuntimeError as exc:
         print(f"\nUpload failed: {redact_debug_support_text(exc)}", file=sys.stderr)
-        print("\nRun `hermes debug share --local` to print the report instead.\n")
+        print("\nRun `huntington debug share --local` to print the report instead.\n")
         sys.exit(1)
     label_width = max(len(k) for k in result.urls)
     print("\nDebug report uploaded:")
@@ -578,16 +578,16 @@ def run_debug_share(args):
               f"{result.auto_delete_seconds // 3600} hours.")
         print(f"⚠️  {len(dpaste_urls)} of {len(result.urls)} upload(s) fell back to "
               f"dpaste.com: those pastes stay public for {expiry} day(s) and CANNOT be "
-              "deleted with `hermes debug delete`.\n"
-              "\nShare these links with the Hermes team for support.")
+              "deleted with `huntington debug delete`.\n"
+              "\nShare these links with the Huntington team for support.")
     else:
         print(f"\n⏱  Pastes will auto-delete in {result.auto_delete_seconds // 3600} hours.\n"
-              "To delete now:  hermes debug delete <url>\n"
-              "\nShare these links with the Hermes team for support.")
+              "To delete now:  huntington debug delete <url>\n"
+              "\nShare these links with the Huntington team for support.")
 
 
 _NOUS_PRIVACY_NOTICE = """\
-⚠️  --nous: This uploads your debug bundle to Nous-INTERNAL storage (AWS S3),
+⚠️  --nous: This uploads your debug bundle to HIP-INTERNAL storage (AWS S3),
     NOT a public paste service. The following is included:
   • System info (OS, Python/Hermes version, provider, which API keys are
     configured — NOT the actual keys)
@@ -596,7 +596,7 @@ _NOUS_PRIVACY_NOTICE = """\
     update.log and desktop-update-handoff.log when present (update/hand-off
     output — the root cause of update failures)
 
-  • The bundle is viewable only by Nous staff (and allowlisted Discord mods)
+  • The bundle is viewable only by HIP staff (and allowlisted Discord mods)
     via a Google-login-gated viewer.
   • It is NOT a public paste — there is no public URL to the contents.
   • It auto-deletes after 14 days.
@@ -616,30 +616,30 @@ def _run_debug_share_nous(args, *, log_lines: int, redact: bool) -> None:
     bundle = collect_share_bundle(log_lines=log_lines, redact=redact)
     if redact:
         logger.info("hermes debug share --nous: applied force-mode redaction before upload")
-    print("Uploading to Nous diagnostics storage...")
+    print("Uploading to HIP diagnostics storage...")
     try:
         res = share_to_nous(build_nous_bundle(bundle, redact=redact))
     except Exception as exc:
         from pm.network import edge_block
 
         error = redact_debug_support_text(exc)
-        cause = edge_block(exc) or "The Nous diagnostics service may be unavailable or not yet provisioned"
+        cause = edge_block(exc) or "The HIP diagnostics service may be unavailable or not yet provisioned"
         print(f"\nNous upload failed: {error}\n\n{cause}.\n"
-              "Run `hermes debug share --local` to print the report instead, "
-              "or `hermes debug share` to upload to a public paste service.\n", file=sys.stderr)
+              "Run `huntington debug share --local` to print the report instead, "
+              "or `huntington debug share` to upload to a public paste service.\n", file=sys.stderr)
         sys.exit(1)
     view_url = res.get("viewUrl") or res.get("view_url")
     expires_at = res.get("expiresAt") or res.get("expires_at")
-    print("\nDebug bundle uploaded to Nous (private):")
+    print("\nDebug bundle uploaded to HIP (private):")
     print(f"  View URL  {view_url}" if view_url
           else f"  (no view URL returned; upload id: {res.get('id', '?')})")
     print(f"\n⏱  Auto-deletes at {expires_at} (14-day retention)." if expires_at
           else "\n⏱  Auto-deletes after 14 days.")
-    print("\nShare this private link with the Nous team — only Nous staff "
+    print("\nShare this private link with the HIP team — only HIP staff "
           "(via Google login) can open it.\n"
           "\nPick up the discussion in:\n"
           "  GitHub Issues        https://github.com/NousResearch/hermes-agent/issues\n"
-          "  Nous Portal Support  https://portal.nousresearch.com/help\n"
+          "  HIP Portal Support  https://portal.nousresearch.com/help\n"
           "  Discord              https://discord.gg/NousResearch")
 
 
@@ -647,8 +647,8 @@ def run_debug_delete(args):
     """Delete one or more paste URLs uploaded by /debug."""
     urls = getattr(args, "urls", [])
     if not urls:
-        print("Usage: hermes debug delete <url> [<url> ...]\n"
-              "  Deletes paste.rs pastes uploaded by 'hermes debug share'.")
+        print("Usage: huntington debug delete <url> [<url> ...]\n"
+              "  Deletes paste.rs pastes uploaded by 'huntington debug share'.")
         return
     for url in urls:
         try:
@@ -678,7 +678,7 @@ def run_debug(args):
 
 
 _DEBUG_USAGE = """\
-Usage: hermes debug <command>
+Usage: huntington debug <command>
 
 Commands:
   share    Upload debug report to a paste service and print URL
@@ -688,7 +688,7 @@ Options (share):
   --lines N    Number of log lines to include (default: 200)
   --expire N   dpaste.com fallback retention in days (default: 1)
   --local      Print report locally instead of uploading
-  --nous       Upload to Nous-internal storage (private, staff-only,
+  --nous       Upload to HIP-internal storage (private, staff-only,
                auto-deletes in 14 days) instead of a public paste
   --no-redact  Disable upload-time secret redaction (default: redact)
 

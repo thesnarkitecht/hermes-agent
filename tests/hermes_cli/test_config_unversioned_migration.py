@@ -25,7 +25,7 @@ WATCHED = [*USER_CHOICES, "display.personality", "plugins.enabled"]
 
 @pytest.fixture
 def hermes_home(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)  # sibling-profile scan stays in tmp
     monkeypatch.setenv("HERMES_HOME", str(home))

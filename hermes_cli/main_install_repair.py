@@ -110,7 +110,7 @@ def _hermes_exe_shims(scripts_dir: Path) -> list[Path]:
     names = set(_load_console_script_names()) or {"hermes", "hermes-agent", "hermes-acp"}
     # Not a [project.scripts] entry point, but older update/install paths still
     # rewrite and quarantine it.
-    names.add("hermes-gateway")
+    names.add("huntington-gateway")
     return [scripts_dir / f"{name}.exe" for name in sorted(names)]
 
 
@@ -263,7 +263,7 @@ def _configured_features_missing_deps() -> list[tuple[str, str, str]]:
         for platform in load_gateway_config().get_connected_platforms():
             entry = platform_registry.get(platform.value)
             if entry is not None and not entry.check_fn():
-                missing.append((entry.label, entry.install_hint or "Run `hermes setup` to install support.",
+                missing.append((entry.label, entry.install_hint or "Run `huntington setup` to install support.",
                                 entry.name))
     except Exception as exc:
         logger.debug("configured-platform dependency check skipped: %s", exc)
@@ -272,7 +272,7 @@ def _configured_features_missing_deps() -> list[tuple[str, str, str]]:
         from hermes_cli.config import load_config_readonly
 
         if (load_config_readonly().get("mcp_servers") or {}) and importlib.util.find_spec("mcp") is None:
-            missing.append(("MCP servers", "Run `hermes pm install` to install MCP support.", "mcp"))
+            missing.append(("MCP servers", "Run `huntington pm install` to install MCP support.", "mcp"))
     except Exception as exc:
         logger.debug("configured-MCP dependency check skipped: %s", exc)
     return missing
@@ -285,22 +285,26 @@ def _install_configured_features_missing_deps(project_root: Path) -> None:
     selected would come up without its adapter after the gateway restart.
     """
     import pm
-    from pm.extras import extra_supported
+    from pm.extras import declined_extras, extra_supported
     from pm.features import declared_extras
 
     missing = _configured_features_missing_deps()
     if not missing:
         return
-    declared = set(declared_extras(project_root))
+    # `hermes pm install --without NAME` outranks a platform still left in config.
+    declared = set(declared_extras(project_root)) - declined_extras(project_root)
     extras = sorted({extra for *_, name in missing
                      if (extra := name.replace("_", "-")) in declared and extra_supported(extra)})
     if extras:
         try:
-            pm.sync_venv(extras, explicit=True, project_root=project_root, evict_incompatible_plugins=True)
+            # Config asked for these, not the user: a `--without` landing before the PM lock still wins.
+            pm.sync_venv(extras, explicit=True, project_root=project_root, evict_incompatible_plugins=True,
+                         automatic=extras)
         except Exception as exc:
             print(f"  ⚠ Could not install {', '.join(extras)} for configured features: {exc}")
         else:
-            missing = [row for row in missing if row[2].replace("_", "-") not in extras]
+            installed = set(extras) - declined_extras(project_root)
+            missing = [row for row in missing if row[2].replace("_", "-") not in installed]
     if missing:
         print("  ⚠ Configured features whose dependencies are still missing — the gateway will fail to load them on restart:")
         for feature, hint, _extra in missing:

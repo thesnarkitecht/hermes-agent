@@ -13,7 +13,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 def test_tui_import_exposes_auth_registry_to_provider_plugins(tmp_path):
     """Provider discovery must not see a partially initialized auth module."""
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     plugin_dir = hermes_home / "plugins" / "model-providers" / "import-order-probe"
     plugin_dir.mkdir(parents=True)
     (plugin_dir / "__init__.py").write_text(

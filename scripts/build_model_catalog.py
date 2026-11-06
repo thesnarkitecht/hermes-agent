@@ -31,7 +31,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, REPO_ROOT)
 
 # Ensure HERMES_HOME is set for imports that touch it at module level.
-os.environ.setdefault("HERMES_HOME", os.path.join(os.path.expanduser("~"), ".hermes"))
+os.environ.setdefault("HERMES_HOME", os.path.join(os.path.expanduser("~"), ".huntington"))
 
 from hermes_cli.models import (
     OPENROUTER_MODELS,
@@ -73,7 +73,7 @@ def build_catalog() -> dict:
                     "note": (
                         "Descriptions drive picker badges. Live /api/v1/models "
                         "filters curated ids by tool-calling support and free pricing. "
-                        'The entry labeled "default": true is the model Hermes '
+                        'The entry labeled "default": true is the model Huntington '
                         "silently lands on when the user never picked one."
                     ),
                 },
@@ -84,9 +84,9 @@ def build_catalog() -> dict:
             },
             "nous": {
                 "metadata": {
-                    "display_name": "Nous Portal",
+                    "display_name": "HIP Portal",
                     "note": (
-                        'The entry labeled "default": true is the model Hermes '
+                        'The entry labeled "default": true is the model Huntington '
                         "silently lands on when the user never picked one."
                     ),
                 },

@@ -30,7 +30,7 @@ def converged_host(tmp_path, monkeypatch):
     Returns the root home. ``signals`` on the returned object records every service operation and
     process stop the migration would perform — a converged host must produce none.
     """
-    root = tmp_path / "home" / ".hermes"
+    root = tmp_path / "home" / ".huntington"
     for sub in ("profiles/coder", "profiles/ops"):
         (root / sub).mkdir(parents=True)
         (root / sub / "SOUL.md").write_text("x\n", encoding="utf-8")
@@ -57,7 +57,7 @@ def converged_host(tmp_path, monkeypatch):
 
     from gateway import status
     from gateway import host_attach, host_rendezvous as hr
-    monkeypatch.setattr(status, "_read_process_cmdline", lambda p: "hermes gateway run")
+    monkeypatch.setattr(status, "_read_process_cmdline", lambda p: "huntington gateway run")
     # The WIRE only: the owner's control socket answer. Everything that reads it is real.
     monkeypatch.setattr("gateway.control_socket.identify_gateway",
                         lambda home: {"pid": pid, "hermes_home": str(root), "served_profiles": served})

@@ -34,10 +34,10 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 ARCHIVE_PREFIX = "refs/hermes/archive/"
-_SUBJECT = "hermes worktree archive: "
+_SUBJECT = "huntington worktree archive: "
 _IDENTITY = {
-    "GIT_AUTHOR_NAME": "Hermes worktree archive", "GIT_AUTHOR_EMAIL": "hermes-archive@localhost",
-    "GIT_COMMITTER_NAME": "Hermes worktree archive", "GIT_COMMITTER_EMAIL": "hermes-archive@localhost",
+    "GIT_AUTHOR_NAME": "Huntington worktree archive", "GIT_AUTHOR_EMAIL": "hermes-archive@localhost",
+    "GIT_COMMITTER_NAME": "Huntington worktree archive", "GIT_COMMITTER_EMAIL": "hermes-archive@localhost",
 }
 # Raw bytes in, raw bytes out: no line-ending conversion on either side of the round trip.
 _RAW_CONFIG = (("core.autocrlf", "false"), ("core.safecrlf", "false"), ("core.eol", "lf"))

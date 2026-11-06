@@ -47,7 +47,7 @@ def gw_world(tmp_path_factory) -> World:
     root = tmp_path_factory.mktemp("redact-gw")
     ws, keys = root / "ws", Secrets()
     seed_workspace(ws, keys)
-    ctx = Ctx(keys, ws, root / "home" / ".hermes" / ".env")
+    ctx = Ctx(keys, ws, root / "home" / ".huntington" / ".env")
     with FakeLLMServer(Director(ctx), api_key=keys.provider, record_get=True) as llm:
         ctx.port = llm.port
         gw = LoggingGateway(root, platforms={PLATFORM: "telegram"}, llm_base_url=llm.base_url)

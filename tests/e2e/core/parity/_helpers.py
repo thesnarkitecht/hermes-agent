@@ -85,12 +85,12 @@ class ParityHome:
         # Refuse only a home the real install would read as live state (its root or a profile).
         # A tmp_path under ``~/.hermes/cache/scratch`` (TMPDIR when Hermes itself runs the suite)
         # is fine: the child's HOME is the fixture home, so its ``~/.hermes`` never resolves there.
-        real_root = Path(pwd.getpwuid(os.getuid()).pw_dir, ".hermes").resolve()
+        real_root = Path(pwd.getpwuid(os.getuid()).pw_dir, ".huntington").resolve()
         fixture = self.hermes_home.resolve()
         assert fixture != real_root and fixture.parent != real_root / "profiles", (
             f"fixture HERMES_HOME {self.hermes_home} is the real install's live home")
-        assert fixture == (self.home / ".hermes").resolve(), (
-            f"fixture HERMES_HOME {self.hermes_home} is not <fixture HOME>/.hermes")
+        assert fixture == (self.home / ".huntington").resolve(), (
+            f"fixture HERMES_HOME {self.hermes_home} is not <fixture HOME>/.huntington")
         # Allowlist, not denylist: the runner may itself be a Hermes process whose
         # TERMINAL_CWD / HERMES_* / credential env would silently reroute the child.
         env = {
@@ -131,7 +131,7 @@ def build_parity_home(root: Path, base_url: str, *, grandchild: bool = True,
                       death_tool: bool = False, mcp_timeout: int = 60) -> ParityHome:
     """Write the full fixture home under ``root`` (a tmp_path)."""
     home = root / "home"
-    hermes_home = home / ".hermes"
+    hermes_home = home / ".huntington"
     project = root / "project"
     markers = root / "markers"
     for d in (hermes_home, project, markers):
@@ -474,7 +474,7 @@ def stop_profile_gateway(ph: ParityHome, timeout: float = STOP_TIMEOUT) -> bool:
         hermes_argv("gateway", "stop"), cwd=ph.project, env=ph.env(), capture_output=True, text=True,
         timeout=timeout, stdin=subprocess.DEVNULL, check=False
     )
-    assert proc.returncode == 0, f"hermes gateway stop exited {proc.returncode}: {proc.stderr[-2000:]}"
+    assert proc.returncode == 0, f"huntington gateway stop exited {proc.returncode}: {proc.stderr[-2000:]}"
     return "Stopped gateway" in proc.stdout
 
 

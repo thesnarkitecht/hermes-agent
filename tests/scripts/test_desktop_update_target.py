@@ -267,5 +267,5 @@ def test_earlier_pm_userbin_publication_requires_exact_source_identity(tmp_path,
     result, calls, _home, install = _run_handoff(tmp_path, [], modern=True, userbin_only=True, foreign=foreign)
     assert result.returncode == (3 if foreign else 0), result.stdout + result.stderr
     assert len(calls) == (0 if foreign else 1)
-    assert not (install / '.hermes/bin/hermes').exists()
+    assert not (install / '.huntington/bin/hermes').exists()
     assert not (install / 'venv').exists()

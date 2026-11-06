@@ -35,18 +35,18 @@ def _nas_request(method: str, path: str, *, json: Mapping[str, Any] | None = Non
     try:
         token = resolve_nous_access_token()
     except Exception as exc:
-        raise _err("sign in to Nous Portal first (`hermes auth add nous`).", "solstice_nous_login_required",
+        raise _err("sign in to HIP Portal first (`huntington auth add nous`).", "solstice_nous_login_required",
                    relogin=True) from exc
     try:
         response = httpx.request(method, _nas_base_url() + path, json=json, timeout=_TIMEOUT_SECONDS,
                                  headers={"Accept": "application/json", "Authorization": f"Bearer {token}"},
                                  verify=_default_verify())
     except Exception as exc:
-        raise _err(f"Nous portal request failed: {type(exc).__name__}", "solstice_broker_unreachable") from exc
+        raise _err(f"HIP portal request failed: {type(exc).__name__}", "solstice_broker_unreachable") from exc
     if response.status_code == 404:
-        raise _err("not available on this Nous account yet.", "solstice_not_configured")
+        raise _err("not available on this HIP account yet.", "solstice_not_configured")
     if response.status_code >= 400:
-        raise _err(f"Nous portal returned HTTP {response.status_code}.", "solstice_broker_failed")
+        raise _err(f"HIP portal returned HTTP {response.status_code}.", "solstice_broker_failed")
     return response.json()
 
 
@@ -55,7 +55,7 @@ def discover_client() -> dict[str, str]:
     payload = _nas_request("GET", _CONFIG_PATH)
     missing = [k for k in ("client_id", "authorize_url", "scope") if not str(payload.get(k) or "").strip()]
     if missing:
-        raise _err(f"Nous portal config is missing {', '.join(missing)}.", "solstice_config_invalid")
+        raise _err(f"HIP portal config is missing {', '.join(missing)}.", "solstice_config_invalid")
     return {k: str(payload[k]).strip() for k in ("client_id", "authorize_url", "scope")}
 
 
@@ -71,6 +71,6 @@ def broker_token_request(grant: Mapping[str, str]) -> Mapping[str, Any]:
         return _nas_request("POST", path, json=body)
     except Exception as exc:
         if grant["grant_type"] == "refresh_token" and getattr(exc, "code", "") == "solstice_broker_failed":
-            raise _err("the stored sign-in was rejected; run `hermes auth add solstice` again.",
+            raise _err("the stored sign-in was rejected; run `huntington auth add solstice` again.",
                        "invalid_grant", relogin=True) from exc
         raise

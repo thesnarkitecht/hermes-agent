@@ -42,7 +42,7 @@ def test_usage_slash_shows_account_limits_before_first_turn_inside_session_scope
 
     def _credits(**kw):
         assert scoped == ["enter"], scoped  # the profile's own Nous login, not the launch profile's
-        return ["Nous credits: 100 remaining"]
+        return ["HIP credits: 100 remaining"]
 
     with (
         patch.object(server, "_session_usage_snapshot", return_value={}),
@@ -55,5 +55,5 @@ def test_usage_slash_shows_account_limits_before_first_turn_inside_session_scope
 
     assert scoped == ["enter", "exit"]
     assert fetched == ["openai-codex"]
-    assert "Account limits" in out and "Nous credits: 100 remaining" in out, out
+    assert "Account limits" in out and "HIP credits: 100 remaining" in out, out
     assert "send a message first" not in out

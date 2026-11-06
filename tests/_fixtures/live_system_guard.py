@@ -185,12 +185,13 @@ def _live_system_guard(request, monkeypatch):
 
     # ── Subprocess command-string inspection (whole-line) ──────────
     _HERMES_TOKENS = (
-        "hermes-gateway",
+        "huntington-gateway",
+        "huntington-gateway",
         "hermes.service",
         "hermes_cli.main gateway",
         "hermes_cli/main.py gateway",
         "gateway/run.py",
-        "hermes gateway",
+        "huntington gateway",
     )
     _MUTATING_VERBS = (
         "restart", "start", "stop", "kill", "reload",
@@ -259,7 +260,7 @@ def _live_system_guard(request, monkeypatch):
         name = word.rsplit("/", 1)[-1].lower()
         for suffix in (".service", ".timer", ".socket"):
             name = name.removesuffix(suffix)
-        return name == "hermes" or name.startswith("hermes-")
+        return name in ("hermes", "huntington") or name.startswith(("hermes-", "huntington-"))
 
     def _is_blocked_systemctl(cmd) -> bool:
         cmd_str = _cmd_to_string(cmd)
@@ -337,7 +338,7 @@ def _live_system_guard(request, monkeypatch):
         # The child must not resolve the REAL Hermes root. Comparing HERMES_HOME against the whole
         # account home refused every Windows sandbox: %TEMP% lives under %USERPROFILE%.
         from hermes_state_guard import _real_platform_state_root
-        real_root = _real_platform_state_root() or real_home / ".hermes"
+        real_root = _real_platform_state_root() or real_home / ".huntington"
         try:
             return (Path(home).resolve() != real_home
                     and not Path(hermes_home).resolve().is_relative_to(real_root))
@@ -357,8 +358,8 @@ def _live_system_guard(request, monkeypatch):
             raise RuntimeError(
                 f"tests/conftest.py live-system guard: blocked "
                 f"subprocess.{name}({cmd!r}) — would mutate a live "
-                "Hermes systemd unit (hermes-gateway*, hermes-dashboard*, "
-                "hermes-serve*, ...). Mock "
+                "Huntington systemd unit (huntington-gateway*, huntington-dashboard*, "
+                "huntington-serve*, ...). Mock "
                 "subprocess.run / _run_systemctl in the test, or "
                 "mark with @pytest.mark.live_system_guard_bypass."
             )
@@ -395,7 +396,7 @@ def _live_system_guard(request, monkeypatch):
             raise RuntimeError(
                 f"tests/conftest.py live-system guard: blocked "
                 f"subprocess.{name}({cmd!r}) — this command would run "
-                "`hermes update` against the real checkout, fetching "
+                "`huntington update` against the real checkout, fetching "
                 "from origin and overwriting repo files (e.g. "
                 "pyproject.toml) mid-test-run. This corrupts every "
                 "subsequent subprocess in the same runner. "
@@ -427,7 +428,7 @@ def _live_system_guard(request, monkeypatch):
             raise RuntimeError(
                 f"tests/conftest.py live-system guard: blocked "
                 f"subprocess.{name}({cmd!r}) — this would spawn a REAL "
-                "hermes gateway runtime that outlives the test (it is "
+                "huntington gateway runtime that outlives the test (it is "
                 "detached), restarts the developer's live gateway, and "
                 "holds the webhook port. Patch the spawn seam where "
                 "production reads it (hermes_cli.web_server_gateway."

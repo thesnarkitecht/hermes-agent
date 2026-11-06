@@ -27,7 +27,7 @@ import tui_gateway.server as srv
 def test_inherit_launch_model_carries_a_custom_provider_gateway(
     monkeypatch, tmp_path, schema, provider
 ):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(home))
@@ -98,7 +98,7 @@ def test_inherit_launch_model_carries_a_custom_provider_gateway(
 
 @pytest.mark.parametrize("written", ["http://127.0.0.1:11434/v1", "${LAB_URL}"])
 def test_inherit_launch_model_pins_a_bare_custom_endpoint(monkeypatch, tmp_path, written):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(home))
@@ -132,7 +132,7 @@ def test_inherit_launch_model_pins_a_bare_custom_endpoint(monkeypatch, tmp_path,
 def test_inherit_launch_model_preserves_explicit_profile_selection(
     monkeypatch, tmp_path
 ):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(home))

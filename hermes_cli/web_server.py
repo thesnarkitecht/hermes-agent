@@ -58,7 +58,7 @@ except ImportError:
     except Exception:
         raise SystemExit(
             "Web UI requires fastapi and uvicorn.\n"
-            "Run hermes pm repair, then restart Hermes."
+            "Run huntington pm repair, then restart Huntington."
         )
 
 WEB_DIST = Path(os.environ["HERMES_WEB_DIST"]) if "HERMES_WEB_DIST" in os.environ else Path(__file__).parent / "web_dist"
@@ -205,7 +205,7 @@ def _get_pty_active_session_files(app: FastAPI) -> dict[str, Path]:
     return _app_state_default(app, "pty_active_session_files", dict)
 
 
-app = FastAPI(title="Hermes Agent", version=get_version_info().base_version, lifespan=app_lifespan)
+app = FastAPI(title="HUNTINGTON-AGENT", version=get_version_info().base_version, lifespan=app_lifespan)
 
 from hermes_cli.dashboard_auth.body_limit import AuthBodyLimitMiddleware
 
@@ -354,11 +354,13 @@ from hermes_cli.web_server_boundary import (  # re-exported: web_server.<name> s
     _DESKTOP_ATTACHMENT_WS_MAX_BYTES,
     _LOOPBACK_HOST_VALUES,
     _dashboard_public_hosts,
+    _dashboard_public_origins,
     _desktop_loopback_auth_exempt,
     _host_header_hostname,
     _is_accepted_host,
     public_hosts_engage_gate,
     public_url_hosts,
+    public_url_origins,
     should_require_auth,
 )
 
@@ -557,20 +559,27 @@ async def _dashboard_health_middleware(request: Request, call_next):
     return response
 
 
-# CORS: restrict to localhost origins only.  The web UI is intended to run
-# locally; binding to 0.0.0.0 with allow_origins=["*"] would let any website
-# read/modify config and secrets.
+def _is_trusted_local_origin(origin: str) -> bool:
+    """The dashboard app's :func:`hermes_cli.web_server_boundary.is_trusted_local_origin`."""
+    from hermes_cli.web_server_boundary import is_trusted_local_origin
+    return is_trusted_local_origin(origin, app.state)
+
+
+class _LocalOriginCORSMiddleware(CORSMiddleware):
+    def is_allowed_origin(self, origin: str) -> bool:
+        return _is_trusted_local_origin(origin)
+
+
+# CORS: the trusted loopback origins only (web_server_boundary.is_trusted_local_origin, the same
+# rule the WebSocket Origin gate applies). allow_origins=["*"] on 0.0.0.0 would let any website
+# read/modify config and secrets; any local port would let a page on another port read
+# index.html's session token.
 #
 # Registered AFTER all ``@app.middleware("http")`` decorators so it is the
 # *outermost* middleware (Starlette's onion: last-added runs first).
 # Without this, an OPTIONS preflight from a cross-origin SPA hits the auth
 # middlewares before CORS can answer, producing 401 instead of 204 + headers.
-app.add_middleware(
-    CORSMiddleware,
-    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.add_middleware(_LocalOriginCORSMiddleware, allow_methods=["*"], allow_headers=["*"])
 
 
 # Authenticated-route self-test: one in-process request per minute against a
@@ -782,6 +791,7 @@ from hermes_cli.web_routers import (
     config_env as _config_env_routes,
     models as _models_routes,
     messaging as _messaging_routes,
+    messaging_relay as _messaging_relay_routes,
     oauth as _oauth_routes,
     cron as _cron_routes,
     mcp as _mcp_routes,
@@ -823,6 +833,7 @@ app.include_router(_config_env_routes.config_router)
 app.include_router(_models_routes.router)
 app.include_router(_config_env_routes.router)
 app.include_router(_messaging_routes.router)
+app.include_router(_messaging_relay_routes.router)
 app.include_router(_oauth_routes.router)
 app.include_router(_sessions_routes.manage_router)
 app.include_router(_status_routes.logs_router)
@@ -907,7 +918,7 @@ def _no_auth_provider_message(host: str) -> str:
         "    (hash with: python -c \"from "
         "plugins.dashboard_auth.basic import hash_password; "
         "print(hash_password('your-password'))\")\n"
-        "  • OAuth: run `hermes dashboard register` (Nous Portal) or "
+        "  • OAuth: run `huntington dashboard register` (HIP Portal) or "
         "install a DashboardAuthProvider plugin.\n"
         "  • Deployment token: provision HERMES_DASHBOARD_SESSION_TOKEN "
         "(a literal token, or 'file:<path>' naming a secret-manager-decrypted "
@@ -935,7 +946,7 @@ def _no_auth_provider_message(host: str) -> str:
                 "plugins.disabled but dashboard.basic_auth is "
                 "configured.\n"
                 "Remove 'basic' from plugins.disabled (or run "
-                "`hermes plugins enable basic`), then restart the "
+                "`huntington plugins enable basic`), then restart the "
                 "dashboard.\n\n"
             ) + fix_hint
     except Exception:
@@ -969,6 +980,8 @@ def _configure_auth_gate(
     own_url = getattr(app.state, "listener_public_url", None)
     app.state.trusted_public_hosts = (
         _dashboard_public_hosts() if own_url is None else public_url_hosts(own_url))
+    app.state.trusted_public_origins = (  # its exact loopback origin: a proxy on another local port
+        _dashboard_public_origins() if own_url is None else public_url_origins(own_url))
     # auth_required drives middleware, SPA-token injection, WS auth, the
     # startup refusal, the gate-on banner and uvicorn proxy_headers.
     if own_url is None and _desktop_loopback_auth_exempt(host, ssh_session_token, ssh_owner_nonce):
@@ -1282,11 +1295,11 @@ def _on_server_started(
     if headless:
         # Auth-gated JSON-RPC/WS only — announce the bind, not a URL. flush:
         # a piped stdout otherwise surfaces this minutes after the sentinel.
-        print(f"  Hermes backend listening on {host}:{actual_port}", flush=True)
+        print(f"  Huntington backend listening on {host}:{actual_port}", flush=True)
     else:
         from hermes_cli.url_utils import format_url_host
 
-        print(f"  Hermes Web UI → http://{format_url_host(host)}:{actual_port}")
+        print(f"  Huntington Web UI → http://{format_url_host(host)}:{actual_port}")
     _maybe_open_browser(host, actual_port, open_browser, initial_profile)
 
     if start_mcp_discovery_after_bind:
@@ -1435,7 +1448,7 @@ def start_server(
 
         start_nous_auth_keepalive()
     except Exception as exc:
-        _log.debug("Nous auth keepalive did not start: %s", exc)
+        _log.debug("HIP auth keepalive did not start: %s", exc)
 
     _configure_auth_gate(host, allow_public, ssh_session_token, ssh_owner_nonce)
 

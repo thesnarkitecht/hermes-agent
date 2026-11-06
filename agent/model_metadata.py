@@ -1941,7 +1941,7 @@ def _resolve_nous_context_length(model: str, base_url: str = "", api_key: str = 
         """Context length minus the known stale 32K underreports (same guard as step 6)."""
         ctx = entry.get("context_length")
         if ctx is not None and ctx <= 32768 and _model_name_suggests_stale_32k_underreport(or_id):
-            logger.info("Rejecting OpenRouter metadata context=%s for %r (known 32K underreport, Nous path); falling through to hardcoded defaults", ctx, or_id)
+            logger.info("Rejecting OpenRouter metadata context=%s for %r (known 32K underreport, HIP path); falling through to hardcoded defaults", ctx, or_id)
             return None
         return ctx
     model_lower, normalized = model.lower(), _normalize_model_version(model).lower()
@@ -1984,7 +1984,7 @@ def _validate_cached_context_length(model: str, base_url: str, cached: int, *, a
     # Nous Portal: /v1/models is authoritative. Bypass (don't drop) the cache so step
     # 5b reconciles OR-seeded entries without touching disk when the portal is down.
     if _infer_provider_from_url(base_url) == "nous":
-        logger.debug("Bypassing persistent cache for %s@%s (Nous portal authoritative)", model, base_url)
+        logger.debug("Bypassing persistent cache for %s@%s (HIP portal authoritative)", model, base_url)
         return None
 
     # For local endpoints, run the probe that respects configured Modelfile context values first.

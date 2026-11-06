@@ -33,7 +33,7 @@ def _isolate_env(tmp_path, monkeypatch):
     but we want the plugin to work with a predictable subpath. We reset
     HERMES_HOME here for clarity.
     """
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     hermes_home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(hermes_home))
     yield hermes_home
@@ -406,12 +406,12 @@ class TestGitWorktreeFilesNeverCleaned:
 
         # HERMES_HOME nested in an enclosing repo (a ~/.git dotfiles repo) that tracks it.
         outer = _isolate_env.parent / "outer"
-        (outer / ".hermes" / "scripts").mkdir(parents=True)
+        (outer / ".huntington" / "scripts").mkdir(parents=True)
         subprocess.run(["git", "init", "-q", str(outer)], check=True)
-        nested = outer / ".hermes" / "scripts" / "test_x.py"
+        nested = outer / ".huntington" / "scripts" / "test_x.py"
         nested.write_text("x")
         subprocess.run(["git", "-C", str(outer), "add", "."], check=True)
-        monkeypatch.setenv("HERMES_HOME", str(outer / ".hermes"))
+        monkeypatch.setenv("HERMES_HOME", str(outer / ".huntington"))
         assert dg.guess_category(nested) is None
 
 

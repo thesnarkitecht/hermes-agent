@@ -25,7 +25,7 @@ import pytest
 
 @pytest.fixture
 def hermes_home(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     return home
@@ -90,7 +90,7 @@ class TestDumpSubagentTimeoutDiagnostic:
         # Point HERMES_HOME at an unwritable path so logs/ can't be created
         # (simulates permission-denied). Helper must not raise.
         from tools.delegate_tool import _dump_subagent_timeout_diagnostic
-        bogus = tmp_path / "does-not-exist" / ".hermes"
+        bogus = tmp_path / "does-not-exist" / ".huntington"
         monkeypatch.setenv("HERMES_HOME", str(bogus))
         child = _StubChild()
 

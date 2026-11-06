@@ -16,7 +16,7 @@ from agent.verification_evidence import (
 
 @pytest.fixture
 def project(tmp_path, monkeypatch):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
     monkeypatch.delenv("HERMES_VERIFY_ON_STOP", raising=False)
     root = tmp_path / "project"
     root.mkdir()
@@ -25,7 +25,7 @@ def project(tmp_path, monkeypatch):
 
 
 def test_disabled_guard_never_touches_the_ledger(project, tmp_path):
-    db = tmp_path / ".hermes" / "verification_evidence.db"
+    db = tmp_path / ".huntington" / "verification_evidence.db"
 
     assert record_terminal_result(command="npm test", cwd=project, session_id="s1", exit_code=0) is None
     assert mark_workspace_edited(session_id="s1", cwd=project, paths=[str(project / "app.ts")]) is None
@@ -39,4 +39,4 @@ def test_enabled_guard_records_into_the_ledger(project, tmp_path, monkeypatch):
 
     assert record_terminal_result(command="npm test", cwd=project, session_id="s1", exit_code=0)
     assert verification_status(session_id="s1", cwd=project)["status"] == "passed"
-    assert Path(tmp_path / ".hermes" / "verification_evidence.db").exists()
+    assert Path(tmp_path / ".huntington" / "verification_evidence.db").exists()

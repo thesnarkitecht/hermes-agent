@@ -65,7 +65,7 @@ class Board:
 
     def __post_init__(self) -> None:
         self.home = self.root / "home"
-        self.hermes_home = self.home / ".hermes"
+        self.hermes_home = self.home / ".huntington"
         self.hermes_home.mkdir(parents=True, exist_ok=True)
         (self.hermes_home / "config.yaml").write_text(
             "model:\n"

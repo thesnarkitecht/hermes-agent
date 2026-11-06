@@ -188,7 +188,7 @@ class _RecordingBackend(cb.FileBackend):
 def recording(monkeypatch, tmp_path):
     """A fresh HERMES_HOME with a config.yaml and every config read/write recorded."""
     from hermes_cli import config as config_mod
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text(
         "# hand-tuned\nmodel:\n  default: my-model\nsecrets:\n  sources: []\n", encoding="utf-8")

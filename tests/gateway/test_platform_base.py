@@ -26,7 +26,7 @@ def test_media_delivery_denies_encrypted_bitwarden_cache(tmp_path, monkeypatch):
     """Encrypted Bitwarden cache is covered by the media credential guard."""
     from gateway.platforms import base
 
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     hermes_home.mkdir()
     monkeypatch.setattr(base, "_HERMES_HOME", hermes_home)
     monkeypatch.setattr(base, "_HERMES_ROOT", hermes_home)
@@ -360,7 +360,7 @@ class TestMediaInsideSerializedJson:
     def test_media_in_embedded_serialized_reply_not_extracted(self):
         """A serialized tool result that embeds a prior reply's MEDIA: tag."""
         content = (
-            '{"content":"previous reply MEDIA:/Users/ex/.hermes/media/'
+            '{"content":"previous reply MEDIA:/Users/ex/.huntington/media/'
             'generated/stale.png and more text"}'
         )
         media, _ = BasePlatformAdapter.extract_media(content)
@@ -646,7 +646,7 @@ class TestMediaDeliveryDefaultMode:
         self._patch_roots(monkeypatch)
 
         fake_home = tmp_path / "home"
-        hermes_dir = fake_home / ".hermes"
+        hermes_dir = fake_home / ".huntington"
         (hermes_dir / "mcp-tokens").mkdir(parents=True)
         secret = hermes_dir / rel
         secret.write_text('{"access_token": "live-bearer-abc123"}')
@@ -669,7 +669,7 @@ class TestMediaDeliveryDefaultMode:
         self._patch_roots(monkeypatch)
 
         fake_home = tmp_path / "home"
-        hermes_dir = fake_home / ".hermes"
+        hermes_dir = fake_home / ".huntington"
         (hermes_dir / "webapp").mkdir(parents=True)
         secret = hermes_dir / rel
         secret.write_text("t" * 43 + "\n")
@@ -690,7 +690,7 @@ class TestMediaDeliveryDefaultMode:
         self._patch_roots(monkeypatch)
 
         fake_home = tmp_path / "home"
-        hermes_dir = fake_home / ".hermes"
+        hermes_dir = fake_home / ".huntington"
         hermes_dir.mkdir(parents=True)
         token = hermes_dir / "google_token.json"
         token.write_text('{"access_token": "***", "refresh_token": "***"}')
@@ -712,7 +712,7 @@ class TestMediaDeliveryDefaultMode:
         monkeypatch.setenv("HERMES_MEDIA_TRUST_RECENT_SECONDS", "600")
 
         fake_home = tmp_path / "home"
-        hermes_dir = fake_home / ".hermes"
+        hermes_dir = fake_home / ".huntington"
         hermes_dir.mkdir(parents=True)
         artifact = hermes_dir / "adhoc_report.pdf"
         artifact.write_bytes(b"%PDF-1.4")  # fresh mtime
@@ -731,7 +731,7 @@ class TestMediaDeliveryDefaultMode:
         self._patch_roots(monkeypatch)
 
         fake_home = tmp_path / "home"
-        hermes_dir = fake_home / ".hermes"
+        hermes_dir = fake_home / ".huntington"
         hermes_dir.mkdir(parents=True)
         monkeypatch.setenv("HOME", str(fake_home))
         monkeypatch.setattr("gateway.platforms.base._HERMES_HOME", hermes_dir)
@@ -759,7 +759,7 @@ class TestMediaDeliveryDefaultMode:
 
         self._patch_roots(monkeypatch)
         fake_home = tmp_path / "home"
-        hermes_root = fake_home / ".hermes"
+        hermes_root = fake_home / ".huntington"
         profile_b = hermes_root / "profiles" / "beta"
         monkeypatch.setenv("HOME", str(fake_home))
         monkeypatch.setattr("gateway.platforms.base._HERMES_HOME", hermes_root)
@@ -839,7 +839,7 @@ class TestMediaDeliveryDefaultMode:
 
         # Stand-in for the literal /root deny prefix in the deployment.
         denied_root = tmp_path / "root"
-        hermes_root = denied_root / ".hermes"
+        hermes_root = denied_root / ".huntington"
         prof_cache = hermes_root / "profiles" / "myprof" / "cache" / "images"
         prof_cache.mkdir(parents=True)
         image = prof_cache / "gen.png"
@@ -1016,7 +1016,7 @@ class TestDockerContainerMediaPathTranslation:
         """MEDIA:/root/.hermes/cache/images/... (the agent_visible_image path
         under docker) must translate to the HOST cache file, not the sandbox
         home copy."""
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         cache = hermes_home / "cache" / "images"
         cache.mkdir(parents=True)
         media = cache / "generated.png"
@@ -1026,7 +1026,7 @@ class TestDockerContainerMediaPathTranslation:
         monkeypatch.delenv("TERMINAL_DOCKER_VOLUMES", raising=False)
 
         assert BasePlatformAdapter.validate_media_delivery_path(
-            "/root/.hermes/cache/images/generated.png"
+            "/root/.huntington/cache/images/generated.png"
         ) == str(media.resolve())
 
     def test_container_credential_path_never_translates_through_home(self, tmp_path, monkeypatch):
@@ -1036,10 +1036,10 @@ class TestDockerContainerMediaPathTranslation:
         denylist prefixes and would otherwise deliver."""
         sandbox = tmp_path / "sandboxes"
         home = sandbox / "docker" / "default" / "home"
-        secret = home / ".hermes"
+        secret = home / ".huntington"
         secret.mkdir(parents=True)
         (secret / "auth.json").write_text('{"token": "SECRET"}')
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir()
         monkeypatch.setenv("HERMES_HOME", str(hermes_home))
         monkeypatch.setenv("TERMINAL_ENV", "docker")
@@ -1048,7 +1048,7 @@ class TestDockerContainerMediaPathTranslation:
         monkeypatch.delenv("TERMINAL_DOCKER_VOLUMES", raising=False)
 
         assert BasePlatformAdapter.validate_media_delivery_path(
-            "/root/.hermes/auth.json"
+            "/root/.huntington/auth.json"
         ) is None
 
 
@@ -1442,7 +1442,7 @@ class TestMediaFallbackDoesNotLeakHostPath:
     — a host filesystem path with no actionable information.
     """
 
-    SENSITIVE_PATH = "/home/jayne/.hermes/cache/media/sensitive_host_path_abc123.bin"
+    SENSITIVE_PATH = "/home/jayne/.huntington/cache/media/sensitive_host_path_abc123.bin"
 
 
     @pytest.mark.asyncio
@@ -1567,13 +1567,13 @@ class TestDockerProfileSandboxMediaTranslation:
         in the profile layout AND the legacy session layout."""
         self._enable_docker(monkeypatch)
         for task in ("default", f"session:{self.SESSION_KEY}"):
-            secrets = self._sandbox_dir(task) / "home" / ".hermes"
+            secrets = self._sandbox_dir(task) / "home" / ".huntington"
             secrets.mkdir(parents=True, exist_ok=True)
             (secrets / "auth.json").write_text("{}")
 
         assert (
             BasePlatformAdapter.validate_media_delivery_path(
-                "/root/.hermes/auth.json", session_key=self.SESSION_KEY
+                "/root/.huntington/auth.json", session_key=self.SESSION_KEY
             )
             is None
         )

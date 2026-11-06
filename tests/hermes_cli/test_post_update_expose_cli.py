@@ -244,7 +244,7 @@ def test_review_tree_leaves_the_installed_commands_alone(form, path_registration
     Its boot bootstrap runs expose_cli too; republishing there would point every
     console's ``hermes`` at the review tree."""
     home = _windows_home(tmp_path, monkeypatch)
-    installed = _checkout(home / "hermes-agent")
+    installed = _checkout(home / "huntington-agent")
     review = _checkout(home / "reviews" / "pr-1" / "rebuild-wt")
     if form == "exe":
         (home / "bin").mkdir()
@@ -280,7 +280,7 @@ def test_review_tree_publishes_where_no_working_command_exists(path_registration
 @pytest.mark.platforms("windows")
 def test_installed_checkout_takes_its_commands_back(path_registrations, tmp_path, monkeypatch):
     home = _windows_home(tmp_path, monkeypatch)
-    installed = _checkout(home / "hermes-agent")
+    installed = _checkout(home / "huntington-agent")
     review = _checkout(home / "reviews" / "pr-1" / "rebuild-wt")
     _launchers._expose_windows_user_bin(review, create=True)
     assert _launchers._launcher_checkout(_command(home)) == review
@@ -304,7 +304,7 @@ class TestExposeCli:
         assert _launchers.expose_cli(create=False) == {"ok": True, "written": []}
         assert not wrapper_dir.exists()
         assert not extra.exists()
-        assert {p.name for p in (root / ".hermes/bin").iterdir()} == set(_launchers.ENTRY_POINTS)
+        assert {p.name for p in (root / ".huntington/bin").iterdir()} == set(_launchers.ENTRY_POINTS)
 
         # An owned ACP entry must be repaired even without an owned hermes
         # sibling admitting this directory. Its old target is already gone.
@@ -326,8 +326,8 @@ class TestExposeCli:
         assert _launchers.expose_cli(create=False) == {"ok": True, "written": ["hermes-acp"]}
         assert acp.is_file() and not acp.is_symlink() and os.access(acp, os.X_OK)
         assert not dangling.exists()
-        assert not (extra / "hermes-agent").exists()
-        assert not (wrapper_dir / "hermes-agent").exists()
+        assert not (extra / "huntington-agent").exists()
+        assert not (wrapper_dir / "huntington-agent").exists()
         if hermes == "foreign":
             assert (extra / "hermes").read_bytes() == foreign
         else:
@@ -347,7 +347,7 @@ class TestExposeCli:
             wrapper = home / ".local" / "bin" / name
             body = wrapper.read_text(encoding="utf-8-sig")
             assert str(root) in body
-            assert str(root / ".hermes" / "bin") in body
+            assert str(root / ".huntington" / "bin") in body
             assert os.access(wrapper, os.X_OK)
 
 
@@ -418,7 +418,7 @@ class TestExposeCli:
         parent = tmp_path / "hermes-home"
         (parent / "bin").mkdir(parents=True)
         (parent / "bin" / "hermes").write_text("#!/bin/sh\n# installer launcher\n", encoding="utf-8")
-        checkout = parent / "hermes-agent"
+        checkout = parent / "huntington-agent"
         checkout.mkdir()
         monkeypatch.setenv("HERMES_INSTALL_ROOT", str(checkout))
         result = _launchers.expose_cli()
@@ -450,7 +450,7 @@ def test_direct_packaged_cli_exposes_shims_before_electron(tmp_path):
 
     home = tmp_path / "home"
     home.mkdir()
-    payload = tmp_path / "Hermes.app/Contents/Resources/agent-payload"
+    payload = tmp_path / "Huntington.app/Contents/Resources/agent-payload"
     repo = payload / "repo"
     _write_bundled_stamp(repo)
     (repo / "install-stamp.json").write_text(json.dumps({
@@ -463,7 +463,7 @@ def test_direct_packaged_cli_exposes_shims_before_electron(tmp_path):
         shim = bin_dir / name
         shim.write_text(f'#!/bin/sh\nexec {shlex.join([sys.executable, "-I", "-c", code])} "$@"\n', encoding="utf-8")
         shim.chmod(0o755)
-    env = dict(os.environ, HOME=str(home), HERMES_HOME=str(home / ".hermes"),
+    env = dict(os.environ, HOME=str(home), HERMES_HOME=str(home / ".huntington"),
                HERMES_INSTALL_ROOT=str(repo), HERMES_RUNTIME_DIR=str(tmp_path / "tools"))
     # Execute the package CLI directly. No Electron process or linking helper runs.
     # `--help` reaches main()'s boot bootstrap (which owns expose_cli) before argparse
@@ -487,7 +487,7 @@ class TestSymlinkSealedLaunchers:
         home = tmp_path / "home"
         home.mkdir()
         monkeypatch.setattr(Path, "home", staticmethod(lambda: home))
-        payload_bin = tmp_path / "Hermes.app" / "Contents" / "Resources" / "agent-payload" / "bin"
+        payload_bin = tmp_path / "Huntington.app" / "Contents" / "Resources" / "agent-payload" / "bin"
         payload_bin.mkdir(parents=True)
         for name in ("hermes", "hermes-agent", "hermes-acp"):
             (payload_bin / name).write_text("fake mach-o shim\n", encoding="utf-8")
@@ -530,8 +530,8 @@ class TestSymlinkSealedLaunchers:
         # …and a live symlink to a different tool.
         other = tmp_path / "other-tool"
         other.write_text("other\n", encoding="utf-8")
-        (link_dir / "hermes-agent").symlink_to(other)
+        (link_dir / "huntington-agent").symlink_to(other)
         result = _launchers._symlink_sealed_launchers(payload_bin)
         assert (link_dir / "hermes").read_text(encoding="utf-8-sig") == "#!/bin/sh\n# pipx launcher\n"
-        assert os.readlink(link_dir / "hermes-agent") == str(other)
+        assert os.readlink(link_dir / "huntington-agent") == str(other)
         assert sorted(result["written"]) == ["hermes-acp"]

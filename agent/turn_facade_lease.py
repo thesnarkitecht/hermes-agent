@@ -337,10 +337,10 @@ def admit_durable_turn_lease(
         nonlocal reload_needed, announced
         reload_needed = announced = True
         agent._emit_status(
-            "⏳ Another Hermes process is using this session; "
+            "⏳ Another Huntington process is using this session; "
             "waiting for it to finish before starting your turn..."
             if elapsed < 1.0 else
-            f"⏳ Still waiting for the other Hermes process on this session ({int(elapsed)}s)..."
+            f"⏳ Still waiting for the other Huntington process on this session ({int(elapsed)}s)..."
         )
 
     authority_floor = time.time()  # every acquisition attempt stamps its expiry after this instant
@@ -364,10 +364,12 @@ def admit_durable_turn_lease(
         # Read the row only now: the previous holder may have created or deleted it while this
         # turn waited, so an answer from before admission can be stale either way.
         durable = _durable_session_exists(db, session_id)
-        if durable:
+        if durable and getattr(agent, "_session_db_reserved", False) is not True:
             # Row proven to exist — suppress the redundant create attempt. A missing row leaves
             # the flag alone: the flush heals a row deleted under a live agent (#123583). So does
             # an unknown one: the create is an upsert that never overwrites an existing row.
+            # A child reserved only its identity for transcript readers. Its first turn must
+            # still persist constructor config (including lineage) and the completed prompt.
             agent._session_db_created = True
         # Reload only a transcript that may exist: callers may seed a fresh id in memory before its
         # row is written, and reloading an absent row would erase that seed. An unknown row still
@@ -452,7 +454,7 @@ def _lease_not_acquired_result(agent, session_id: str, conversation_history, *, 
         )
         result = {
             "final_response": (
-                "Stopped waiting for another Hermes process on this session. "
+                "Stopped waiting for another Huntington process on this session. "
                 "Your message was not processed."
                 if waited else
                 "Stopped before this turn started. Your message was not processed."
@@ -474,7 +476,7 @@ def _lease_not_acquired_result(agent, session_id: str, conversation_history, *, 
         return result
     # Fail closed like gateway TurnLeaseTimeoutError: surface a resend notice, not a bare TimeoutError.
     timeout_msg = (
-        "⏳ Another Hermes process kept this session busy too long. Your message was not "
+        "⏳ Another Huntington process kept this session busy too long. Your message was not "
         "processed - wait for the other process to finish, then send it again."
     )
     logger.error("session turn lease wait timed out for %s", session_id)

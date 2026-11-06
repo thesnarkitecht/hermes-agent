@@ -45,7 +45,7 @@ def _read_line(proc: subprocess.Popen, timeout: float = 60) -> str:
 
 
 def _checkout(tmp_path: Path) -> Path:
-    root = tmp_path / "hermes-agent"
+    root = tmp_path / "huntington-agent"
     desktop_dir = root / "apps" / "desktop"
     desktop_dir.mkdir(parents=True)
     (desktop_dir / "package.json").write_text("{}", encoding="utf-8")
@@ -175,9 +175,9 @@ def test_gui_releases_lock_before_packaged_electron_handoff(tmp_path, monkeypatc
     desktop_dir = root / "apps" / "desktop"
 
     if sys.platform == "darwin":
-        executable = desktop_dir / "release" / "mac-arm64" / "Hermes.app" / "Contents" / "MacOS" / "Hermes"
+        executable = desktop_dir / "release" / "mac-arm64" / "Huntington.app" / "Contents" / "MacOS" / "Huntington"
     elif sys.platform == "win32":
-        executable = desktop_dir / "release" / "win-unpacked" / "Hermes.exe"
+        executable = desktop_dir / "release" / "win-unpacked" / "Huntington.exe"
     else:
         executable = desktop_dir / "release" / "linux-unpacked" / "hermes"
     executable.parent.mkdir(parents=True)

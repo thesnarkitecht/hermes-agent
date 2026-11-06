@@ -610,8 +610,8 @@ def _init_prompt_cache_config(agent):
         # Config values and traceback frames may contain credentials.
         logger.warning(
             "Agent configuration for prompt_caching.cache_ttl could not be loaded (%s); "
-            "using default prompt caching settings. Check the active Hermes Python "
-            "environment and dependencies; run 'hermes config check' after "
+            "using default prompt caching settings. Check the active Huntington Python "
+            "environment and dependencies; run 'huntington config check' after "
             "configuration imports work again.",
             type(exc).__name__,
         )
@@ -866,8 +866,8 @@ def _routed_client_kwargs(agent, fallback_model, _provider_timeout) -> Optional[
     from agent.auxiliary_unavailable import ProviderNotConfiguredError
     _sel = profile_cli_selector()
     raise ProviderNotConfiguredError(
-        "No LLM provider configured. Run `hermes model` to "
-        "select a provider, or run `hermes setup` for first-time "
+        "No LLM provider configured. Run `huntington model` to "
+        "select a provider, or run `huntington setup` for first-time "
         "configuration."
     )
 
@@ -1028,13 +1028,13 @@ def _load_tools(agent, enabled_toolsets, disabled_toolsets):
     agent._tool_snapshot_generation, agent._delegation_backend = _snapshot_registry._generation, saved_backend()
     import model_tools
     from agent.oneshot_footprint import agent_is_oneshot
-    from toolsets import agent_tool_surface, session_disabled_toolsets
+    from toolsets import agent_tool_surface, session_disabled_toolsets, tool_selection_key
     agent._configured_disabled_toolsets, disabled_toolsets = disabled_toolsets, session_disabled_toolsets(
         disabled_toolsets, getattr(agent, "platform", None), oneshot=agent_is_oneshot(agent))  # pin restore reads both
     agent.disabled_toolsets = disabled_toolsets  # so the tool_search bridge and delegate children drop them too
+    agent._tool_snapshot_selection = tool_selection_key(enabled_toolsets, disabled_toolsets)  # tools[] freeze gate
     agent.tools = agent_tool_surface(agent, model_tools.get_tool_definitions(
         enabled_toolsets=enabled_toolsets, disabled_toolsets=disabled_toolsets, quiet_mode=agent.quiet_mode) or [])
-
     agent.valid_tool_names = {tool["function"]["name"] for tool in agent.tools} if agent.tools else set()
     # Kanban guidance is session-static for the dispatcher-owned worker only. Profiles may
     # expose kanban_show interactively, and children/cron runs inherit the env var, without
@@ -1990,7 +1990,7 @@ def _enforce_minimum_context(agent):
         raise ValueError(
             f"Model {agent.model} has a context window of {_ctx:,} tokens, "
             f"which is below the minimum {MINIMUM_CONTEXT_LENGTH:,} required "
-            f"by Hermes Agent.  {remedy}"
+            f"by HUNTINGTON-AGENT.  {remedy}"
         )
 
 
@@ -2004,7 +2004,7 @@ def _warn_nonagentic_hermes_model(agent):
         _hermes_warn = _check_hermes_model_warning(agent.model or "")
         if _hermes_warn:
             _user_msg = (
-                "⚠ Nous Research Hermes 3 & 4 models are NOT agentic — they "
+                "⚠ HIP Huntington 3 & 4 models are NOT agentic — they "
                 "lack reliable tool-calling for agent workflows (delegation, "
                 "cron, proactive tools). Consider an agentic model instead "
                 "(Claude, GPT, Gemini, Qwen-Coder, etc.)."
@@ -2235,7 +2235,7 @@ def init_agent(
         logger.warning(
             "Agent configuration could not be loaded (%s); using defaults for "
             "memory, skills, compression and related settings. Check the active "
-            "Hermes Python environment and dependencies; run 'hermes config check' "
+            "Huntington Python environment and dependencies; run 'huntington config check' "
             "after configuration imports work again.",
             type(exc).__name__,
         )

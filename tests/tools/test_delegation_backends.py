@@ -56,7 +56,7 @@ OPTIONS = [
 
 
 def _home(tmp_path, monkeypatch, delegation: dict, plugins=("probe-options",), disabled=()):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     plugin_dir = home / "plugins" / "probe-options"
     plugin_dir.mkdir(parents=True)
     (plugin_dir / "plugin.yaml").write_text(yaml.safe_dump({"name": "probe-options", "version": "1.0"}), encoding="utf-8")
@@ -183,7 +183,7 @@ def test_a_missing_backend_fails_closed_and_default_keeps_todays_route(tmp_path,
     assert len(set(definitions)) == 1 and '"option"' not in definitions[0]
     assert [(b["model"], b["override_base_url"]) for b in recorded] == [("pinned-model", "http://127.0.0.1:9/v1")] * 2
     error = outcomes[2]["error"]
-    assert "'not-installed' is not installed" in error and "hermes config set delegation.backend default" in error
+    assert "'not-installed' is not installed" in error and "huntington config set delegation.backend default" in error
 
 
 def test_a_backend_route_without_its_own_chain_inherits_delegation_fallback_providers(tmp_path, monkeypatch):
@@ -403,7 +403,7 @@ def test_runtime_with_zero_plugins_loaded_still_delegates_on_the_bundled_default
 
     monkeypatch.setattr(delegation_registry, "_first_use", {})
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True)
     (home / "config.yaml").write_text(yaml.safe_dump({"delegation": {"model": "pinned-model"}}), encoding="utf-8")
     monkeypatch.setenv("HERMES_HOME", str(home))
@@ -432,7 +432,7 @@ def test_first_use_default_never_outlives_a_later_disable(tmp_path, monkeypatch,
     from tools.delegate_tool import delegate_task
 
     monkeypatch.setattr(delegation_registry, "_first_use", {})
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True)
     config = home / "config.yaml"
     config.write_text(yaml.safe_dump({"delegation": {"model": "pinned-model"}}), encoding="utf-8")

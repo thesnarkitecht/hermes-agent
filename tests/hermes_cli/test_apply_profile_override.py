@@ -20,7 +20,7 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def _platform_home(tmp_path, monkeypatch):
-    monkeypatch.setattr("hermes_constants._get_platform_default_hermes_home", lambda: tmp_path / ".hermes")
+    monkeypatch.setattr("hermes_constants._get_platform_default_hermes_home", lambda: tmp_path / ".huntington")
 
 
 def _run_apply_profile_override(
@@ -33,7 +33,7 @@ def _run_apply_profile_override(
     Returns the value of os.environ["HERMES_HOME"] after the call,
     or None if unset.
     """
-    hermes_root = tmp_path / ".hermes"
+    hermes_root = tmp_path / ".huntington"
     hermes_root.mkdir(parents=True, exist_ok=True)
 
     if active_profile is not None:
@@ -82,7 +82,7 @@ def _run_apply_profile_override(
 def test_missing_sticky_profile_allows_recovery_commands(
     tmp_path, monkeypatch, capsys, argv, exported_home,
 ):
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     result = _run_apply_profile_override(
         tmp_path, monkeypatch, hermes_home=str(root) if exported_home else None,
         active_profile="ray",
@@ -114,11 +114,11 @@ def test_missing_profile_still_blocks_other_or_explicit_commands(
 ):
     with pytest.raises(SystemExit) as exc:
         _run_apply_profile_override(
-            tmp_path, monkeypatch, hermes_home=str(tmp_path / ".hermes"),
+            tmp_path, monkeypatch, hermes_home=str(tmp_path / ".huntington"),
             active_profile="ray", create_active_profile=False, argv=argv,
         )
     assert exc.value.code == 1
-    assert ("hermes profile use default" in capsys.readouterr().err) is expect_hint
+    assert ("huntington profile use default" in capsys.readouterr().err) is expect_hint
 
 
 class TestApplyProfileOverrideHermesHomeGuard:
@@ -139,7 +139,7 @@ class TestApplyProfileOverrideHermesHomeGuard:
         and the user switches to a profile via `hermes profile use`.
         Before the fix, the guard returned early and active_profile was ignored.
         """
-        hermes_root = tmp_path / ".hermes"
+        hermes_root = tmp_path / ".huntington"
         hermes_root.mkdir(parents=True, exist_ok=True)
 
         result = _run_apply_profile_override(
@@ -163,11 +163,11 @@ class TestApplyProfileOverrideHermesHomeGuard:
         """sudo elias ... should resolve `-p elias` under SUDO_USER, not root."""
         root_home = tmp_path / "root"
         user_home = tmp_path / "home" / "hermes"
-        profile_dir = user_home / ".hermes" / "profiles" / "elias"
+        profile_dir = user_home / ".huntington" / "profiles" / "elias"
         profile_dir.mkdir(parents=True, exist_ok=True)
         (profile_dir / "config.yaml").write_text(
             "{}\n", encoding="utf-8")  # identity marker: a bare dir does not resolve
-        (root_home / ".hermes").mkdir(parents=True, exist_ok=True)
+        (root_home / ".huntington").mkdir(parents=True, exist_ok=True)
 
         monkeypatch.setattr(Path, "home", lambda: root_home)
         monkeypatch.setenv("SUDO_USER", "hermes")
@@ -185,7 +185,7 @@ class TestApplyProfileOverrideHermesHomeGuard:
         assert os.environ.get("HERMES_HOME") == str(profile_dir)
         assert sys.argv == ["hermes", "gateway", "install", "--system"]
         # Same identity gate as ``-p`` without sudo: a marker-less shell is not a profile.
-        (user_home / ".hermes" / "profiles" / "ghost" / "cron").mkdir(parents=True)
+        (user_home / ".huntington" / "profiles" / "ghost" / "cron").mkdir(parents=True)
         assert _resolve_sudo_user_profile_env("ghost") is None
 
 
@@ -224,7 +224,7 @@ class TestSupervisedChildIgnoresStickyProfile:
         """A supervised named-profile slot passes ``-p <name>`` explicitly;
         that must still resolve (the sentinel guard only skips the sticky
         active_profile fallback, never an explicit flag)."""
-        hermes_root = tmp_path / ".hermes"
+        hermes_root = tmp_path / ".huntington"
         hermes_root.mkdir(parents=True, exist_ok=True)
         (hermes_root / "active_profile").write_text("briefer", encoding="utf-8")
         for name in ("briefer", "coder"):
@@ -260,7 +260,7 @@ class TestGeneralizedSupervisorMarkers:
     """
 
     def _root_home(self, tmp_path):
-        hermes_root = tmp_path / ".hermes"
+        hermes_root = tmp_path / ".huntington"
         hermes_root.mkdir(parents=True, exist_ok=True)
         return hermes_root
 
@@ -379,7 +379,7 @@ class TestS6ContainerGatewayRun:
         self, tmp_path, monkeypatch
     ):
         monkeypatch.setattr("hermes_cli.service_manager._s6_running", lambda: True)
-        root = tmp_path / ".hermes"
+        root = tmp_path / ".huntington"
         result = _run_apply_profile_override(
             tmp_path, monkeypatch, hermes_home=str(root), active_profile="coder",
             argv=["hermes", "gateway", "run"],
@@ -390,7 +390,7 @@ class TestS6ContainerGatewayRun:
         self, tmp_path, monkeypatch
     ):
         monkeypatch.setattr("hermes_cli.service_manager._s6_running", lambda: True)
-        root = tmp_path / ".hermes"
+        root = tmp_path / ".huntington"
         for argv in (["hermes", "gateway", "run", "--no-supervise"], ["hermes", "chat"]):
             result = _run_apply_profile_override(
                 tmp_path, monkeypatch, hermes_home=str(root), active_profile="coder", argv=argv,
@@ -403,7 +403,7 @@ def test_module_entry_keeps_an_explicit_default_profile_over_the_sticky_one(tmp_
     home while active_profile names another profile: a second import of the module must not re-read
     the stripped argv and fall to the sticky profile."""
     import subprocess
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     (root / "profiles" / "work").mkdir(parents=True)
     (root / "profiles" / "work" / "config.yaml").write_text("{}\n", encoding="utf-8")
     (root / "active_profile").write_text("work\n", encoding="utf-8")

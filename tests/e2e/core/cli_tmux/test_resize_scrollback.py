@@ -58,7 +58,7 @@ def test_resizes_keep_each_transcript_line_once_in_tmux_scrollback(tmp_path: Pat
         kinds = Counter(r["kind"] for r in llm.requests)
         out = [f"fake provider requests: main={kinds['main']} aux={kinds['aux']}"]
         for name in ("agent.log", "errors.log"):
-            log = home / ".hermes" / "logs" / name
+            log = home / ".huntington" / "logs" / name
             tail = log.read_text(encoding="utf-8", errors="replace").splitlines()[-40:] if log.exists() else ["<missing>"]
             out += [f"--- {name} (tail) ---", *tail]
         pid = tmux("display-message", "-p", "-t", "p", "#{pane_pid}").strip()
@@ -97,9 +97,9 @@ def test_resizes_keep_each_transcript_line_once_in_tmux_scrollback(tmp_path: Pat
         time.sleep(2.0)
 
     with llm:
-        write_hermes_home(home / ".hermes", llm.base_url)
+        write_hermes_home(home / ".huntington", llm.base_url)
         env = {k: v for k, v in os.environ.items() if not k.startswith(("HERMES_", "TMUX"))}
-        env.update(HOME=str(home), HERMES_HOME=str(home / ".hermes"), PYTHONPATH=str(REPO_ROOT),
+        env.update(HOME=str(home), HERMES_HOME=str(home / ".huntington"), PYTHONPATH=str(REPO_ROOT),
                    TERM="xterm-256color", HERMES_STATE_DB_GUARD_BYPASS="1", PYTHONFAULTHANDLER="1")
         argv = [sys.executable, "-m", "hermes_cli.main", "chat", "--cli", "--yolo"]
         subprocess.run(["tmux", "-L", sock, "-f", os.devnull, "new-session", "-d", "-s", "p", "-x", "120",
@@ -107,7 +107,7 @@ def test_resizes_keep_each_transcript_line_once_in_tmux_scrollback(tmp_path: Pat
         try:
             tmux("set", "-g", "window-size", "manual")
             tmux("set", "-g", "remain-on-exit", "on")  # keeps a crash or the diagnostics' dump readable
-            wait_for("Welcome to Hermes", timeout=120)
+            wait_for("Welcome to Huntington", timeout=120)
             # The welcome line is printed before the input loop exists. Keys typed then land in the
             # still-cooked tty: the kernel echoes them (a plain transcript row) and hands the app
             # text + Enter in one read, which it takes for a pasted newline — the question sits

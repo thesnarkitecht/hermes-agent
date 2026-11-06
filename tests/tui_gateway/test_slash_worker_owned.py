@@ -66,11 +66,11 @@ def _cmdline(proc: psutil.Process) -> list[str]:
 
 def _home(tmp_path: Path, name: str) -> dict:
     home = tmp_path / name
-    (home / ".hermes").mkdir(parents=True)
-    (home / ".hermes" / "config.yaml").write_text(
+    (home / ".huntington").mkdir(parents=True)
+    (home / ".huntington" / "config.yaml").write_text(
         "quick_commands:\n  linger:\n    type: exec\n    command: sleep 120\n", encoding="utf-8")
     env = {k: v for k, v in os.environ.items() if not k.endswith("_API_KEY")}
-    env.update(HOME=str(home), HERMES_HOME=str(home / ".hermes"), PYTHONPATH=str(_REPO))
+    env.update(HOME=str(home), HERMES_HOME=str(home / ".huntington"), PYTHONPATH=str(_REPO))
     return env
 
 

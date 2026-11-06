@@ -60,7 +60,7 @@ def skip_unless_deployable(journal: str) -> None:
     if journal == "wal" and not linked_sqlite_is_wal_capable():
         import pytest
 
-        pytest.skip(f"linked SQLite {sqlite3.sqlite_version} runs Hermes in DELETE mode; the delete arm covers it")
+        pytest.skip(f"linked SQLite {sqlite3.sqlite_version} runs Huntington in DELETE mode; the delete arm covers it")
 
 
 def base_seed() -> int:
@@ -94,7 +94,7 @@ class Chamber:
         self.root = root
         self.mode = journal
         self.home = root / "home"
-        self.hermes_home = self.home / ".hermes"
+        self.hermes_home = self.home / ".huntington"
         self.hermes_home.mkdir(parents=True, exist_ok=True)
         # The config default in BOTH arms: the delete arm is a default-config user on a vulnerable SQLite.
         (self.hermes_home / "config.yaml").write_text("database:\n  journal_mode: wal\n", encoding="utf-8")

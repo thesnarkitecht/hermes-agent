@@ -26,8 +26,8 @@ _DEPLETED_LINE = "Status: access depleted — top up to restore"
 # Usage-window plans: allowances are shown as percent used.
 _WINDOW_TOP_TIER_USED_UP = "Monthly large-model usage is used up."
 _WINDOW_PAUSED_LINE = ("Status: included usage paused. Your subscription payment failed. Update your card to restore it. "
-                       "Until then, Hermes uses your credits.")
-_WINDOW_PAUSED_OTHER_LINE = "Status: included usage paused. See Billing in the Portal. Until then, Hermes uses your credits."
+                       "Until then, Huntington uses your credits.")
+_WINDOW_PAUSED_OTHER_LINE = "Status: included usage paused. See Billing in the Portal. Until then, Huntington uses your credits."
 
 
 def _utc_now() -> datetime:
@@ -198,7 +198,7 @@ def _nous_snapshot(windows: list, details: list, tail: list, *, source: str, pla
     """Nous snapshot with *tail* lines appended, or None when there is nothing to show."""
     if not windows and not details:
         return None
-    return _snapshot("nous", source, windows, details + tail, title="Nous credits", plan=plan, usage_window=usage_window)
+    return _snapshot("nous", source, windows, details + tail, title="HIP credits", plan=plan, usage_window=usage_window)
 
 
 def _bp_window(label: str, used_bp: Any, resets_at_ms: Any) -> Optional[AccountUsageWindow]:
@@ -224,7 +224,7 @@ def _window_top_tier_line(reset_at: Optional[datetime], keep_going_on_credits: A
     return f"{_WINDOW_TOP_TIER_USED_UP}{resets}{tail}"
 
 
-_WINDOW_KEEP_GOING_OFF_LINE = "Keep going on credits: off. Hermes waits for the reset (turn on in /topup)."
+_WINDOW_KEEP_GOING_OFF_LINE = "Keep going on credits: off. Huntington waits for the reset (turn on in /topup)."
 _WINDOW_KEEP_GOING_ON_LINE = "Keep going on credits: on. Uses your credits when included usage runs out."
 
 
@@ -798,7 +798,7 @@ def redeem_codex_reset_credit(
     try:
         token, resolved_base_url, account_id = _resolve_codex_usage_credentials(base_url, api_key)
     except Exception:
-        return _unavailable("No Codex credentials available. Run `hermes auth` to sign in with your ChatGPT account.")
+        return _unavailable("No Codex credentials available. Run `huntington auth` to sign in with your ChatGPT account.")
     redeem_request_id = str(uuid.uuid4())
     try:
         for attempt in range(2):
@@ -834,7 +834,7 @@ def redeem_codex_reset_credit(
         code = exc.response.status_code
         if code in (401, 403):
             return _unavailable(f"Codex backend rejected the request (HTTP {code}). Reset credits require ChatGPT-account "
-                                "(OAuth) auth — run `hermes auth` and sign in with your ChatGPT account.")
+                                "(OAuth) auth — run `huntington auth` and sign in with your ChatGPT account.")
         return _unavailable(f"Codex backend error (HTTP {code}) — try again shortly.")
     except Exception as exc:
         return _unavailable(f"Could not reach the Codex backend: {exc}")

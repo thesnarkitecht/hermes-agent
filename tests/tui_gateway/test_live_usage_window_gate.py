@@ -18,7 +18,7 @@ def calls(monkeypatch):
 
     def _lines(**kw):
         seen.append(kw)
-        return ["Nous credits block"]
+        return ["HIP credits block"]
 
     monkeypatch.setattr("agent.account_usage.nous_credits_lines", _lines)
     monkeypatch.setattr("agent.account_usage.fetch_account_usage", lambda *a, **kw: None)
@@ -38,7 +38,7 @@ def _session(state):
 def test_no_credits_state_makes_mains_call(calls):
     out = server._format_live_usage_output("sid", _session(None), "")
     assert calls == [{}]
-    assert out.count("Nous credits block") == 1
+    assert out.count("HIP credits block") == 1
 
 
 def test_non_window_credits_state_makes_mains_call(calls):
@@ -55,4 +55,4 @@ def test_window_session_passes_the_reply_gauges_once(calls):
     state = SimpleNamespace(is_usage_window=True)
     out = server._format_live_usage_output("sid", _session(state), "")
     assert calls == [{"credits_state": state}]
-    assert out.count("Nous credits block") == 1  # one Nous block, never a second plan block
+    assert out.count("HIP credits block") == 1  # one Nous block, never a second plan block

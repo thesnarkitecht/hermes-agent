@@ -24,7 +24,7 @@ class _Stub(CLICommandsMixin):
         return None
 
 def _seed_config(tmp_path, monkeypatch):
-    hh = tmp_path / ".hermes"
+    hh = tmp_path / ".huntington"
     hh.mkdir()
     (hh / "config.yaml").write_text("display:\n  show_reasoning: true\n")
     monkeypatch.setenv("HERMES_HOME", str(hh))

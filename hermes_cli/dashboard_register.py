@@ -82,15 +82,15 @@ def _register_self_hosted_client(
         except Exception:
             detail = ""
         if exc.code == 401:
-            message = ("Nous Portal rejected the access token (401). "
-                       "Try `hermes auth add nous` to re-authenticate.")
+            message = ("HIP Portal rejected the access token (401). "
+                       "Try `huntington auth add nous` to re-authenticate.")
         elif exc.code == 403:
             message = detail or "Your account is not permitted to register a self-hosted dashboard."
         else:
             message = f"Portal returned HTTP {exc.code}" + (f": {detail}" if detail else "")
         raise RuntimeError(message) from exc
     except urllib.error.URLError as exc:
-        raise RuntimeError(f"Could not reach Nous Portal at {portal_base_url}: {exc.reason}") from exc
+        raise RuntimeError(f"Could not reach HIP Portal at {portal_base_url}: {exc.reason}") from exc
     if not isinstance(payload, dict) or not payload.get("client_id"):
         raise RuntimeError("Portal returned an unexpected response (no client_id).")
     return payload
@@ -107,8 +107,8 @@ def _print_post_register_hint(
     if public_url:
         print("    HERMES_DASHBOARD_PUBLIC_URL=" + str(public_url))
     print(
-        "\n  Heads up — Nous login only *engages* on a non-loopback bind. A plain\n"
-        "  `hermes dashboard` (localhost) leaves the gate off and serves locally\n"
+        "\n  Heads up — HIP login only *engages* on a non-loopback bind. A plain\n"
+        "  `huntington dashboard` (localhost) leaves the gate off and serves locally\n"
         "  without auth, which is fine for your own machine.\n")
     if custom_redirect_uri:
         try:  # example host matches the one the user registered
@@ -116,13 +116,13 @@ def _print_post_register_hint(
         except Exception:
             host = "your-host"
         print(
-            "  To require Nous login on your registered host, run the dashboard\n"
+            "  To require HIP login on your registered host, run the dashboard\n"
             f"  bound publicly (it must be reachable at https://{host}) and log in\n"
             "  at its /login page.")
     else:
         print(
-            "  To require Nous login (e.g. exposing on your LAN or a public host):\n"
-            "    hermes dashboard --host 0.0.0.0\n"
+            "  To require HIP login (e.g. exposing on your LAN or a public host):\n"
+            "    huntington dashboard --host 0.0.0.0\n"
             "  …then log in at the dashboard's /login page.")
     print(
         "\n  If the dashboard is already running, restart it to pick up the new env.\n"
@@ -166,7 +166,7 @@ def cmd_dashboard_register(args) -> None:
     from hermes_cli.config import is_managed, save_env_value
     # Managed installs get the client id stamped in by the orchestrator (save_env_value refuses).
     if is_managed():
-        print("✗ `hermes dashboard register` is not available in a managed/hosted install.\n"
+        print("✗ `huntington dashboard register` is not available in a managed/hosted install.\n"
               "  The dashboard OAuth client is provisioned by the hosting platform.")
         sys.exit(1)
 
@@ -174,10 +174,10 @@ def cmd_dashboard_register(args) -> None:
         access_token = resolve_nous_access_token()
     except Exception as exc:
         if isinstance(exc, AuthError) and getattr(exc, "relogin_required", False):
-            print("✗ You're not logged into Nous Portal.\n"
-                  "  Run `hermes setup` (or `hermes auth add nous`) first, then retry.")
+            print("✗ You're not logged into HIP Portal.\n"
+                  "  Run `huntington setup` (or `huntington auth add nous`) first, then retry.")
         else:
-            print(f"✗ Could not resolve a Nous Portal access token: {exc}")
+            print(f"✗ Could not resolve a HIP Portal access token: {exc}")
         sys.exit(1)
     # An explicitly supplied portal (flag or env) is persisted in place; an inferred one is
     # written only if absent so .env isn't cluttered for the common production case.

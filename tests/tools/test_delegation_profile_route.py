@@ -23,7 +23,7 @@ def _write_profile(home, *, host, model, key, secret, effort, soul=None):
 
 @pytest.fixture
 def two_profiles(tmp_path, monkeypatch):
-    launch = tmp_path / "os-home" / ".hermes"
+    launch = tmp_path / "os-home" / ".huntington"
     _write_profile(launch, host="launch.invalid", model="launch-model", key="launch-key", secret="launch-secret",
                    effort="medium")
     coder = launch / "profiles" / "coder"
@@ -73,7 +73,7 @@ def test_unknown_profile_is_refused_with_an_instruction(two_profiles):
     from agent.delegation_provider import DelegationRouteError
     from tools.delegate_tool_routes import _route_to_task_route
 
-    with pytest.raises(DelegationRouteError, match="hermes profile list"):
+    with pytest.raises(DelegationRouteError, match="huntington profile list"):
         _route_to_task_route({"profile": "nobody"}, _parent(), {})
 
 

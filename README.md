@@ -1,243 +1,139 @@
 <p align="center">
-  <img src="assets/banner.png" alt="Hermes Agent" width="100%">
+  <img src="assets/huntington-logo.svg" alt="HUNTINGTON-AGENT" width="160">
 </p>
 
-# Hermes Agent ☤
-<p align="center">
-  <a href="https://hermes-agent.nousresearch.com/">Hermes Agent</a> | <a href="https://hermes-agent.nousresearch.com/">Hermes Desktop</a>
-</p>
-<p align="center">
-  <a href="https://hermes-agent.nousresearch.com/docs/"><img src="https://img.shields.io/badge/Docs-hermes--agent.nousresearch.com-FFD700?style=for-the-badge" alt="Documentation"></a>
-  <a href="https://discord.gg/NousResearch"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
-  <a href="https://github.com/NousResearch/hermes-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
-  <a href="https://nousresearch.com"><img src="https://img.shields.io/badge/Built%20by-Nous%20Research-blueviolet?style=for-the-badge" alt="Built by Nous Research"></a>
-  <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-中文-red?style=for-the-badge" alt="中文"></a>
-  <a href="README.ur-pk.md"><img src="https://img.shields.io/badge/Lang-اردو-green?style=for-the-badge" alt="اردو"></a>
-  <a href="README.es.md"><img src="https://img.shields.io/badge/Lang-Español-orange?style=for-the-badge" alt="Español"></a>
-</p>
+# HUNTINGTON-AGENT
 
-**The self-improving AI agent built by [Nous Research](https://nousresearch.com).** It's the only agent with a built-in learning loop — it creates skills from experience, improves them during use, nudges itself to persist knowledge, searches its own past conversations, and builds a deepening model of who you are across sessions. Run it on a $5 VPS, a GPU cluster, or serverless infrastructure that costs nearly nothing when idle. It's not tied to your laptop — talk to it from Telegram while it works on a cloud VM.
+A terminal-first AI agent by HIP. It is built on an open-source, MIT-licensed agent engine
+(memory, skills, subagents, scheduled jobs, the terminal and browser tools), narrowed to what
+Huntington uses. `scripts/huntington/sync-upstream.sh` keeps pulling in new engine features.
 
-Use any model you want — [Nous Portal](https://portal.nousresearch.com), OpenRouter, OpenAI, your own endpoint, and [many others](https://hermes-agent.nousresearch.com/docs/integrations/providers). Switch with `hermes model` — no code changes, no lock-in.
+## Install (terminal)
 
-<table>
-<tr><td><b>A real terminal interface</b></td><td>Full TUI with multiline editing, slash-command autocomplete, conversation history, interrupt-and-redirect, and streaming tool output.</td></tr>
-<tr><td><b>Lives where you do</b></td><td>Telegram, Discord, Slack, WhatsApp, Signal, and CLI — all from a single gateway process. Voice memo transcription, cross-platform conversation continuity.</td></tr>
-<tr><td><b>A closed learning loop</b></td><td>Agent-curated memory with periodic nudges. Autonomous skill creation after complex tasks. Skills self-improve during use. FTS5 session search with LLM summarization for cross-session recall. <a href="https://github.com/plastic-labs/honcho">Honcho</a> dialectic user modeling. Compatible with the <a href="https://agentskills.io">agentskills.io</a> open standard.</td></tr>
-<tr><td><b>Scheduled automations</b></td><td>Built-in cron scheduler with delivery to any platform. Daily reports, nightly backups, weekly audits — all in natural language, running unattended.</td></tr>
-<tr><td><b>Delegates and parallelizes</b></td><td>Spawn isolated subagents for parallel workstreams. In Desktop, choose their provider, model, and limits under Settings → Model → Subagents, then Apply the complete route. Write Python scripts that call tools via RPC, collapsing multi-step pipelines into zero-context-cost turns.</td></tr>
-<tr><td><b>Runs anywhere, not just your laptop</b></td><td>Six built-in terminal backends — local, Docker, SSH, Modal, Daytona, and Vercel Sandbox — plus plugin backends such as Singularity/Apptainer. Daytona and Modal offer serverless persistence — your agent's environment hibernates when idle and wakes on demand, costing nearly nothing between sessions. Run it on a $5 VPS or a GPU cluster.</td></tr>
-<tr><td><b>Research-ready</b></td><td>Batch trajectory generation, trajectory compression for training the next generation of tool-calling models.</td></tr>
-</table>
-
----
-
-## Quick Install
-
-### Linux, macOS, WSL2
+Linux, macOS, WSL2:
 
 ```bash
-curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/thesnarkitecht/huntington-agent/main/scripts/install.sh | bash
 ```
 
-### Windows (native, PowerShell)
-
-> **Heads up:** Native Windows runs Hermes without WSL — CLI, gateway, TUI, and tools all work natively. If you'd rather use WSL2, the Linux/macOS one-liner above works there too. Found a bug? Please [file issues](https://github.com/NousResearch/hermes-agent/issues).
-
-Run this in PowerShell:
+Windows (PowerShell):
 
 ```powershell
-iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+iex (irm https://raw.githubusercontent.com/thesnarkitecht/huntington-agent/main/scripts/install.ps1)
 ```
 
-The source installer delegates Python 3.14, Node.js, npm, ripgrep, FFmpeg,
-and Python dependencies to PM. If Git is absent, it stages the verified Git
-for Windows archive in Hermes' tool store. It does not replace your system Git.
-See [installation methods](https://hermes-agent.nousresearch.com/docs/getting-started/installation)
-for the separate MSIX/App Installer package and its update ownership.
-
-> **Android / Termux:** A signed APT repository is available for aarch64 devices, with a `stable` channel (tagged releases) and a prerelease `canary` channel. The package includes Python, Node.js, and the TUI. Use the [Termux guide](https://hermes-agent.nousresearch.com/docs/getting-started/termux), not the desktop/server installer script.
->
-> **Windows:** Native Windows is fully supported — the PowerShell one-liner above installs everything. If you'd rather use WSL2, the Linux command works there too. Native Windows install lives under `%LOCALAPPDATA%\hermes`; WSL2 installs under `~/.hermes` as on Linux.
-
-After installation:
+Both installers clone this repository into `~/.huntington` (Windows: `%LOCALAPPDATA%\huntington`),
+which also holds your configuration, keys, sessions and skills. The repository is private, so the
+one-line install needs GitHub access; see "Installing from a private repository" below. After
+installing, reload your shell and run `huntington`:
 
 ```bash
-source ~/.bashrc    # reload shell (or: source ~/.zshrc)
-hermes              # start chatting!
+huntington            # chat in the CLI
+huntington setup      # pick a model provider, tools and messaging
+huntington model      # switch provider or model
+huntington update     # update from this repository
 ```
 
-### Troubleshooting
+`hermes` still works as an alias for `huntington`: the engine's skills and scripts call it.
 
-#### Windows Defender or antivirus flags `uv.exe` as malware
+### Installing from a private repository
 
-If your antivirus (Bitdefender, Windows Defender, etc.) quarantines `uv.exe` from the Hermes `bin` folder (`%LOCALAPPDATA%\hermes\bin\uv.exe`), this is a **false positive**. The file is Astral's `uv` — the Rust Python package manager Hermes bundles to manage its Python environment. ML-based antivirus engines commonly flag unsigned Rust binaries that download and install packages.
-
-**To verify your copy is authentic:**
-
-```powershell
-# Install GitHub CLI if needed
-winget install --id GitHub.cli
-
-# Login to GitHub
-gh auth login
-
-# Run verification
-$uv = "$env:LOCALAPPDATA\hermes\bin\uv.exe"
-$ver = (& $uv --version).Split(' ')[1]
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-$zip = "$env:TEMP\uv.zip"
-Invoke-WebRequest "https://github.com/astral-sh/uv/releases/download/$ver/uv-x86_64-pc-windows-msvc.zip" -OutFile $zip -UseBasicParsing
-gh attestation verify $zip --repo astral-sh/uv
-Expand-Archive $zip "$env:TEMP\uv_x" -Force
-(Get-FileHash "$env:TEMP\uv_x\uv.exe").Hash -eq (Get-FileHash $uv).Hash
-```
-
-If attestation says "Verification succeeded" and the last line prints `True`, you're good.
-
-**To whitelist Hermes:**
-- **Windows Defender:** Run PowerShell as Admin → `Add-MpPreference -ExclusionPath "$env:LOCALAPPDATA\hermes\bin"`
-- **Bitdefender:** Add an exception in the Bitdefender console (Protection > Antivirus > Settings > Manage Exceptions)
-- Whitelist the **folder**, not the file hash — Hermes updates `uv` and the hash changes every version
-
-For more context, see the upstream Astral reports: [astral-sh/uv#13553](https://github.com/astral-sh/uv/issues/13553), [astral-sh/uv#15011](https://github.com/astral-sh/uv/issues/15011), [astral-sh/uv#10079](https://github.com/astral-sh/uv/issues/10079).
-
----
-
-## Getting Started
+`raw.githubusercontent.com` and `git clone` both need credentials for a private repository. Either
+make the repository public, or install with a GitHub token that can read it:
 
 ```bash
-hermes              # Interactive CLI — start a conversation
-hermes model        # Choose your LLM provider and model
-hermes tools        # Configure which tools are enabled
-hermes config set   # Set individual config values
-hermes config get   # Print individual config values
-hermes gateway      # Start the messaging gateway (Telegram, Discord, etc.)
-hermes setup        # Run the full setup wizard (configures everything at once)
-hermes update       # Update to the latest version
-hermes doctor       # Diagnose any issues
+export GITHUB_TOKEN=<token with read access to thesnarkitecht/huntington-agent>
+curl -fsSL -H "Authorization: token $GITHUB_TOKEN" https://raw.githubusercontent.com/thesnarkitecht/huntington-agent/main/scripts/install.sh | HERMES_REPO_URL="https://x-access-token:$GITHUB_TOKEN@github.com/thesnarkitecht/huntington-agent.git" bash
 ```
 
-📖 **[Full documentation →](https://hermes-agent.nousresearch.com/docs/)**
+That token ends up in the installed checkout's git remote (`~/.huntington/hermes-agent/.git/config`)
+so `huntington update` can pull. Use a fine-grained, read-only token for this one repository.
 
----
+## What this build includes
 
-## Skip the API-key collection — Nous Portal
+| Area | Supported | Planned |
+|---|---|---|
+| Interface | Classic CLI. `huntington dashboard` hosts the same CLI in the browser. | |
+| Model providers | Anthropic (API key, or Claude subscription sign-in) · OpenAI (API key, or ChatGPT sign-in) · MiniMax (API key, or browser sign-in) · Moonshot / Kimi (API key) · Ollama (local server, or Ollama Cloud API key) | |
+| Terminal backend | `local` | Huntington VM service (a terminal-backend plugin) |
+| Browser | Local Chromium (Lightpanda optional) | |
+| Web search | Off by default; opt in with `huntington tools`. Backends: xAI, Brave Search, DuckDuckGo, Perplexity | |
+| Image generation | OpenAI (API key, or ChatGPT sign-in) | Local image generation |
+| Text-to-speech | Microsoft Edge TTS (default), Piper (local) | Qwen TTS |
+| Messaging | Microsoft Teams, email, A2A | |
+| Microsoft 365 | Outlook mail and calendar, OneDrive, SharePoint, Excel, Teams, Planner (MCP server, see below) | |
+| Language | English | |
 
-Hermes works with whatever provider you want — that's not changing. But if you'd rather not collect five separate API keys for the model, web search, image generation, TTS, and a cloud browser, **[Nous Portal](https://portal.nousresearch.com)** covers all of them under one subscription:
+**Company defaults for new installs** (`hermes_cli/huntington.py`):
+- Web search starts off, and so do Computer Use desktop control, hosted connectors, video
+  analysis, kanban and video generation. Turn any of them on with `huntington tools`.
+- No free Nous Portal identity is ever set up.
+- Telemetry is off.
+- Plugins come only from the curated `plugin-catalog/` in this repository; upstream's live
+  catalog isn't fetched.
 
-- **300+ models** — pick any of them with `/model <name>`
-- **Tool Gateway** — web search, image generation (FAL), text-to-speech (OpenAI), cloud browser (Browser Use), all routed through your sub. No extra accounts.
+Removed from upstream: the Electron desktop app and its browser-hosted Webapp, the Ink TUI,
+Docker and Nix installs, upstream's release publishing, and every other messaging platform
+(Telegram, Discord, Slack, WhatsApp, Signal, Yuanbao and the rest). The full list is in
+[`huntington/removed-paths.txt`](huntington/removed-paths.txt). The provider, backend and tool
+choices live in [`hermes_cli/huntington.py`](hermes_cli/huntington.py).
 
-One command from a fresh install:
+## Microsoft 365
 
 ```bash
-hermes setup --portal
+huntington mcp install microsoft-365
 ```
 
-That logs you in via OAuth, sets Nous as your provider, and turns on the Tool Gateway. Check what's wired up any time with `hermes portal info`. Full details on the [Tool Gateway docs page](https://hermes-agent.nousresearch.com/docs/user-guide/features/tool-gateway).
+This installs the Microsoft Graph MCP server (`@softeria/ms-365-mcp-server`, pinned) in
+work-account mode. Sign in once with the device-code flow: ask the agent to run its `login` tool,
+or run `npx -y @softeria/ms-365-mcp-server@0.170.2 --org-mode --login`. Then start a new session.
+The server uses Softeria's multi-tenant Azure app by default. To keep consent inside the Huntington
+tenant, an admin registers an app and sets `MS365_MCP_CLIENT_ID` and `MS365_MCP_TENANT_ID`. The
+morning-briefing automation and the email skills use it once it's connected.
 
-You can still bring your own keys per-tool whenever you want — the gateway is per-backend, not all-or-nothing.
-
----
-
-## CLI vs Messaging Quick Reference
-
-Hermes has two entry points: start the terminal UI with `hermes`, or run the gateway and talk to it from Telegram, Discord, Slack, WhatsApp, Signal, or Email. Once you're in a conversation, many slash commands are shared across both interfaces.
-
-| Action                         | CLI                                           | Messaging platforms                                                              |
-| ------------------------------ | --------------------------------------------- | -------------------------------------------------------------------------------- |
-| Start chatting                 | `hermes`                                      | Run `hermes gateway setup` + `hermes gateway start`, then send the bot a message |
-| Start fresh conversation       | `/new` or `/reset`                            | `/new` or `/reset`                                                               |
-| Change model                   | `/model [provider:model]`                     | `/model [provider:model]`                                                        |
-| Set a personality              | `/personality [name]`                         | `/personality [name]`                                                            |
-| Retry or undo the last turn    | `/retry`, `/undo`                             | `/retry`, `/undo`                                                                |
-| Compress context / check usage | `/compress`, `/usage`, `/insights [--days N]` | `/compress`, `/usage`, `/insights [days]`                                        |
-| Browse skills                  | `/skills` or `/<skill-name>`                  | `/<skill-name>`                                                                  |
-| Interrupt current work         | `Ctrl+C` or send a new message                | `/stop` or send a new message                                                    |
-| Platform-specific status       | `/platforms`                                  | `/status`, `/sethome`                                                            |
-
-For the full command lists, see the [CLI guide](https://hermes-agent.nousresearch.com/docs/user-guide/cli) and the [Messaging Gateway guide](https://hermes-agent.nousresearch.com/docs/user-guide/messaging).
-
----
-
-## Documentation
-
-All documentation lives at **[hermes-agent.nousresearch.com/docs](https://hermes-agent.nousresearch.com/docs/)**:
-
-| Section                                                                                             | What's Covered                                             |
-| --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| [Quickstart](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart)                 | Install → setup → first conversation in 2 minutes          |
-| [CLI Usage](https://hermes-agent.nousresearch.com/docs/user-guide/cli)                              | Commands, keybindings, personalities, sessions             |
-| [Configuration](https://hermes-agent.nousresearch.com/docs/user-guide/configuration)                | Config file, providers, models, all options                |
-| [Messaging Gateway](https://hermes-agent.nousresearch.com/docs/user-guide/messaging)                | Telegram, Discord, Slack, WhatsApp, Signal, Home Assistant |
-| [Security](https://hermes-agent.nousresearch.com/docs/user-guide/security)                          | Command approval, DM pairing, container isolation          |
-| [Tools & Toolsets](https://hermes-agent.nousresearch.com/docs/user-guide/features/tools)            | 40+ tools, toolset system, terminal backends               |
-| [Skills System](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills)              | Procedural memory, Skills Hub, creating skills             |
-| [Memory](https://hermes-agent.nousresearch.com/docs/user-guide/features/memory)                     | Persistent memory, user profiles, best practices           |
-| [MCP Integration](https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp)               | Connect any MCP server for extended capabilities           |
-| [Cron Scheduling](https://hermes-agent.nousresearch.com/docs/user-guide/features/cron)              | Scheduled tasks with platform delivery                     |
-| [Context Files](https://hermes-agent.nousresearch.com/docs/user-guide/features/context-files)       | Project context that shapes every conversation             |
-| [Architecture](https://hermes-agent.nousresearch.com/docs/developer-guide/architecture)             | Project structure, agent loop, key classes                 |
-| [Contributing](https://hermes-agent.nousresearch.com/docs/developer-guide/contributing)             | Development setup, PR process, code style                  |
-| [CLI Reference](https://hermes-agent.nousresearch.com/docs/reference/cli-commands)                  | All commands and flags                                     |
-| [Environment Variables](https://hermes-agent.nousresearch.com/docs/reference/environment-variables) | Complete env var reference                                 |
-
----
-
-## Migrating from OpenClaw or another agent
-
-If you're coming from OpenClaw, Claude Code, Codex CLI or Cursor, Hermes can import your settings, memories and skills (and, for OpenClaw, API keys when you ask for them).
-
-**During setup:** `hermes setup` asks whether to import from another agent, pre-selects the ones it finds (`~/.openclaw`, `~/.claude`, `~/.codex`, `~/.cursor`), installs the official `agent-importers` plugin and runs the import with a preview first.
-
-**Anytime after install:**
+## Staying current with upstream
 
 ```bash
-hermes plugins install agent-importers          # once per profile
-hermes import-agent openclaw                    # interactive migration (full preset)
-hermes import-agent openclaw --dry-run          # preview what would be migrated
-hermes import-agent openclaw --migrate-secrets  # also bring allowlisted API keys
-hermes import-agent claude-code                 # or codex / cursor
+scripts/huntington/sync-upstream.sh
 ```
 
-What gets imported from OpenClaw:
+The script merges `NousResearch/hermes-agent` `main`, deletes every path in
+`huntington/removed-paths.txt` again, and keeps the fork's copy of each file in
+`huntington/fork-owned-paths.txt`. A conflict can still happen where an upstream change lands
+next to one of the fork's one-line hooks into `hermes_cli/huntington.py`. In that case the script
+stops and lists the files to resolve by hand.
 
-- **SOUL.md** — persona file
-- **Memories** — MEMORY.md and USER.md entries
-- **Skills** — user-created skills → `~/.hermes/skills/openclaw-imports/`
-- **Command allowlist** — approval patterns
-- **Messaging settings** — platform configs, allowed users, working directory
-- **API keys** — allowlisted secrets (Telegram, OpenRouter, OpenAI, Anthropic, ElevenLabs), only with `--migrate-secrets`
-- **TTS assets** — workspace audio files
-- **Workspace instructions** — AGENTS.md (with `--workspace-target`)
+Upstream tests that drive removed features are deleted (they are listed in
+`huntington/removed-paths.txt`). Upstream tests that assert upstream's wider defaults, such as other
+providers in the pickers or other TTS backends, are deselected through
+`huntington/deselected-tests.txt`, which the root `conftest.py` reads. When a sync brings in a new
+upstream test of that kind, add its node id there. The fork's own contract is
+`tests/hermes_cli/test_huntington_policy.py`. Run the tests before pushing:
 
-`hermes claw migrate` still works as the older spelling. See the [OpenClaw migration guide](https://hermes-agent.nousresearch.com/docs/guides/migrate-from-openclaw) and [Import from Other Agents](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents).
+```bash
+scripts/run_tests.sh tests/hermes_cli tests/tools
+```
 
----
+On GitHub, `.github/workflows/huntington-upstream-sync.yml` does this every Monday:
+- If the merge is clean, it opens a draft PR with the policy tests already run, and dispatches
+  the full CI on it.
+- If a file needs a hand resolution, it opens an issue listing the files.
 
-## Contributing
+`.github/workflows/huntington-ci.yml` runs on every PR and push to `main`:
+- the rebrand check, the removed-paths check, lint and the code-health ratchet
+- the policy contract
+- the full suite, in four parallel slices
 
-We welcome contributions! See the [Contributing Guide](https://hermes-agent.nousresearch.com/docs/developer-guide/contributing) for development setup, code style, and PR process.
+[`huntington/TRIM-ANALYSIS.md`](huntington/TRIM-ANALYSIS.md) covers what else could be trimmed
+from the engine.
 
-Start with the [PM developer workflow](website/docs/reference/package-management.md#developer-workflow)
-for activation, daily use, dependency changes, and leaving the environment.
-[Development Setup](CONTRIBUTING.md#development-setup) covers the separate test environment and verification commands.
+## Engine documentation
 
----
-
-## Community
-
-- 💬 [Discord](https://discord.gg/NousResearch)
-- 📚 [Skills Hub](https://agentskills.io)
-- 🐛 [Issues](https://github.com/NousResearch/hermes-agent/issues)
-- 🔌 [computer-use-linux](https://github.com/avifenesh/computer-use-linux) — Linux desktop-control MCP server for Hermes and other MCP hosts, with AT-SPI accessibility trees, Wayland/X11 input, screenshots, and compositor window targeting.
-- 🔌 [HermesClaw](https://github.com/AaronWong1999/hermesclaw) — Community WeChat bridge: Run Hermes Agent and OpenClaw on the same WeChat account.
-
----
+The upstream engine's documentation (<https://hermes-agent.nousresearch.com/docs/>) still describes
+configuration, skills, memory, cron and tools; read its `hermes` commands as `huntington` and
+`~/.hermes` as `~/.huntington`. Where it covers features listed as removed above, it does not apply.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
-
-Built by [Nous Research](https://nousresearch.com).
+MIT. The engine is the open-source Hermes Agent project; its copyright and license notice are in
+[LICENSE](LICENSE) and must stay with every copy.

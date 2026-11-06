@@ -42,7 +42,7 @@ def plan_data_removal(home: Path, project: Path, userdata: Path | None = None) -
         except NotBundledApp as exc:
             raise ValueError(str(exc)) from exc
     # The canonical source installation may coexist with the invoking package.
-    canonical = home / "hermes-agent"
+    canonical = home / "huntington-agent"
     if (canonical / "hermes_cli" / "__init__.py").is_file():
         protected.add(canonical)
     remove: list[Path] = []
@@ -74,7 +74,7 @@ def plan_data_removal(home: Path, project: Path, userdata: Path | None = None) -
         userdata = None  # Desktop preferences belong to the app, not a named profile.
     if userdata is not None and not userdata.resolve().is_relative_to(home):
         if userdata.resolve() == Path.home().resolve() or home.is_relative_to(userdata.resolve()):
-            raise ValueError(f"desktop data directory must not contain the Hermes or user home: {userdata}")
+            raise ValueError(f"desktop data directory must not contain the Huntington or user home: {userdata}")
         visit(userdata.parent.resolve() / userdata.name)
     return DataRemovalPlan(home, tuple(remove), tuple(sorted(keep)))
 

@@ -16,7 +16,7 @@ def test_pets_cli_quoted_false_disables_and_toggle_enables(tmp_path, monkeypatch
 
     from hermes_cli.pets import _has_active_pet, toggle_pet_display
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     (home / "config.yaml").write_text(
@@ -37,7 +37,7 @@ def test_pets_cli_quoted_false_disables_and_toggle_enables(tmp_path, monkeypatch
 
 @pytest.fixture
 def empty_home(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     return home

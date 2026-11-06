@@ -22,7 +22,7 @@ from fastapi.testclient import TestClient
 def profile_env(tmp_path, monkeypatch):
     """Path.home() and HERMES_HOME both point into the temp dir (profile ops are HOME-anchored)."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(exist_ok=True)
     monkeypatch.setenv("HERMES_HOME", str(home))
     return tmp_path
@@ -55,7 +55,7 @@ def test_settle_pending_delete_reports_partial_success(client, monkeypatch):
     assert body["ok"] is True
     assert body["settlement_pending"] is True
     assert body["identity_settled"] is False
-    assert body["retry_command"] == "hermes profile purge-identity gone"
+    assert body["retry_command"] == "huntington profile purge-identity gone"
     assert body["path"] == str(gone_dir)
     # Not lying about the filesystem half: the directory is really gone.
     assert not gone_dir.exists()

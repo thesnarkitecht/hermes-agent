@@ -45,7 +45,7 @@ def _make_managed(tmp_path, monkeypatch):
     python whose path legacy trampolines would embed). New consoles resolve
     this home, so the PATH migration may edit the (injected) User PATH."""
     home = tmp_path / "hermes"
-    root = home / "hermes-agent"
+    root = home / "huntington-agent"
     (root / "venv" / "Scripts").mkdir(parents=True)
     (root / "venv" / "Scripts" / "python.exe").write_bytes(b"MZ fake venv python")
     (root / "venv" / "pyvenv.cfg").write_text("home = X\n", encoding="utf-8")
@@ -164,7 +164,7 @@ def test_healthy_store_launcher_is_a_noop(tmp_path, monkeypatch):
     _store, _entry = _make_store(tmp_path, monkeypatch)
     bin_dir = home / "bin"
     bin_dir.mkdir()
-    local = root / ".hermes" / "bin"
+    local = root / ".huntington" / "bin"
     local.mkdir(parents=True)
     for name in _WINDOWS_BIN_LAUNCHERS:
         # A launcher that does NOT embed the venv interpreter counts as
@@ -226,7 +226,7 @@ def test_source_checkout_untouched(tmp_path, monkeypatch):
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setenv("HERMES_RUNTIME_DIR", str(tmp_path / "empty-store"))
-    root = tmp_path / "src" / "hermes-agent"
+    root = tmp_path / "src" / "huntington-agent"
     (root / "venv" / "Scripts").mkdir(parents=True)
 
     assert ensure_windows_bin_launchers(root, windows=True, user_path_entries=[]) == []
@@ -246,7 +246,7 @@ def test_profile_session_still_heals_the_shared_bin(tmp_path, monkeypatch):
     the launcher dir is per-machine, so the heal must anchor on the default
     root and fire anyway — a habitual profile user gets the same repair."""
     home = tmp_path / "hermes"
-    root = home / "hermes-agent"
+    root = home / "huntington-agent"
     (root / "venv" / "Scripts").mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(home / "profiles" / "work"))
     _make_store(tmp_path, monkeypatch)
@@ -353,7 +353,7 @@ def test_migration_is_idempotent(managed_install):
 def test_migration_refuses_empty_store_without_changing_path(tmp_path, monkeypatch):
     """Never point PATH at commands that cannot start."""
     home = tmp_path / "hermes"
-    root = home / "hermes-agent"
+    root = home / "huntington-agent"
     (root / "venv" / "Scripts").mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(home))
     (tmp_path / "empty-store").mkdir()
@@ -403,7 +403,7 @@ def test_migration_skips_source_checkouts(tmp_path, monkeypatch):
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setenv("HERMES_RUNTIME_DIR", str(tmp_path / "empty-store"))
-    root = tmp_path / "src" / "hermes-agent"
+    root = tmp_path / "src" / "huntington-agent"
     (root / "venv" / "Scripts").mkdir(parents=True)
     state, read, write = _fake_registry([r"C:\Windows\system32"])
 
@@ -467,6 +467,6 @@ def test_repo_gitignores_the_legacy_bin_dir():
         check=False,
     )
     assert result.returncode == 0, (
-        "bin/hermes.exe is not gitignored — hermes update's autostash "
+        "bin/hermes.exe is not gitignored — huntington update's autostash "
         "(--include-untracked) would sweep pre-migration launchers off disk"
     )

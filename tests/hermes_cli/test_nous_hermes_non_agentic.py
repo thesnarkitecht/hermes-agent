@@ -26,7 +26,7 @@ from hermes_cli.model_switch import (
         "NousResearch/Hermes-3-Llama-3.1-70B",
         "NousResearch/Hermes-3-Llama-3.1-405B",
         "hermes-3",
-        "Hermes-3",
+        "Huntington-3",
         "hermes-4",
         "hermes-4-405b",
         "hermes_4_70b",
@@ -38,7 +38,7 @@ from hermes_cli.model_switch import (
 )
 def test_matches_real_nous_hermes_chat_models(model_name: str) -> None:
     assert is_nous_hermes_non_agentic(model_name), (
-        f"expected {model_name!r} to be flagged as Nous Hermes 3/4"
+        f"expected {model_name!r} to be flagged as HIP Huntington 3/4"
     )
     assert _check_hermes_model_warning(model_name) == _HERMES_MODEL_WARNING
 

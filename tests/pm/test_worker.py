@@ -33,7 +33,7 @@ def test_isolated_worker_preserves_install_error(client, monkeypatch):
         client.ensure("node", explicit=True)
     assert caught.value.package == "node"
     assert caught.value.cause == "not in the lockfile"
-    assert caught.value.remedy == "add it with `hermes pm lock --bump`"
+    assert caught.value.remedy == "add it with `huntington pm lock --bump`"
     assert not paths.facts_path().exists()
 
 
@@ -528,6 +528,7 @@ def test_foreign_checkout_sync_uses_its_own_pm_generation(client, tmp_path, monk
     assert not runtime_facts_path(original_root).exists()
 
 
+@pytest.mark.allow_network  # locked_wheelhouse downloads real wheels from PyPI
 def test_cold_manager_build_does_not_bootstrap_a_worker(client, tmp_path, monkeypatch, locked_wheelhouse):
     import pm
 

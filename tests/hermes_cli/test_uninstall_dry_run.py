@@ -5,8 +5,8 @@ from hermes_cli import uninstall
 
 
 def test_dry_run_prints_plan_without_mutating(monkeypatch, tmp_path, capsys):
-    project_root = tmp_path / "hermes-agent"
-    hermes_home = tmp_path / ".hermes"
+    project_root = tmp_path / "huntington-agent"
+    hermes_home = tmp_path / ".huntington"
     project_root.mkdir()
     # A .git dir marks the tree as a removable git checkout — without it the
     # install-kind gate refuses before the dry-run plan prints.
@@ -48,7 +48,7 @@ def test_dry_run_lists_named_profiles_without_desktop_userdata(monkeypatch, tmp_
     )
 
     uninstall._print_uninstall_dry_run(
-        project_root=tmp_path, hermes_home=tmp_path / ".hermes", full_uninstall=True
+        project_root=tmp_path, hermes_home=tmp_path / ".huntington", full_uninstall=True
     )
 
     out = capsys.readouterr().out

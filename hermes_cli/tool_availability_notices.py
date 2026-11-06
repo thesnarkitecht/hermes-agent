@@ -13,12 +13,12 @@ from typing import Callable, Iterable, Optional
 # Toolsets whose ``env_vars`` list is a multi-provider dump that means nothing to a user; render one
 # sentence per toolset instead. Provider names must exist under plugins/web/ (or be the Nous-managed row).
 _MULTI_PROVIDER_NOTICES: dict[str, str] = {
-    "web": ("[yellow]⚠ Web search is off[/] — no search provider is set up yet (any one of Nous subscription, Exa, "
-            "Tavily, Firecrawl, Brave, or free DuckDuckGo works). Run [bold]hermes setup tools[/] and set one up under "
+    "web": ("[yellow]⚠ Web search is off[/] — no search provider is set up yet (any one of HIP subscription, Exa, "
+            "Tavily, Firecrawl, Brave, or free DuckDuckGo works). Run [bold]huntington setup tools[/] and set one up under "
             "\"Web Search & Scraping\"."),
 }
 
-_GENERIC_FOOTER = "[dim]   Run 'hermes setup tools' to configure[/]"
+_GENERIC_FOOTER = "[dim]   Run 'huntington setup tools' to configure[/]"
 
 
 def filter_to_enabled_toolsets(unavailable: list[dict], enabled: Iterable[str],
@@ -58,7 +58,7 @@ def current_terminal_backend() -> str:
 def _terminal_line(backend: str, reason: Optional[str]) -> str:
     detail = f" ({reason})" if reason else ""
     return (f"[yellow]⚠ Terminal tool disabled:[/] the '{backend}' backend is not usable{detail}. "
-            "Run [bold]hermes doctor[/] for details, or [bold]hermes setup terminal[/] to pick another backend.")
+            "Run [bold]huntington doctor[/] for details, or [bold]huntington setup terminal[/] to pick another backend.")
 
 
 def tool_availability_warning_lines(unavailable: list[dict], *, terminal_reason: Optional[str],

@@ -44,12 +44,12 @@ def test_parked_local_changes_never_finalize_as_success(tmp_path, monkeypatch, f
     # committed run must stay partial (#122557) on both the verify path and the boundary net.
     monkeypatch.setenv("HERMES_HOME", str(tmp_path))
     update_receipt.begin_update_receipt()
-    update_receipt.record_user_action("local_changes", "⚠ hermes update stashed 1 local modification(s)\n  Stash ref: abc")
+    update_receipt.record_user_action("local_changes", "⚠ huntington update stashed 1 local modification(s)\n  Stash ref: abc")
     finish()
     final = _latest(tmp_path)
     assert final["outcome"] == "partial"
     assert final["user_action"] == {"step": "local_changes",
-                                    "reason": "⚠ hermes update stashed 1 local modification(s) Stash ref: abc"}
+                                    "reason": "⚠ huntington update stashed 1 local modification(s) Stash ref: abc"}
 
 
 def test_dead_running_record_is_reported_interrupted_by_the_next_run(tmp_path, monkeypatch, capsys):
@@ -95,7 +95,7 @@ def test_live_running_record_is_not_reclaimed(tmp_path, monkeypatch):
 
 
 def test_profile_process_writes_receipts_to_the_root_home(tmp_path, monkeypatch):
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     profile = root / "profiles/work"
     profile.mkdir(parents=True)
     monkeypatch.setattr("hermes_constants._get_platform_default_hermes_home", lambda: root)

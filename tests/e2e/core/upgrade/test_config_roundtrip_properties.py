@@ -226,7 +226,7 @@ def _value_for(default: Any, rng: random.Random, *, long: bool, env: dict[str, s
         return rng.choice([
             "A" * rng.randint(74, 85) + "D:\\CentBrowserPortable " + "B" * 40,
             " ".join(rng.choice(_WORDS) for _ in range(40)) + " \\scripts\\monitor-off-v3.ps1 end",
-            "x" * 150 + " " + "C:\\Users\\me\\.hermes\\scripts\\" + "y" * 90,
+            "x" * 150 + " " + "C:\\Users\\me\\.huntington\\scripts\\" + "y" * 90,
         ])
     if roll < 0.08:
         return None

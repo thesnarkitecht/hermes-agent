@@ -50,7 +50,7 @@ def test_ack_detector_transition_cue_names_only_acp_agents():
         assert ack("Relaunching the session on acme.") is True
         assert ack("Launching it on acmecli via acpx.") is True
         assert ack("Starting the job on monday.") is False
-        assert ack("Launching it on Nous.") is False
+        assert ack("Launching it on HIP.") is False
         assert ack("Relaunching the session on plain-key.") is False
 
 

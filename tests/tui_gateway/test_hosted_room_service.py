@@ -603,7 +603,7 @@ def test_same_thread_followup_migrates_and_delivers_committed_peer_reply(
     service.send(
         room_id="room-1",
         event_id="user-2",
-        payload={"text": "@hermes continue", "thread_id": "thread-1"},
+        payload={"text": "@huntington continue", "thread_id": "thread-1"},
     )
     _wait_for(lambda: len(service.rpc.prompts) == 2)
     assert service.stop(timeout=5.0)
@@ -611,7 +611,7 @@ def test_same_thread_followup_migrates_and_delivers_committed_peer_reply(
     profile, prompt = service.rpc.prompts[1]
     assert profile == "default"
     assert "@ops: reply from ops" in prompt
-    assert "User (user): @hermes continue" in prompt
+    assert "User (user): @huntington continue" in prompt
 
 
 def test_active_same_thread_followup_waits_for_current_task(tmp_path: Path):
@@ -639,7 +639,7 @@ def test_active_same_thread_followup_waits_for_current_task(tmp_path: Path):
     service.send(
         room_id="room-1",
         event_id="user-2",
-        payload={"text": "@hermes follow up", "thread_id": "thread-1"},
+        payload={"text": "@huntington follow up", "thread_id": "thread-1"},
     )
     assert len(service.rpc.prompts) == 1
     service.rpc.release_first.set()
@@ -652,7 +652,7 @@ def test_active_same_thread_followup_waits_for_current_task(tmp_path: Path):
         )
     )
     assert service.stop(timeout=5.0)
-    assert "User (user): @hermes follow up" in service.rpc.prompts[1][1]
+    assert "User (user): @huntington follow up" in service.rpc.prompts[1][1]
 
 
 def test_thread_transcript_prunes_committed_message_and_settlement_together(

@@ -107,7 +107,7 @@ class Home:
 
     @property
     def hermes_home(self) -> Path:
-        return self.home / ".hermes"
+        return self.home / ".huntington"
 
     @property
     def project(self) -> Path:
@@ -122,7 +122,7 @@ class Home:
         credential env would silently reroute the child."""
         import pwd  # the suite is Linux-gated
 
-        real_root = Path(pwd.getpwuid(os.getuid()).pw_dir, ".hermes").resolve()  # windows-footgun: ok — every file here is skipif(not linux)
+        real_root = Path(pwd.getpwuid(os.getuid()).pw_dir, ".huntington").resolve()  # windows-footgun: ok — every file here is skipif(not linux)
         fixture = self.hermes_home.resolve()
         assert fixture != real_root and fixture.parent != real_root / "profiles", "fixture is a live home"
         env = {k: v for k, v in os.environ.items()

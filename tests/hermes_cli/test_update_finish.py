@@ -36,7 +36,7 @@ def completion(tmp_path, monkeypatch):
     home = tmp_path / "home"
     home.mkdir()
     monkeypatch.setenv("HOME", str(home))
-    monkeypatch.setenv("HERMES_HOME", str(home / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(home / ".huntington"))
     monkeypatch.setenv("HERMES_RUNTIME_DIR", str(tmp_path / "store"))
     source = tmp_path / "selected source"
     source.mkdir()
@@ -77,11 +77,11 @@ def completion(tmp_path, monkeypatch):
     _put(site, "selected_dependency.py", "VALUE = 'selected generation'\n")
     _put(runtime_facts_path(source).parent, "facts.json", json.dumps({
         "packages": {"venv": {"environment": str(generation)}}}))
-    _put(home / ".hermes", "config.yaml",
+    _put(home / ".huntington", "config.yaml",
          f"_config_version: {DEFAULT_CONFIG['_config_version'] - 1}\nmodel:\n  default: retained-model\n")
     env = {key: value for key, value in os.environ.items()
            if not key.startswith(("HERMES_", "PYTHON", "PYTEST_", "VIRTUAL_ENV", "npm_", "NPM_"))}
-    env.update(HOME=str(home), HERMES_HOME=str(home / ".hermes"),
+    env.update(HOME=str(home), HERMES_HOME=str(home / ".huntington"),
                HERMES_RUNTIME_DIR=str(tmp_path / "store"),
                PYTHONPATH="/obsolete/pre-pm/site-packages", PYTHONHOME="/obsolete/python",
                NPM_CONFIG_OFFLINE="true", NPM_CONFIG_CACHE=str(tmp_path / "npm-cache"))
@@ -211,7 +211,7 @@ def completion(tmp_path, monkeypatch):
                         assert isinstance(plan, UpdatePlan)
                         assert isinstance(plan.runtimes[0], RuntimeRecord)
                         assert plan.to_dict() == request['plan'] | {
-                            'updatable_in_place': True, 'update_mechanism': 'hermes update'}
+                            'updatable_in_place': True, 'update_mechanism': 'huntington update'}
                         (root / 'restarted-plan.json').write_text(json.dumps(plan.to_dict()))
                         return fleet._GatewayRestartOutcome(
                             incomplete=False, phase_errors=[], pre_restart_gateway_pids=[],
@@ -247,7 +247,7 @@ def completion(tmp_path, monkeypatch):
     def run(fault=""):
         return subprocess.run([str(python), "-I", "-B", str(runner), str(context), str(result), fault],
                               cwd=tmp_path, env=env, capture_output=True, text=True, timeout=90, check=False)
-    return source, home / ".hermes", request, context, result, run
+    return source, home / ".huntington", request, context, result, run
 
 
 @pytest.mark.platforms("posix")

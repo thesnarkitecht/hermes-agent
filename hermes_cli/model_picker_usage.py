@@ -424,7 +424,7 @@ def nous_picker_usage(*, warm: bool = False, any_age: bool = False) -> Optional[
             get_nous_portal_account_info(force_fresh=on_window)
         return picker_usage_from_account(cached_nous_portal_account_info(any_age=any_age))
     except Exception:
-        logging.getLogger(__name__).debug("Nous plan usage unavailable", exc_info=True)
+        logging.getLogger(__name__).debug("HIP plan usage unavailable", exc_info=True)
         return None
 
 
@@ -500,7 +500,7 @@ def plan_gauge_lines(usage: PickerUsage) -> list[str]:
     stays readable at a normal terminal width."""
     from agent.usage_gauges import paused_for_payment
     paused = (" (paused: renewal unpaid)" if paused_for_payment(usage.paused_reason) else " (paused)") if usage.paused_reason else ""
-    head = (usage.plan or "Hermes plan") + paused
+    head = (usage.plan or "Huntington plan") + paused
     label_w = max((len(_gauge_name(g)) for g in usage.gauges), default=4)
     return [head, *(
         f"{_gauge_name(g):<{label_w}}  {g.bar}  {g.percent_used + ' used':<9}  {format_resets_in(g.resets_at_ms)}"

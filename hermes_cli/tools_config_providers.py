@@ -168,7 +168,8 @@ def _visible_providers(
     builder = _PLUGIN_ROW_BUILDERS.get(cat.get("name"))
     if builder is not None:
         visible.extend(builder())
-    return visible
+    from hermes_cli.huntington import tool_row_supported
+    return [row for row in visible if tool_row_supported(row)]
 
 
 def provider_readiness_status(provider: dict, config: dict, *, features=None, is_active: Optional[bool] = None) -> str:
@@ -318,7 +319,7 @@ def _configure_tool_category(ts_key: str, cat: dict, config: dict, *, force_fres
         # Subscribers get the "included" star; everyone else a hint that selecting triggers a Portal login.
         sub_marker = ""
         if not reconfigure and p.get("managed_nous_feature"):
-            sub_marker = "  ★ Included with your Nous subscription" if _nous_logged_in else "  ★ via Nous Portal (login on select)"
+            sub_marker = "  ★ Included with your HIP subscription" if _nous_logged_in else "  ★ via HIP Portal (login on select)"
         provider_choices.append(f"{p['name']}{badge}{tag}{configured}{sub_marker}")
 
     if not reconfigure:
@@ -530,7 +531,7 @@ def _managed_image_catalog(config: dict):
 # picker time. "nous" is the single managed row: one catalog spanning the FAL, Krea and Portal gateways.
 IMAGEGEN_BACKENDS = {
     "fal": {"display": "FAL.ai", "config_key": "image_gen", "catalog_fn": _fal_model_catalog},
-    "nous": {"display": "Nous Subscription", "config_key": "image_gen", "catalog_fn": _managed_image_catalog}}
+    "nous": {"display": "HIP Subscription", "config_key": "image_gen", "catalog_fn": _managed_image_catalog}}
 
 
 def _plugin_model_catalog(registry_module: str, plugin_name: str):
@@ -789,9 +790,9 @@ def _nous_provider_gate(provider: dict, config: dict, managed_feature, *, force_
         from hermes_cli.nous_subscription import ensure_nous_portal_access
 
         if not ensure_nous_portal_access(
-            capability=f"{provider.get('name', 'the Nous Tool Gateway')}",
+            capability=f"{provider.get('name', 'the HIP Tool Gateway')}",
             coverage_category=MANAGED_FEATURE_COVERAGE_CATEGORY.get(managed_feature)):
-            _print_warning("  Not enabled — Nous Portal access is required for this backend.")
+            _print_warning("  Not enabled — HIP Portal access is required for this backend.")
             return False
         return True
 
@@ -800,8 +801,8 @@ def _nous_provider_gate(provider: dict, config: dict, managed_feature, *, force_
         entitled = bool(features.account_info and features.account_info.paid_service_access is True)
         if not features.nous_auth_present or not entitled:
             message = format_nous_portal_entitlement_message(
-                features.account_info, capability=f"{provider.get('name', 'Nous Subscription')}")
-            _print_warning(f"  {message or 'Nous Subscription is only available after logging into Nous Portal.'}")
+                features.account_info, capability=f"{provider.get('name', 'HIP Subscription')}")
+            _print_warning(f"  {message or 'HIP Subscription is only available after logging into HIP Portal.'}")
             return False
     return True
 
@@ -933,12 +934,12 @@ def _configure_provider(provider: dict, config: dict, *, force_fresh: bool = Tru
             _run_post_setup(provider["post_setup"])
         _print_success(f"  {provider['name']} - no configuration needed!")
         if managed_feature:
-            _print_info("  Requests for this tool will be billed to your Nous subscription.")
+            _print_info("  Requests for this tool will be billed to your HIP subscription.")
         _finish_provider_selection(provider, config, managed_feature)
         return
 
     if not reconfigure and _show_portal_hint(provider, config, managed_feature, force_fresh):
-        _print_info("  Available through Nous Portal subscription.")
+        _print_info("  Available through HIP Portal subscription.")
 
     all_configured = _prompt_env_vars(env_vars, reconfigure=reconfigure)
     if provider.get("post_setup") and all_configured:
@@ -1035,7 +1036,7 @@ def _configure_vision_provider_model(config: dict, vision_cfg: dict) -> None:
 
     if not providers:
         _print_warning("  No authenticated providers found. Configure a provider first "
-                       "with `hermes model`, then re-run this.")
+                       "with `huntington model`, then re-run this.")
         return
 
     provider_labels = [label for _slug, label, _models in format_aux_picker_entries(

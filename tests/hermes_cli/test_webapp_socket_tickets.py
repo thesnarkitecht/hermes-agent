@@ -31,7 +31,7 @@ def serve_webapp(tmp_path, monkeypatch):
     from hermes_cli.web_host_terminal_sessions import host_terminal_lifespan
     from hermes_cli.web_routers.webapp import router
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text("{}", encoding="utf-8")
     monkeypatch.setattr(Path, "home", lambda: tmp_path)

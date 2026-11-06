@@ -96,12 +96,12 @@ def skill_refusal(name: str) -> str:
     return (f"Skill '{name}' is locked by the user, so the agent cannot change it: skill_manage, "
             f"write_file, patch and terminal all refuse. Don't retry or work around it (no copying it "
             f"under another name); tell the user what you would change. They can unlock it with "
-            f"`hermes curator unlock {name}` or the lock switch in Desktop.")
+            f"`huntington curator unlock {name}` or the lock switch in Desktop.")
 
 
 RECORD_REFUSAL = ("skills/.usage.json holds the user's skill locks, so the agent cannot change it "
                   "while any skill is locked.")
-UNLOCK_REFUSAL = ("Only the user can unlock a skill. Ask them to run `hermes curator unlock <skill>` "
+UNLOCK_REFUSAL = ("Only the user can unlock a skill. Ask them to run `huntington curator unlock <skill>` "
                   "themselves or use the lock switch in Desktop.")
 
 
@@ -266,7 +266,7 @@ class _Scope:
 
 
 def _check_unlock(verb: str, args: list[str], scope: _Scope) -> str | None:
-    if verb == "hermes" or (verb.startswith("python") and "hermes_cli.main" in args):
+    if verb in ("hermes", "huntington") or (verb.startswith("python") and "hermes_cli.main" in args):
         if "curator" in args and "unlock" in args[args.index("curator"):]:
             return UNLOCK_REFUSAL
     return None

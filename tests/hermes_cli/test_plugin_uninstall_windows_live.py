@@ -80,7 +80,7 @@ def _wait(pred, timeout: float) -> bool:
 @pytest.fixture(scope="module")
 def live_gateway(tmp_path_factory):
     root = tmp_path_factory.mktemp("uninstall-live")
-    home = root / "fakehome" / ".hermes"
+    home = root / "fakehome" / ".huntington"
     plugins = home / "plugins"
     plugins.mkdir(parents=True)
     (root / "fakehome" / "locks").mkdir()

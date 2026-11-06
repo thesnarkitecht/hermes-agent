@@ -145,8 +145,9 @@ def _load_tts_config() -> dict[str, Any]:
 def _get_provider(tts_config: dict[str, Any]) -> str:
     """Configured provider or the free default (inference credentials never imply consent to paid
     speech); ``nous`` is serviced by the OpenAI path through the managed openai-audio gateway."""
+    from hermes_cli.huntington import TTS_PROVIDERS
     provider = (tts_config.get("provider") or DEFAULT_PROVIDER).lower().strip()
-    return "openai" if provider == NOUS_MANAGED_PROVIDER else provider
+    return provider if provider in TTS_PROVIDERS else TTS_PROVIDERS[0]
 
 
 # Platforms whose native voice-bubble delivery requires Ogg/Opus (MP3 renders broken there).
@@ -180,17 +181,17 @@ _BUILTIN_DISPATCH: dict[str, tuple] = {
     "xai": (None, "xAI TTS", "_generate_xai_tts", None),
     "mistral": (lambda: _importable(_import_mistral_client), "Mistral Voxtral TTS", "_generate_mistral_tts",
                 "Mistral provider selected but 'mistralai' package not installed. "
-                "Run `hermes setup` to install Mistral support."),
+                "Run `huntington setup` to install Mistral support."),
     "gemini": (None, "Google Gemini TTS", "_generate_gemini_tts", None),
     "neutts": (lambda: _check_neutts_available(), "NeuTTS (local)", "_generate_neutts",
                "NeuTTS provider selected but neutts is not installed. "
-               "Run hermes setup tts and choose NeuTTS; espeak-ng is also required."),
+               "Run huntington setup tts and choose NeuTTS; espeak-ng is also required."),
     "kittentts": (lambda: _importable(_import_kittentts), "KittenTTS (local, ~25MB)", "_generate_kittentts",
                   "KittenTTS provider selected but 'kittentts' package not installed. "
-                  "Run 'hermes setup tts' and choose KittenTTS."),
+                  "Run 'huntington setup tts' and choose KittenTTS."),
     "piper": (lambda: _importable(_import_piper), "Piper (local)", "_generate_piper_tts",
               "Piper provider selected but 'piper-tts' package not installed. "
-              "Run 'hermes tools' and select Piper under TTS.")}
+              "Run 'huntington tools' and select Piper under TTS.")}
 
 
 def _error_json(message: str) -> str:
@@ -223,7 +224,7 @@ def _select_builtin_engine(provider: str) -> tuple:
     return provider, _error_json(
         "No TTS provider available. Enable Edge TTS with: "
         f"{install_hint('edge-tts')} "
-        "or run 'hermes setup tts' and choose NeuTTS for local synthesis.")
+        "or run 'huntington setup tts' and choose NeuTTS for local synthesis.")
 
 
 def _synthesize_builtin(engine: str, text: str, file_str: str, tts_config: dict[str, Any], instructions: Optional[str]) -> None:

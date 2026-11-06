@@ -34,7 +34,7 @@ S.tick(verbose=False, sync=True)
 
 @pytest.fixture
 def slot_env(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     (home / "cron" / "output").mkdir(parents=True)
     (home / "scripts").mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))

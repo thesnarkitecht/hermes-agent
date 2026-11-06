@@ -4,6 +4,8 @@ Pure command classification for :mod:`tools.approval` — no approval state, con
 prompting live here.
 """
 
+import bisect
+import fnmatch
 import functools
 import logging
 import os
@@ -19,12 +21,12 @@ logger = logging.getLogger("tools.approval")
 # import-time path snapshot (stale once HERMES_HOME is set after import) lives in the patterns.
 _SSH_SENSITIVE_PATH = r'(?:~|\$home|\$\{home\})/\.ssh(?:/|$)'
 _HERMES_ENV_PATH = (
-    r'(?:~\/\.hermes/|(?:\$home|\$\{home\})/\.hermes/|(?:\$hermes_home|\$\{hermes_home\})/)' r'\.env\b'
+    r'(?:~\/\.huntington/|(?:\$home|\$\{home\})/\.huntington/|(?:\$hermes_home|\$\{hermes_home\})/)' r'\.env\b'
 )
 # ~/.hermes/config.yaml IS the security policy (approvals.mode, yolo, allowlist) and the config cache is mtime-keyed,
 # so a write takes effect mid-session. Terminal-side coverage (sed -i, tee, >, cp) pairs the file_tools deny.
 _HERMES_CONFIG_PATH = (
-    r'(?:~\/\.hermes/|(?:\$home|\$\{home\})/\.hermes/|(?:\$hermes_home|\$\{hermes_home\})/)' r'config\.yaml\b'
+    r'(?:~\/\.huntington/|(?:\$home|\$\{home\})/\.huntington/|(?:\$hermes_home|\$\{hermes_home\})/)' r'config\.yaml\b'
 )
 _PROJECT_ENV_PATH = r'(?:(?:/|\.{1,2}/)?(?:[^\s/"\'`]+/)*\.env(?:\.[^/\s"\'`]+)*)'
 _PROJECT_CONFIG_PATH = r'(?:(?:/|\.{1,2}/)?(?:[^\s/"\'`]+/)*config\.yaml)'
@@ -41,6 +43,21 @@ _SECRET_VAR = r'\$\{?\w*(?:key|token|secret|passwd|password|credential)\w*\}?'
 _UPLOAD_FLAG = (r'(?<!\S)(?:(?-i:-[a-zA-Z]*[dFT])|--data(?:-binary|-raw|-urlencode|-ascii)?|--form(?:-string)?'
                 r'|--upload-file|--json|--post-(?:data|file)|--body-(?:data|file))')
 _EMOJI_RANGE = r'\U0001F000-\U0001FAFF\u2600-\u27BF'
+# Code points that take VS15/VS16 for text/emoji presentation: the two emoji blocks above plus the BMP
+# singletons with the Unicode Emoji property (© ™ ℹ, arrows, ⌚ ▶ ⬅ ⭐ 〰 ㊗ …), as in #114843. Digits,
+# ``#`` and ``*`` are deliberately absent: a selector after a letter or digit is the hiding signal.
+_EMOJI_PRESENTATION_BASES = (
+    r'\u00a9\u00ae\u203c\u2049\u2122\u2139\u2194-\u2199\u21a9\u21aa\u231a\u231b\u2328\u23cf'
+    r'\u23e9-\u23f3\u23f8-\u23fa\u24c2\u25aa\u25ab\u25b6\u25c0\u25fb-\u25fe\u2934\u2935'
+    r'\u2b05-\u2b07\u2b1b\u2b1c\u2b50\u2b55\u3030\u303d\u3297\u3299' + _EMOJI_RANGE
+)
+# Matched on the RAW command: detection variants are NFKC-folded, which turns ℹ + VS16 into ``i`` + VS16.
+# A keycap emoji (digit, ``#`` or ``*`` + VS16 + U+20E3) is exempt only as that exact sequence, so a
+# selector after a digit with no keycap mark is still flagged.
+_HIDDEN_VARIATION_SELECTOR_RE = re.compile(
+    rf'(?<![{_EMOJI_PRESENTATION_BASES}])(?!(?<=[0-9#*])\ufe0f\u20e3)[\ufe00-\ufe0f\U000e0100-\U000e01ef]')
+_INVISIBLE_UNICODE_DESCRIPTION = "invisible or bidirectional Unicode control character (possible obfuscation)"
+_CREDENTIAL_UPLOAD_DESCRIPTION = "upload a secret or credential file via curl/wget (possible exfiltration)"
 # Global flags before a subcommand, each with an optional value. Every flag has one parse ('-' plus
 # its possessive remainder, so '--x' and '--x=v' never split two ways) and a value cannot itself be a
 # flag, so a long run that never reaches the subcommand fails in linear time instead of holding the
@@ -282,7 +299,7 @@ DANGEROUS_PATTERNS = [
     (r'\bsc(?:\.exe)?\s+(?:stop|delete)\b', "stop/delete service (sc)"),
     # Windows-form credential paths; the POSIX ~/.ssh patterns never match drive-letter or backslash spellings.
     (r'\busers[\\/][^\\/\s]+[\\/]\.ssh\b', "access to SSH keys (Windows path)"),
-    (r'\bappdata[\\/](?:local|roaming)[\\/]hermes[^\n]*\.env\b', "access to Hermes secrets (Windows path)"),
+    (r'\bappdata[\\/](?:local|roaming)[\\/](?:hermes|huntington)[^\n]*\.env\b', "access to Huntington secrets (Windows path)"),
     # ── end of Windows tier
     (r'\bchmod\s+(-[^\s]*\s+)*(777|666|o\+[rwx]*w|a\+[rwx]*w)\b', "world/other-writable permissions"),
     (r'\bchmod\s+--recursive\b.*(777|666|o\+[rwx]*w|a\+[rwx]*w)', "recursive world/other-writable (long flag)"),
@@ -341,14 +358,15 @@ DANGEROUS_PATTERNS = [
     # an uploading curl/wget. Flag letters are case-sensitive (-d/-F/-T upload; -D/-f/-t do not).
     (rf'{_UPLOAD_FLAG}(?:[\s=]+|(?=[@"\'$]))(?:"[^"]*(?:{_SECRET_VAR}|{_SECRET_FILE})|\'[^\']*{_SECRET_FILE}'
      rf'|\$\([^)]*{_SECRET_FILE}|\S*?(?:{_SECRET_VAR}|{_SECRET_FILE}))',
-     "upload a secret or credential file via curl/wget (possible exfiltration)"),
+     _CREDENTIAL_UPLOAD_DESCRIPTION),
     (rf'{_SECRET_FILE}[^|;&\n]*\|[^;&|\n]*\b(?:curl|wget)\b[^;&|\n]*{_UPLOAD_FLAG}',
      "pipe a credential file into a curl/wget upload (possible exfiltration)"),
     # Invisible / bidirectional Unicode controls make the command the user approves differ from what runs.
-    # ZWJ between emoji (family/flag sequences) is ordinary text; variation selectors are left alone.
+    # ZWJ between emoji (family/flag sequences) is ordinary text; variation selectors are checked on the
+    # raw command in detect_dangerous_command.
     (rf'[\u200b\u200c\u200e\u200f\u202a-\u202e\u2060-\u2064\u2066-\u2069\ufeff\u180e\U000e0000-\U000e007f]'
      rf'|(?<![{_EMOJI_RANGE}\ufe0f])\u200d|\u200d(?![{_EMOJI_RANGE}])',
-     "invisible or bidirectional Unicode control character (possible obfuscation)"),
+     _INVISIBLE_UNICODE_DESCRIPTION),
     (rf'\btee\b.*["\']?{_SENSITIVE_WRITE_TARGET}', "overwrite system file via tee"),
     (rf'>>?\s*["\']?{_SENSITIVE_WRITE_TARGET}', "overwrite system file via redirection"),
     (rf'\btee\b.*["\']?{_PROJECT_SENSITIVE_WRITE_TARGET}["\']?{_WRITE_TARGET_BOUNDARY}', "overwrite project env/config via tee"),
@@ -371,8 +389,8 @@ DANGEROUS_PATTERNS = [
      "dynamic shell word may expand to arbitrary program execution flag"),
     # Gateway lifecycle: stopping/restarting the gateway kills all running agents. Global flags
     # between `hermes` and `gateway` (`hermes -p ade gateway restart`) are allowed so a profile flag can't slip past.
-    (r'\bhermes\s+' + _GLOBAL_FLAGS + r'gateway\s+(stop|restart)\b', "stop/restart hermes gateway (kills running agents)"),
-    (r'\bhermes\s+update\b', "hermes update (restarts gateway, kills running agents)"),
+    (r'\bhermes\s+' + _GLOBAL_FLAGS + r'gateway\s+(stop|restart)\b', "stop/restart huntington gateway (kills running agents)"),
+    (r'\bhermes\s+update\b', "huntington update (restarts gateway, kills running agents)"),
     # Docker/Podman daemon redirect — global flags or env that point the CLI at a DIFFERENT (often remote) daemon:
     # `docker -H ssh://prod stop app` looks local but operates on remote infra, so any redirect requires approval
     # regardless of subcommand. The flag must be in global position (before the subcommand) and -H/--host/--context
@@ -390,10 +408,10 @@ DANGEROUS_PATTERNS = [
     (r'\bdocker(?:-compose|\s+compose)\s+' + _CONTAINER_GLOBAL_FLAGS + r'(restart|stop|kill|down)\b', "docker compose restart/stop/kill/down (container lifecycle)"),
     (r'\bdocker\s+' + _CONTAINER_GLOBAL_FLAGS + r'(restart|stop|kill)\b', "docker restart/stop/kill (container lifecycle)"),
     # Gateway protection: never start gateway outside systemd management
-    (r'gateway\s+run\b.*(&\s*$|&\s*;|\bdisown\b|\bsetsid\b)', "start gateway outside systemd (use 'systemctl --user restart hermes-gateway')"),
-    (r'\bnohup\b.*gateway\s+run\b', "start gateway outside systemd (use 'systemctl --user restart hermes-gateway')"),
+    (r'gateway\s+run\b.*(&\s*$|&\s*;|\bdisown\b|\bsetsid\b)', "start gateway outside systemd (use 'systemctl --user restart huntington-gateway')"),
+    (r'\bnohup\b.*gateway\s+run\b', "start gateway outside systemd (use 'systemctl --user restart huntington-gateway')"),
     # Self-termination protection: prevent agent from killing its own process
-    (r'\b(pkill|killall)\b.*\b(hermes|gateway|cli\.py)\b', "kill hermes/gateway process (self-termination)"),
+    (r'\b(pkill|killall)\b.*\b(hermes|huntington|gateway|cli\.py)\b', "kill hermes/gateway process (self-termination)"),
     # Self-termination via kill + $(pgrep/pidof): the substitution is opaque to the name-based
     # pattern above, so catch the structural form.
     (r'\bkill\b.*\$\(\s*(pgrep|pidof)\b', "kill process via pgrep/pidof expansion (self-termination)"),
@@ -404,7 +422,7 @@ DANGEROUS_PATTERNS = [
     # with zero approval. Erring broad is correct for an approval gate: an extra prompt is cheap.
     # Anchor whole-input lookaheads: re.search otherwise rescans every suffix of
     # long non-matching commands, holding the GIL and starving Gateway threads.
-    (r'\A(?=[\s\S]*\blaunchctl\s+(?:stop|kickstart|bootout|unload|kill|disable|remove)\b)(?=[\s\S]*\b(?:hermes|ai\.hermes)\b)', "stop/restart hermes launchd service (kills running agents)"),
+    (r'\A(?=[\s\S]*\blaunchctl\s+(?:stop|kickstart|bootout|unload|kill|disable|remove)\b)(?=[\s\S]*\b(?:hermes|ai\.huntington)\b)', "stop/restart huntington launchd service (kills running agents)"),
     (rf'\b(cp|mv|install)\b.*\s{_SYSTEM_CONFIG_PATH}', "copy/move file into system config path"),
     (rf'\b(cp|mv|install)\b.*\s["\']?{_PROJECT_SENSITIVE_WRITE_TARGET}["\']?{_COMMAND_TAIL}', "overwrite project env/config file"),
     # cp/mv/install OVERWRITING a credential/SSH/shell-rc/Hermes file (key implant, login-time
@@ -429,14 +447,14 @@ DANGEROUS_PATTERNS = [
     # write_file/patch deny so the terminal side is not an open door.
     # In-place edit of a Hermes-managed security file (~/.hermes/config.yaml or .env). sed -i bypasses the
     # redirection/tee patterns above because it mutates the file directly. See #14639.
-    (rf'\bsed\s+-[^\s]*i.*(?:{_HERMES_CONFIG_PATH}|{_HERMES_ENV_PATH})', "in-place edit of Hermes config/env"),
-    (rf'\bsed\s+--in-place\b.*(?:{_HERMES_CONFIG_PATH}|{_HERMES_ENV_PATH})', "in-place edit of Hermes config/env (long flag)"),
+    (rf'\bsed\s+-[^\s]*i.*(?:{_HERMES_CONFIG_PATH}|{_HERMES_ENV_PATH})', "in-place edit of Huntington config/env"),
+    (rf'\bsed\s+--in-place\b.*(?:{_HERMES_CONFIG_PATH}|{_HERMES_ENV_PATH})', "in-place edit of Huntington config/env (long flag)"),
     # perl/ruby -i: the flag may be its own token after other flags (`-p -i -e`), combined (`-pi`), or carry a backup
     # suffix (`-i.bak`), so match any flag token containing `i` anywhere; `perl -e '...'` (no -i) does not trip.
     # perl -i and ruby -i perform the same in-place mutation as sed -i but are not caught by the -e/-c
     # script-execution pattern above (which targets code evaluation, not file mutation). Pairs the sed -i
     # coverage from #14639.
-    (rf'\b(?:perl|ruby)\b.*(?:^|\s)-[^\s]*i\b.*(?:{_HERMES_CONFIG_PATH}|{_HERMES_ENV_PATH})', "in-place edit of Hermes config/env (perl/ruby)"),
+    (rf'\b(?:perl|ruby)\b.*(?:^|\s)-[^\s]*i\b.*(?:{_HERMES_CONFIG_PATH}|{_HERMES_ENV_PATH})', "in-place edit of Huntington config/env (perl/ruby)"),
     # Interpreter heredocs are handled by _execution_flag_findings(); only shell heredocs stay
     # regex-based. `bash <<'EOF'` runs arbitrary commands without triggering the `bash -c` path.
     (rf'\b(?:{_SHELL_NAMES_RE})\s+<<', "shell execution via heredoc"),
@@ -488,6 +506,15 @@ DANGEROUS_PATTERNS_COMPILED = [(re.compile(p, _RE_FLAGS), d) for p, d in DANGERO
 _QUOTE_MASKED_DANGEROUS_DESCRIPTIONS = frozenset({
     "find dynamic shell word may expand to destructive flag",
     "dynamic shell word may expand to arbitrary program execution flag",
+})
+
+# Content-level rules (ported from tirith in #133832, where they were separate findings with their own
+# keys). They describe WHAT the command carries rather than which verb runs it, so a command that also
+# matches one of them needs consent for it even when its first, verb-level rule is already approved.
+_CONTENT_RULE_DESCRIPTIONS = frozenset({
+    "upload a secret or credential file via curl/wget (possible exfiltration)",
+    "pipe a credential file into a curl/wget upload (possible exfiltration)",
+    "invisible or bidirectional Unicode control character (possible obfuscation)",
 })
 
 # Preserve approvals stored under the removed interpreter regex rules.
@@ -599,7 +626,7 @@ def _rewrite_resolved_hermes_home(command: str) -> str:
         paths = [str(home), str(home.resolve(strict=False))]
     except Exception:
         return command
-    return _fold_home_prefixes(command, paths, "~/.hermes")
+    return _fold_home_prefixes(command, paths, "~/.huntington")
 
 
 _PARAM_REPLACEMENT_RE = re.compile(r"\$\{[^}/\s]+/[^}/]*/(?P<replacement>[^}]*)\}")
@@ -696,7 +723,7 @@ _BASH_SHORT_OPTION_LETTERS = frozenset("ilrsDcabefhkmnptuvxBCEHPTOo")
 _MAX_DETECTION_COMMAND_CHARS, _MAX_SEPARATOR_FREE_COMMAND_CHARS, _MAX_DETECTION_SEGMENTS = 128_000, 4_096, 25_000
 _PARSER_LIMIT_DESCRIPTION = "command parser limit exceeded"
 _MALFORMED_EXEC_DESCRIPTION = "command parser limit or malformed executable payload"
-_GATEWAY_LIFECYCLE_SPLICE_DESCRIPTION = "stop/restart hermes gateway via shell-spliced verb (kills running agents)"
+_GATEWAY_LIFECYCLE_SPLICE_DESCRIPTION = "stop/restart huntington gateway via shell-spliced verb (kills running agents)"
 
 
 def _command_parser_limit_exceeded(command: str) -> bool:
@@ -1545,28 +1572,121 @@ def _is_shell_token_spliced_gateway_lifecycle(command: str) -> bool:
     return contains_gateway_lifecycle_command(command)
 
 
-def detect_dangerous_command(command: str) -> tuple:
-    """Check dangerous patterns -> (is_dangerous, pattern_key, description)."""
+def _upload_flag_owner_ranges(command: str) -> tuple[list[int], list[int]]:
+    """Merged ``(starts, ends)`` of the ranges where an upload flag may belong to curl/wget.
+    ``awk -F``, ``cut -d`` and ``sort -t`` share the flag letters but take a delimiter and upload
+    nothing. A range runs from a curl/wget word (``xargs curl``, ``ssh host curl``) or a word that
+    may expand to one to the end of its simple command, and covers the inside of a quoted word
+    (``eval "curl -d …"``, ``ssh host "curl …"``) that another program may re-parse as a command.
+    Built once per command, so many delimiter flags cost one parse instead of one parse each."""
+    ranges = []
+    for start, _, _ in _iter_shell_command_word_spans(command):
+        end = start + len(_shell_command_segment(command, start))
+        pos = start
+        while pos < end:
+            redirect = _SHELL_REDIRECTION_RE.match(command, _skip_shell_whitespace(command, pos))
+            if redirect:  # ``ssh host >/dev/null curl …``: a redirection does not end the command
+                _, pos, _ = _read_shell_word(command, redirect.end())
+                continue
+            word_start, pos, word = _read_shell_word(command, pos)
+            if word_start == pos:
+                break
+            if _word_may_run_curl_or_wget(word):
+                ranges.append((word_start, end))
+                break
+            if any(ch.isspace() for ch in command[word_start:pos]):
+                ranges.append((word_start + 1, pos))
+    starts: list[int] = []
+    ends: list[int] = []
+    for range_start, range_end in sorted(ranges):
+        if ends and range_start <= ends[-1]:
+            ends[-1] = max(ends[-1], range_end)
+        else:
+            starts.append(range_start)
+            ends.append(range_end)
+    return starts, ends
+
+
+def _upload_flag_owned_by_curl_or_wget(owner_ranges: tuple[list[int], list[int]], flag_start: int) -> bool:
+    """True when the upload flag at *flag_start* lies in a range from :func:`_upload_flag_owner_ranges`."""
+    starts, ends = owner_ranges
+    index = bisect.bisect_right(starts, flag_start) - 1
+    return index >= 0 and flag_start < ends[index]
+
+
+def _word_may_run_curl_or_wget(word: str) -> bool:
+    """True for a curl/wget word (also ``curl.exe``, ``C:\\tools\\curl.exe``) or a word whose command
+    name holds an unresolved expansion (``$CURL``, ``"$(which curl)"``, ``/usr/bin/$CURL``,
+    ``c${suffix}``): what it runs is unknown without executing the shell."""
+    names = (os.path.basename(_deobfuscate_shell_word_for_detection(word)), re.split(r"[\\/]", word)[-1])
+    if any(name.lower().removesuffix(".exe") in ("curl", "wget") for name in names):
+        return True
+    # A glob in the name (``/usr/bin/cur[l]``, ``wge*``) may match curl/wget.
+    if any(fnmatch.fnmatchcase(tool, name.lower()) for name in names if any(c in name for c in "*?[")
+           for tool in ("curl", "wget", "curl.exe", "wget.exe")):
+        return True
+    unquoted = word.lstrip("'\"")
+    if unquoted.startswith(("$", "`")):
+        return True
+    # An option (``-d``) or assignment (``x="$A"``) cannot name the command being run; ``c${s:=url}`` can.
+    return not unquoted.startswith("-") and not _ENV_ASSIGNMENT_RE.fullmatch(word) and ("$" in word or "`" in word)
+
+
+def _iter_dangerous_descriptions(command: str, only: frozenset[str] | None = None):
+    """Yield the description (= pattern key) of every dangerous match, in detection order; may repeat.
+    *only* restricts the scan to those pattern rules and skips the parser-limit, execution-flag and
+    gateway-splice checks, which no content rule is."""
     if _command_parser_limit_exceeded(command):
-        return (True, _PARSER_LIMIT_DESCRIPTION, _PARSER_LIMIT_DESCRIPTION)
+        if only is None:
+            yield _PARSER_LIMIT_DESCRIPTION
+        return
     if _is_verification_artifact_cleanup(command):
-        return (False, None, None)
+        return
+    patterns = DANGEROUS_PATTERNS_COMPILED if only is None else [
+        (pattern_re, description) for pattern_re, description in DANGEROUS_PATTERNS_COMPILED if description in only
+    ]
     for command_variant in _command_detection_variants(command):
         command_lower = _lower_preserving_flags(command_variant)
         masked_lower: str | None = None
-        for pattern_re, description in DANGEROUS_PATTERNS_COMPILED:
+        for pattern_re, description in patterns:
             if description in _QUOTE_MASKED_DANGEROUS_DESCRIPTIONS:
                 if masked_lower is None:
                     masked_lower = _lower_preserving_flags(
                         _mask_quoted_prose(command_variant)
                     )
                 if pattern_re.search(masked_lower):
-                    return (True, description, description)
+                    yield description
+            elif description == _CREDENTIAL_UPLOAD_DESCRIPTION:
+                matches = list(pattern_re.finditer(command_lower))
+                owner_ranges = _upload_flag_owner_ranges(command_lower) if matches else ([], [])
+                if any(_upload_flag_owned_by_curl_or_wget(owner_ranges, match.start()) for match in matches):
+                    yield description
             elif pattern_re.search(command_lower):
-                return (True, description, description)
+                yield description
+    if only is not None:
+        # The variation-selector check is a content rule too, so the content-only scan keeps it.
+        if _INVISIBLE_UNICODE_DESCRIPTION in only and _HIDDEN_VARIATION_SELECTOR_RE.search(command):
+            yield _INVISIBLE_UNICODE_DESCRIPTION
+        return
     normalized = _normalize_command_for_detection(command)
     for description, _ in _execution_flag_findings(normalized):
-        return (True, description, description)
+        yield description
     if _is_shell_token_spliced_gateway_lifecycle(command):
-        return (True, _GATEWAY_LIFECYCLE_SPLICE_DESCRIPTION, _GATEWAY_LIFECYCLE_SPLICE_DESCRIPTION)
-    return (False, None, None)
+        yield _GATEWAY_LIFECYCLE_SPLICE_DESCRIPTION
+    if _HIDDEN_VARIATION_SELECTOR_RE.search(command):
+        yield _INVISIBLE_UNICODE_DESCRIPTION
+
+
+def detect_dangerous_command(command: str) -> tuple:
+    """Check dangerous patterns -> (is_dangerous, pattern_key, description) for the first match."""
+    description = next(_iter_dangerous_descriptions(command), None)
+    if description is None:
+        return (False, None, None)
+    return (True, description, description)
+
+
+def detect_content_rule_keys(command: str) -> list[str]:
+    """Pattern keys of every content-level rule (``_CONTENT_RULE_DESCRIPTIONS``) the command matches,
+    wherever they fall in detection order. The approval gates require consent for these on top of
+    the first match, so an approved pipe-to-shell cannot wave through a credential upload."""
+    return list(dict.fromkeys(_iter_dangerous_descriptions(command, only=_CONTENT_RULE_DESCRIPTIONS)))

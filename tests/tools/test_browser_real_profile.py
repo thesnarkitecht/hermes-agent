@@ -643,7 +643,7 @@ class TestSnapshotIsCredentialStore:
 
     def test_read_guard_blocks_snapshot(self, tmp_path, monkeypatch):
         import agent.file_safety as fs
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         (home / "browser-profile" / "chrome" / "Default").mkdir(parents=True)
         cookies = home / "browser-profile" / "chrome" / "Default" / "Cookies"
         cookies.write_text("secret-cookie-db", encoding="utf-8")
@@ -653,7 +653,7 @@ class TestSnapshotIsCredentialStore:
 
     def test_read_guard_allows_normal_file(self, tmp_path, monkeypatch):
         import agent.file_safety as fs
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         home.mkdir(parents=True)
         monkeypatch.setenv("HERMES_HOME", str(home))
         normal = tmp_path / "notes.txt"

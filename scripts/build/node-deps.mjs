@@ -8,7 +8,9 @@ import { delimiter, dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
 
-import { prepareElectronRuntime } from './electron-runtime.mjs'
+// HUNTINGTON-AGENT ships no desktop app (apps/desktop and electron-runtime.mjs are removed), so
+// `prepareElectron` below is always false; this stands in for the removed module's export.
+const prepareElectronRuntime = () => { throw new Error('the Electron desktop app is not part of HUNTINGTON-AGENT') }
 
 // npm.cmd needs a shell. Use npm's JS entrypoint so paths remain argv on Windows.
 export function npmCommand({ env = process.env } = {}) {

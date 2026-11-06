@@ -53,7 +53,7 @@ def test_resume_cold_carries_the_switch(tmp_path, monkeypatch):
     """A cold ``session.resume`` with ``inline_images=false`` returns the placeholder projection."""
     from hermes_state import SessionDB
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr("hermes_state.DEFAULT_DB_PATH", home / "state.db")
@@ -89,7 +89,7 @@ def test_resume_live_reattach_carries_the_switch(tmp_path, monkeypatch, inline_i
     """The live-session fast path projects through ``_live_session_payload`` too."""
     from hermes_state import SessionDB
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir(parents=True)
     db = SessionDB(home / "state.db")
     record = {

@@ -15,7 +15,7 @@ import pytest
 @pytest.fixture()
 def isolated_kanban_home(tmp_path, monkeypatch):
     """Fresh HERMES_HOME with a clean kanban DB."""
-    test_home = tmp_path / ".hermes"
+    test_home = tmp_path / ".huntington"
     test_home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(test_home))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)

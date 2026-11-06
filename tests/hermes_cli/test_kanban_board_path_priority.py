@@ -134,7 +134,7 @@ def test_cli_board_flag_trumps_worker_env_pin_end_to_end(monkeypatch, tmp_path):
 
     from hermes_cli import kanban as kc
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
@@ -148,7 +148,7 @@ def test_cli_board_flag_trumps_worker_env_pin_end_to_end(monkeypatch, tmp_path):
     monkeypatch.setenv("HERMES_KANBAN_DB", str(worker_pinned_db))
     monkeypatch.setenv("HERMES_KANBAN_BOARD", "worker-own-board")
 
-    parser = argparse.ArgumentParser(prog="hermes", add_help=False)
+    parser = argparse.ArgumentParser(prog="huntington", add_help=False)
     sub = parser.add_subparsers(dest="command")
     kc.build_parser(sub)
     args = parser.parse_args(["kanban", "--board", "target-board", "create", "cross-board task"])
@@ -250,7 +250,7 @@ def test_notifier_seam_connect_lands_on_pinned_db(monkeypatch, tmp_path):
     connect() (no board) live there."""
     from hermes_cli import kanban_db_connect as kbc
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)

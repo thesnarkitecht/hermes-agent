@@ -46,7 +46,7 @@ def test_cli_starts_from_a_deleted_cwd(tmp_path):
     """A child spawned into a directory that was removed since (a cron delivery from a reaped
     kanban workspace) must still reach argv parsing: a relative ``sys.path`` entry made
     ``ensure_project_root_on_path`` die in ``realpath`` → ``getcwd`` (#102941)."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     gone = tmp_path / "scratch"
     gone.mkdir()
@@ -66,7 +66,7 @@ def test_cli_starts_from_a_deleted_cwd(tmp_path):
     finally:
         os.close(fd)
     assert result.returncode == 0, result.stderr
-    assert "Hermes Agent v" in result.stdout
+    assert "HUNTINGTON-AGENT v" in result.stdout
     assert "FileNotFoundError" not in result.stderr
 
 
@@ -120,18 +120,18 @@ def _run_version(env_overrides: dict) -> subprocess.CompletedProcess:
 
 def test_fast_version_parity_on_termux(tmp_path):
     """The historical Termux path — the one eb4040242 broke."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     result = _run_version(
         {"HERMES_HOME": str(home), "TERMUX_VERSION": "0.118"}
     )
     assert result.returncode == 0, result.stderr
-    assert "Hermes Agent v" in result.stdout
+    assert "HUNTINGTON-AGENT v" in result.stdout
     assert "Traceback" not in result.stderr
 
 
 def test_fast_version_reports_install_method_stamp(tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / ".install_method").write_text("git\n", encoding="utf-8")
     result = _run_version({"HERMES_HOME": str(home)})
@@ -205,7 +205,7 @@ def test_bootstrap_preserves_live_cwd_and_recovers_deleted_cwd(tmp_path, remove_
         "import hermes_bootstrap\n"
         "print(os.getcwd())\n"
     )
-    env = {**os.environ, "HERMES_HOME": str(tmp_path / ".hermes"),
+    env = {**os.environ, "HERMES_HOME": str(tmp_path / ".huntington"),
            "PYTHONPATH": str(REPO_ROOT)}
     env.pop("HERMES_DEV", None)
     result = subprocess.run(
@@ -220,12 +220,12 @@ def test_bootstrap_preserves_live_cwd_and_recovers_deleted_cwd(tmp_path, remove_
 
 
 def test_fast_version_parity(tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     result = _run_version({"HERMES_HOME": str(home)})
     assert result.returncode == 0, result.stderr
     out = result.stdout
-    for field in ("Hermes Agent v", "Install directory:", "Python:", "OpenAI SDK:"):
+    for field in ("HUNTINGTON-AGENT v", "Install directory:", "Python:", "OpenAI SDK:"):
         assert field in out, f"fast --version output missing {field!r}:\n{out}"
     assert "Traceback" not in result.stderr
 

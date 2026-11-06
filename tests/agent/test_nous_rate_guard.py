@@ -12,7 +12,7 @@ from tests.hermes_cli.anon_portal import make_jwt
 @pytest.fixture
 def rate_guard_env(tmp_path, monkeypatch):
     """Isolate rate guard state to a temp directory."""
-    hermes_home = str(tmp_path / ".hermes")
+    hermes_home = str(tmp_path / ".huntington")
     os.makedirs(hermes_home, exist_ok=True)
     monkeypatch.setenv("HERMES_HOME", hermes_home)
     # Clear any cached module-level imports
@@ -307,7 +307,7 @@ class TestWelcomeRouteCopy:
         assert statuses == [f"⏳ {expected}"]
         assert expected in verdict.result["final_response"]
         assert "/login" in expected
-        assert "Nous Portal" not in expected
+        assert "HIP Portal" not in expected
         assert buffered == [f"⏳ {expected} Trying fallback..."]
 
 

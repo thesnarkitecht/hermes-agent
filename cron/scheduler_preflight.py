@@ -117,8 +117,8 @@ def _preflight_check_provider_key(job: dict, cfg: dict) -> Optional[str]:
             return None
         return (
             f"provider credential missing: {exc} {_credential_store_scope_label()}. "
-            "Set the provider API key in .env (or `hermes setup`) for that home, or pin a "
-            "working provider via `hermes cron edit "
+            "Set the provider API key in .env (or `huntington setup`) for that home, or pin a "
+            "working provider via `huntington cron edit "
             f"{job.get('id')} --provider <p>`."
         )
     except Exception:
@@ -268,6 +268,8 @@ def _preflight_check_delivery(job: dict) -> Optional[str]:
             # bot-chat targets deliver via a local subprocess; failures land in last_delivery_error.
             if _delivery.parse_bot_chat_deliver_token(part) is not None:
                 continue
+            if _delivery.parse_room_deliver_token(part) is not None:
+                continue  # Group Chat posts write the room store directly; no adapter needed.
             platform_parts.append(part.split(":", 1)[0].strip())
     if not platform_parts:
         return None
@@ -302,7 +304,7 @@ def _preflight_check_delivery(job: dict) -> Optional[str]:
             return (
                 f"delivery platform '{platform_name}' has no gateway "
                 "credentials configured (not connected). Configure it via "
-                "`hermes setup` or change the job's `deliver` target."
+                "`huntington setup` or change the job's `deliver` target."
             )
     return None
 

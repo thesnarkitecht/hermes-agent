@@ -53,7 +53,7 @@ class RecordingAdapter(BasePlatformAdapter):
 @pytest.fixture
 def profiles(tmp_path, monkeypatch):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     homes = {name: root / "profiles" / name for name in ("a", "b")}
     root.mkdir()
     # Opposite to the routed opt-in profile; ambient reads must not decide delivery.

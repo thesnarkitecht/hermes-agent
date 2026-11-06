@@ -892,7 +892,7 @@ class TestUsageCommand:
         assert snap is not None and not snap.usage_window
         lines = account_usage.render_account_usage_lines(snap)
         # Byte-for-byte today's layout: emoji title, provider line, "% remaining (% used)", portal link.
-        assert lines[0] == "📈 Nous credits" and lines[1] == "Provider: nous (Credit Plan)"
+        assert lines[0] == "📈 HIP credits" and lines[1] == "Provider: nous (Credit Plan)"
         assert any(l.startswith("Subscription: 90% remaining (10% used)") for l in lines)
         assert "Subscription credits: $18.00" in lines
         assert "Top up: https://portal/topup" in lines and "(or run /topup)" in lines
@@ -924,7 +924,7 @@ class TestClassifier:
     def test_window_402_is_billing_and_not_retryable(self):
         from agent.error_classifier import FailoverReason, classify_api_error
         c = classify_api_error(self._err(402, "usage_window_and_credits_exhausted",
-                                         "Your included Hermes usage for today is used up and you have no top-up credits. It resets at 18:00."),
+                                         "Your included Huntington usage for today is used up and you have no top-up credits. It resets at 18:00."),
                                provider="nous", model="example/model-c")
         assert c.reason == FailoverReason.billing and not c.retryable
         assert c.error_context.get("usage_window") is True
@@ -941,7 +941,7 @@ class TestClassifier:
 
     def test_window_402_carries_the_server_wording_when_sent(self):
         from agent.error_classifier import classify_api_error
-        err = self._err(402, "usage_window_and_credits_exhausted", "Your included Hermes usage for today is used up.")
+        err = self._err(402, "usage_window_and_credits_exhausted", "Your included Huntington usage for today is used up.")
         assert "display_message" not in classify_api_error(err, provider="nous", model="m").error_context
         err.body = {"status": 402, "code": "usage_window_and_credits_exhausted", "message": "m",
                     "display_message": "Daily limit hit. Back at 4pm."}
@@ -1055,7 +1055,7 @@ class TestBlockedResponseCapture:
         # Other providers keep the plain call they had before (no raw response).
         plain = SimpleNamespace(choices=["plain"])
         other = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(
-            with_raw_response=SimpleNamespace(create=lambda **kw: pytest.fail("raw must not be used off Nous")),
+            with_raw_response=SimpleNamespace(create=lambda **kw: pytest.fail("raw must not be used off HIP")),
             create=lambda **kw: plain)))
         assert _chat_completion_capturing_headers(
             SimpleNamespace(provider="example"), other, {"model": "m"}) is plain
@@ -1288,8 +1288,8 @@ class TestRefusalReadsAsTheStopLine:
         quiet = SimpleNamespace(_credits_state=_state(), _credits_latch=new_credits_latch(), model="example/model-b",
                                 base_url="https://inference-api.nousresearch.com/v1")
         refused = SimpleNamespace(error_context={"usage_window": True},
-                                  message="Your included Hermes usage for this week is used up.")
-        assert _usage_window_refusal(quiet, refused)[0] == "Your included Hermes usage for this week is used up."
+                                  message="Your included Huntington usage for this week is used up.")
+        assert _usage_window_refusal(quiet, refused)[0] == "Your included Huntington usage for this week is used up."
         assert _usage_window_refusal(quiet, SimpleNamespace(error_context={"usage_window": True}))[0] == ""
 
     def test_the_refusal_names_the_plans_recommended_model(self, monkeypatch):

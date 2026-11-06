@@ -76,7 +76,7 @@ def _launcher_bound_root(project_root: Path, candidates: list[Path]) -> Path | N
     """The candidate whose ``tools/`` holds the live interpreter the checkout's launcher execs."""
     from hermes_cli._launchers import _launcher_python
 
-    local = project_root / ".hermes" / "bin"
+    local = project_root / ".huntington" / "bin"
     for name in (("hermes.exe", "hermes.cmd") if os.name == "nt" else ("hermes",)):
         python = _launcher_python(local / name)
         if python is None or not python.is_file():
@@ -299,7 +299,8 @@ def committed_venv(project_root: Path) -> Path | None:
 
     Unlike ``selected_venv`` this never answers with the in-tree ``venv``/``.venv``: that tree
     predates PM and is built for whichever interpreter created it, so loading it from PM's store
-    Python mixes ABIs (compiled modules vanish) and PM deletes it once a generation is committed.
+    Python mixes ABIs (compiled modules vanish). PM never deletes it: ``legacy_selection`` reads its
+    site-packages again whenever this install has no dependency facts.
     """
     return _recorded_venv(project_root) or payload_venv(project_root)
 
@@ -515,7 +516,7 @@ def activate_dependencies(project_root: Path) -> None:
     # the build-time source snapshot, not this checkout (#124627): a child that resolves
     # `hermes` off PATH must hit the checkout's own launcher first, never the venv's copy.
     # A sealed payload's launchers live in <payload>/bin instead.
-    directories = [payload_command_dir(project_root) or project_root.resolve() / ".hermes" / "bin"]
+    directories = [payload_command_dir(project_root) or project_root.resolve() / ".huntington" / "bin"]
     # A sealed payload's Windows venv redirectors never go on PATH: a shipped venv's still
     # names the build machine, and a generation built since names PM's writable Python copy,
     # which cannot start the package's executables (see venv_command).

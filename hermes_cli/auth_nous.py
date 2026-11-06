@@ -33,7 +33,7 @@ if TYPE_CHECKING:  # annotation-only; the runtime import would be a cycle
 # Log-record parity with the origin module (caplog tests pin "hermes_cli.auth").
 logger = logging.getLogger("hermes_cli.auth")
 
-_UNUSABLE_JWT_RELOGIN = "Re-authenticate with: hermes auth add nous"
+_UNUSABLE_JWT_RELOGIN = "Re-authenticate with: huntington auth add nous"
 
 
 def _unusable_invoke_jwt_error(reason: str, *, no_refresh_token: bool = False) -> AuthError:
@@ -45,7 +45,7 @@ def _unusable_invoke_jwt_error(reason: str, *, no_refresh_token: bool = False) -
     """
     detail = " and no refresh token is available" if no_refresh_token else ""
     return _nous_err(
-        f"Nous Portal access token is not a usable inference JWT ({reason}){detail}. "
+        f"HIP Portal access token is not a usable inference JWT ({reason}){detail}. "
         f"{_UNUSABLE_JWT_RELOGIN}",
         "nous_auth_missing_refresh_token" if no_refresh_token else reason, relogin=True)
 
@@ -89,9 +89,9 @@ def _portal_entitlement_message(capability: str) -> str:
 
 def _format_nous_entitlement_auth_error(error: AuthError) -> str:
     with suppress(Exception):
-        if message := _portal_entitlement_message("Nous model access"):
+        if message := _portal_entitlement_message("HIP model access"):
             return message
-    return f"{error} Check credits or billing in Nous Portal, then retry."
+    return f"{error} Check credits or billing in HIP Portal, then retry."
 
 
 def _migrate_stale_nous_portal_url(providers: dict[str, Any]) -> None:
@@ -328,7 +328,7 @@ def _select_nous_invoke_jwt(
     if _nonempty_str(access_token):
         state["access_token"] = access_token
     _set_nous_agent_key_from_invoke_jwt(state)
-    logger.debug("Nous inference auth: using NAS invoke JWT")
+    logger.debug("HIP inference auth: using NAS invoke JWT")
     _oauth_trace(
         "nous_invoke_jwt_selected", sequence_id=sequence_id,
         access_token_fp=_token_fingerprint(state.get("access_token")))
@@ -376,7 +376,7 @@ def _nous_shared_store_path() -> Path:
             resolved = path
         if resolved == real_home_shared:
             raise RuntimeError(
-                f"Refusing to touch real user shared Nous auth store during test run: "
+                f"Refusing to touch real user shared HIP auth store during test run: "
                 f"{path}. Set HERMES_SHARED_AUTH_DIR to a tmp_path in your test fixture.")
     return path
 
@@ -396,7 +396,7 @@ def _nous_shared_store_lock(timeout_seconds: float = AUTH_LOCK_TIMEOUT_SECONDS):
         return
     with _file_lock(
         lock_path, _nous_shared_lock_holder, timeout_seconds,
-        f"Timed out waiting for shared Nous auth lock ({lock_path})"):
+        f"Timed out waiting for shared HIP auth lock ({lock_path})"):
         yield
 
 
@@ -414,9 +414,35 @@ _NOUS_SHARED_STATE_KEYS = (
 _SHARED_RENEWAL_KEY = "renewal"
 
 
+def _nous_state_order(a: dict[str, Any], b: dict[str, Any]) -> Optional[int]:
+    """1 when *a* holds the later-ISSUED token pair than *b*, -1 the earlier, 0 tied, None unstamped.
+
+    The forked-grant heal's ordering (``auth_oauth_grants.oauth_pair_order``): JWT ``iat``, then
+    ``obtained_at`` (which also breaks an equal whole-second ``iat``); expiry only orders states
+    lacking an issue stamp, since a later rotation can carry a shorter TTL.
+    A side stamped only by expiry against one stamped only by issue time is a tie (no adopt, no
+    push); JWT states carry both claims, so they always order.
+    """
+    from hermes_cli.auth_oauth_grants import oauth_pair_order
+    return oauth_pair_order(a, b)
+
+
+def _same_known_nous_identity(a: dict[str, Any], b: dict[str, Any]) -> bool:
+    """True when *a* and *b* are provably the same identity. An account whose access token carries no
+    JWT ``sub`` is UNKNOWN, never "the same" as another unknown one."""
+    identity = _nous_identity(a)
+    return identity[1] not in (None, "") and identity == _nous_identity(b)
+
+
 def _merge_shared_nous_oauth_state(state: dict[str, Any]) -> bool:
-    """Copy fresher shared OAuth tokens into a profile-local Nous state."""
-    from hermes_cli.auth import _nonempty_str, _parse_iso_timestamp, _read_shared_nous_state
+    """Adopt the shared store's OAuth tokens into a profile-local Nous state when they are NEWER.
+
+    An older shared copy (a failed shared write after this profile refreshed) never overwrites the
+    profile: its refresh token is already redeemed, and replaying it trips the Portal's reuse
+    detection (forced re-login). When the profile is the newer one it is pushed to the shared
+    store instead, so sibling profiles stop reading the stale copy. Caller holds the shared lock.
+    """
+    from hermes_cli.auth import _nonempty_str, _read_shared_nous_state
     shared = _read_shared_nous_state() or {}
     renewed = shared.get(_SHARED_RENEWAL_KEY)
     if isinstance(renewed, dict) and _nous_identity(renewed) == _nous_identity(state):
@@ -424,10 +450,21 @@ def _merge_shared_nous_oauth_state(state: dict[str, Any]) -> bool:
     shared_refresh = shared.get("refresh_token")
     if not _nonempty_str(shared_refresh):
         return False  # a free-tier identity has no refresh token; nothing to merge into an OAuth state
-    shared_access_exp = _parse_iso_timestamp(shared.get("expires_at")) or 0.0
-    local_access_exp = _parse_iso_timestamp(state.get("expires_at")) or 0.0
     refresh_changed = shared_refresh.strip() != str(state.get("refresh_token") or "").strip()
-    if not refresh_changed and not shared_access_exp > local_access_exp:
+    order = _nous_state_order(shared, state)
+    # A quarantined profile has no access token, so its identity reads as unknown: it must still
+    # recover from a sibling's re-login (ca6513542d5), so an empty profile adopts on order alone.
+    known_same = _same_known_nous_identity(shared, state)
+    same = known_same or not _nonempty_str(state.get("access_token"))
+    # Unstamped on both sides: no evidence either way, keep the legacy "a different token wins".
+    # Never across identities: a profile signed in as one account keeps it (profiles are islands).
+    if not (same and (order == 1 or (order is None and refresh_changed))):
+        if order == -1 and refresh_changed and known_same:
+            _oauth_trace(
+                "nous_shared_store_older_than_profile",
+                shared_refresh_token_fp=_token_fingerprint(shared_refresh),
+                refresh_token_fp=_token_fingerprint(state.get("refresh_token")))
+            _write_shared_nous_state(state, renewal=True)
         return False
     for key in _NOUS_SHARED_STATE_KEYS:
         value = shared.get(key)
@@ -463,6 +500,18 @@ def _nous_identity(state: dict[str, Any]) -> tuple[str, Any]:
     return "account", _decode_jwt_claims(state.get("access_token")).get("sub")
 
 
+def _shared_copy_is_newer(held: Optional[dict[str, Any]], state: dict[str, Any], *, same: bool) -> bool:
+    """True when the shared store already holds a NEWER copy of *state*'s account (a renewal never
+    rolls it back to an older, possibly already-redeemed refresh token)."""
+    from hermes_cli.anon_auth import is_guest_state
+    if held is None or is_guest_state(state):
+        return False
+    copy = held if same else held.get(_SHARED_RENEWAL_KEY)
+    if not isinstance(copy, dict) or not _same_known_nous_identity(copy, state):
+        return False
+    return _nous_state_order(copy, state) == 1
+
+
 def _write_shared_nous_state(state: dict[str, Any], *, renewal: bool) -> None:
     """Persist a minimal copy of the Nous OAuth state to the shared store.
 
@@ -487,6 +536,11 @@ def _write_shared_nous_state(state: dict[str, Any], *, renewal: bool) -> None:
             path = _nous_shared_store_path()
             held = _read_shared_nous_state()
             same = held is not None and _nous_identity(held) == _nous_identity(state)
+            if renewal and _shared_copy_is_newer(held, state, same=same):
+                _oauth_trace(
+                    "nous_shared_store_write_skipped_older", path=str(path),
+                    refresh_token_fp=_token_fingerprint(refresh_token))
+                return
             if renewal and held is not None and not same:
                 shared = {**held, _SHARED_RENEWAL_KEY: _nous_shared_shape(state)}
             else:
@@ -498,7 +552,7 @@ def _write_shared_nous_state(state: dict[str, Any], *, renewal: bool) -> None:
             "nous_shared_store_written", path=str(path),
             refresh_token_fp=_token_fingerprint(refresh_token))
     except Exception as exc:
-        logger.debug("Failed to write shared Nous auth store: %s", exc)
+        logger.debug("Failed to write shared HIP auth store: %s", exc)
 
 
 def _read_shared_nous_state() -> Optional[dict[str, Any]]:
@@ -516,7 +570,7 @@ def _read_shared_nous_state() -> Optional[dict[str, Any]]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8-sig"))
     except (OSError, ValueError) as exc:
-        logger.debug("Shared Nous auth store at %s is unreadable: %s", path, exc)
+        logger.debug("Shared HIP auth store at %s is unreadable: %s", path, exc)
         return None
     if not isinstance(payload, dict):
         return None
@@ -532,7 +586,7 @@ def _clear_shared_nous_state(reason: str) -> None:
             _nous_shared_store_path().unlink(missing_ok=True)
         _oauth_trace("nous_shared_store_cleared", reason=reason)
     except Exception as exc:
-        logger.debug("Failed to clear shared Nous auth store: %s", exc)
+        logger.debug("Failed to clear shared HIP auth store: %s", exc)
 
 
 def _quarantine_forensics(state: dict[str, Any], error: AuthError, reason: str) -> dict[str, Any]:
@@ -586,7 +640,7 @@ def _quarantine_nous_oauth_state(state: dict[str, Any], error: AuthError, *, rea
     # visible as a later "No access token found" WARNING, too late to root-cause. Managed log
     # drains may be WARNING-only, so this MUST be logger.warning.
     logger.warning(
-        "Nous OAuth state quarantined (terminal auth death): %s",
+        "HIP OAuth state quarantined (terminal auth death): %s",
         json.dumps(_quarantine_forensics(state, error, reason), sort_keys=True, ensure_ascii=False))
     for key in (*_FLAT_OAUTH_TOKEN_KEYS, *_NOUS_EMPTY_AGENT_KEY_FIELDS):
         state.pop(key, None)
@@ -640,7 +694,7 @@ def _try_import_shared_nous_state(*, timeout_seconds: float = 15.0) -> Optional[
             **({"error_code": getattr(exc, "code", None)} if is_auth else {}))
         if is_auth and _is_terminal_nous_refresh_error(exc):
             _clear_shared_nous_state("shared_import_terminal_refresh_failure")
-        logger.debug("Shared Nous import failed: %s", exc)
+        logger.debug("Shared HIP import failed: %s", exc)
         return None
     return refreshed
 
@@ -659,7 +713,7 @@ def _refresh_access_token(
         return payload
     if 500 <= response.status_code <= 599:
         raise AuthError(
-            f"Nous Portal is temporarily unavailable (HTTP {response.status_code}).",
+            f"HIP Portal is temporarily unavailable (HTTP {response.status_code}).",
             provider="nous", code="temporarily_unavailable", retryable=True)
     # Vercel's Security Checkpoint in front of the Portal answers non-browser clients with a
     # 403 (``x-vercel-mitigated: deny``) or 429 (``challenge``) page (#120602). That is the edge
@@ -669,7 +723,7 @@ def _refresh_access_token(
     if mitigated:
         from agent.retry_utils import parse_retry_after_seconds
         raise AuthError(
-            f"Nous Portal's edge firewall challenged the token refresh (HTTP {response.status_code}, "
+            f"HIP Portal's edge firewall challenged the token refresh (HTTP {response.status_code}, "
             f"x-vercel-mitigated={mitigated}). Credentials kept; try again shortly.",
             provider="nous", code="upstream_blocked", retryable=True,
             retry_after=parse_retry_after_seconds(response.headers))
@@ -695,15 +749,15 @@ def _refresh_access_token(
     # server retired the original and revoked the whole session chain as a token-theft signal.
     if code == "refresh_token_reused" or "reuse" in description.lower():
         description = (
-            "Nous Portal detected refresh-token reuse and revoked this session.\n"
+            "HIP Portal detected refresh-token reuse and revoked this session.\n"
             "This usually means an external process (monitoring script, "
-            "custom self-heal hook, or another Hermes install sharing "
-            "~/.hermes/auth.json) called POST /api/oauth/token with Hermes's "
+            "custom self-heal hook, or another Huntington install sharing "
+            "~/.huntington/auth.json) called POST /api/oauth/token with Huntington's "
             "refresh token without persisting the rotated token back.\n"
-            "Nous refresh tokens are single-use — only Hermes may call the "
-            "refresh endpoint. For health checks, use `hermes auth status` "
+            "HIP refresh tokens are single-use — only Huntington may call the "
+            "refresh endpoint. For health checks, use `huntington auth status` "
             "instead.\n"
-            "Re-authenticate with: hermes auth add nous")
+            "Re-authenticate with: huntington auth add nous")
         relogin = True
     raise _nous_err(description, code, relogin=relogin)
 
@@ -866,7 +920,7 @@ def refresh_nous_oauth_from_state(
                     raise _unusable_invoke_jwt_error(
                         current_invoke_jwt_status, no_refresh_token=True)
                 raise _nous_err(
-                    "No refresh token is available for Nous Portal.", "nous_auth_missing_refresh_token",
+                    "No refresh token is available for HIP Portal.", "nous_auth_missing_refresh_token",
                     relogin=True)
             refreshed = _refresh_access_token(
                 client=client, portal_base_url=state["portal_base_url"],
@@ -907,7 +961,7 @@ def _sync_nous_pool_from_auth_store() -> None:
         from agent.credential_pool import load_pool
         load_pool("nous")
     except Exception as exc:
-        logger.debug("Failed to sync Nous credential pool from auth store: %s", exc)
+        logger.debug("Failed to sync HIP credential pool from auth store: %s", exc)
 
 
 def _nous_effective_routing(state: dict[str, Any]) -> tuple[str, str, str, str]:
@@ -1078,7 +1132,7 @@ class _NousRuntimeResolve:
                     self.persist("runtime_shared_merge_missing_access_token")
         if not self.has_access_token():
             raise _nous_err(
-                "No access token found for Nous Portal login.", "nous_auth_missing_access_token", relogin=True)
+                "No access token found for HIP Portal login.", "nous_auth_missing_access_token", relogin=True)
         invoke_jwt_status = self.invoke_jwt_status()
         self.skip_refresh_if_peer_rotated()
         if not (self.force_refresh or invoke_jwt_status is not None):
@@ -1133,11 +1187,11 @@ def _resolve_nous_runtime_credentials(
         _tls_state_from_verify)
     with _provider_state_transaction("nous") as (auth_store, state, state_source_path):
         if not state:
-            raise _nous_err("Hermes is not logged into Nous Portal.", "nous_auth_missing", relogin=True)
+            raise _nous_err("Huntington is not logged into HIP Portal.", "nous_auth_missing", relogin=True)
         from hermes_cli.anon_auth import guest_without_free_tier
         if guest_without_free_tier(state):
             # Not terminal (no relogin): the identity stays for connectors.
-            raise _nous_err("Hermes is not logged into Nous Portal.", "nous_auth_missing")
+            raise _nous_err("Huntington is not logged into HIP Portal.", "nous_auth_missing")
         run = _NousRuntimeResolve(
             auth_store, state, state_source_path, force_refresh=force_refresh,
             stale_access_token=stale_access_token, timeout_seconds=timeout_seconds)
@@ -1162,7 +1216,7 @@ def _resolve_nous_runtime_credentials(
         _sync_nous_pool_from_auth_store()
     api_key = state.get("agent_key")
     if not isinstance(api_key, str) or not api_key:
-        raise _nous_err("Failed to resolve a Nous inference API key", "server_error")
+        raise _nous_err("Failed to resolve a HIP inference API key", "server_error")
     expires_at = state.get("agent_key_expires_at")
     return {
         "provider": "nous", "base_url": run.inference_base_url, "api_key": api_key,
@@ -1425,7 +1479,7 @@ def _nous_device_code_login(
     verify: bool | str = False if insecure else (ca_bundle if ca_bundle else True)
     if _is_remote_session():
         open_browser = False
-    print(f"Starting Hermes login via {pconfig.name}...")
+    print(f"Starting Huntington login via {pconfig.name}...")
     print(f"Portal: {portal_base_url}")
     if insecure:
         print("TLS verification: disabled (--insecure)")
@@ -1476,7 +1530,7 @@ def _nous_device_code_login(
             print(format_auth_error(exc))
             print(f"  Subscribe here: {portal_url}/billing")
             print()
-            print("After subscribing, run `hermes model` again to finish setup.")
+            print("After subscribing, run `huntington model` again to finish setup.")
             raise SystemExit(1)
         raise
 
@@ -1569,7 +1623,7 @@ def _pick_nous_model_after_login(
         _policy_allowed = nous_policy_allowed_ids()
         if free_tier:
             with suppress(Exception):
-                unavailable_message = _portal_entitlement_message("paid Nous models")
+                unavailable_message = _portal_entitlement_message("paid HIP models")
         # The Portal's free/paidRecommendedModels endpoint is the source of truth for what's
         # available *right now*: newly-launched models show without a CLI release.
         union = (
@@ -1608,7 +1662,7 @@ def _pick_nous_model_after_login(
         print("No free models currently available.")
         print(unavailable_message or f"Upgrade at {_url} to access paid models.")
     else:
-        print("No curated models available for Nous Portal.")
+        print("No curated models available for HIP Portal.")
     return None
 
 
@@ -1630,11 +1684,11 @@ def _offer_shared_nous_import(timeout_seconds: float) -> Optional[dict[str, Any]
     except RuntimeError:
         shared_path = None
     print()
-    print(f"Found existing Nous OAuth credentials at {shared_path}" if shared_path
-          else "Found existing shared Nous OAuth credentials")
+    print(f"Found existing HIP OAuth credentials at {shared_path}" if shared_path
+          else "Found existing shared HIP OAuth credentials")
     if not _prompt_yes_no("Import these credentials? [Y/n]: ", default="y"):
         return None
-    print("Rehydrating Nous session from shared credentials...")
+    print("Rehydrating HIP session from shared credentials...")
     auth_state = _try_import_shared_nous_state(timeout_seconds=timeout_seconds)
     if auth_state is None:
         print("Could not refresh shared credentials — falling back to device-code login.")
@@ -1704,8 +1758,8 @@ def _login_nous(args, pconfig: ProviderConfig) -> None:
         if not selected_model:
             _restore_active_provider(prior_active_provider)
             print()
-            print("No provider change. Nous credentials saved for future use.")
-            print("  Run `hermes model` again to switch to Nous Portal.")
+            print("No provider change. HIP credentials saved for future use.")
+            print("  Run `huntington model` again to switch to HIP Portal.")
             return
         config_path = _update_config_for_provider(
             "nous", inference_base_url, default_model=selected_model)

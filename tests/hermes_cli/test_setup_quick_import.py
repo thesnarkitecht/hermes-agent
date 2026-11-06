@@ -20,13 +20,13 @@ def _fake_import(_hermes_home):
 def _fake_nous_flow(config):
     """The real flow logs in and saves provider ``nous`` with a Portal model."""
     from hermes_cli.config import save_config
-    config["model"] = {"provider": "nous", "default": "Hermes-4-405B"}
+    config["model"] = {"provider": "nous", "default": "Huntington-4-405B"}
     save_config(config)
 
 
 @pytest.mark.parametrize("switch, nous_runs, expected_model", [
     (False, 0, {"provider": "openrouter", "default": "anthropic/claude-sonnet-4.5"}),
-    (True, 1, {"provider": "nous", "default": "Hermes-4-405B"}),
+    (True, 1, {"provider": "nous", "default": "Huntington-4-405B"}),
 ])
 def test_quick_setup_keeps_imported_model_unless_user_switches(switch, nous_runs, expected_model):
     from hermes_cli.config import get_env_value, load_config
@@ -38,7 +38,7 @@ def test_quick_setup_keeps_imported_model_unless_user_switches(switch, nous_runs
         # Enter on every menu (the mode menu's default is Quick Setup), except the keep/switch
         # question when the test switches.
         questions.append(question)
-        if switch and "switch to Nous Portal" in question:
+        if switch and "switch to HIP Portal" in question:
             return 1
         return default
 

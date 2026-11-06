@@ -100,7 +100,7 @@ def make_home(tmp_path: Path, base_url: str, *, extra_config: str = "") -> WinHo
     since = time.time()
     root = tmp_path
     profile = root / "Users" / "e2e"
-    hermes_home = profile / ".hermes"
+    hermes_home = profile / ".huntington"
     project = root / "project"
     project.mkdir(parents=True, exist_ok=True)
     write_hermes_home(hermes_home, base_url, extra_config=extra_config)

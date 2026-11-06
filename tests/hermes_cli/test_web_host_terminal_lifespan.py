@@ -64,7 +64,7 @@ def test_real_shells_remain_owned_after_overlapping_lifespan_exit(tmp_path, monk
     from hermes_cli.web_routers.webapp import SESSION_TOKEN_OWNER, mint_socket_ticket, router
     from hermes_cli.web_session_sockets import HOST_TERMINAL_SOCKET
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text("{}", encoding="utf-8")
     monkeypatch.setattr(Path, "home", lambda: tmp_path)

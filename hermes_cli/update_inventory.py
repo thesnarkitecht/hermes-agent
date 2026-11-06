@@ -118,7 +118,7 @@ def _restart_mechanism(supervisor: str, profile: str) -> str:
 def describe_restart_mechanism(mechanism: str, profile: str) -> str:
     """Human-readable description of a restart mechanism id."""
     return _MECHANISM_DESCRIPTIONS.get(mechanism) or (
-        f"hermes -p {profile} gateway restart" if profile != "default" else "hermes gateway restart"
+        f"huntington -p {profile} gateway restart" if profile != "default" else "hermes gateway restart"
     )
 
 
@@ -364,7 +364,7 @@ def print_update_plan(plan: UpdatePlan) -> None:
         print(f"    Update via: {plan.update_mechanism}")
     print(f"  Profiles: {', '.join(plan.profiles) if plan.profiles else '(none found)'}")
     if not plan.runtimes:
-        print("  Running Hermes services: none detected — code swap only.")
+        print("  Running Huntington services: none detected — code swap only.")
         return
     print(f"  Running services to restart ({len(plan.runtimes)}):")
     for runtime in plan.runtimes:
@@ -383,7 +383,7 @@ def _serve_unit_matches_profile(profile: str, unit: object) -> bool:
     """
     name = str(unit).removesuffix(".service").rsplit("/", 1)[-1]
     suffix = "" if profile == "default" else f"-{profile}"
-    return name in {f"hermes-serve{suffix}", f"hermes-dashboard{suffix}"}
+    return name in {f"huntington-serve{suffix}", f"huntington-dashboard{suffix}"}
 
 
 def _gateway_service_matches_profile(profile: str, service: object) -> bool:
@@ -397,8 +397,8 @@ def _gateway_service_matches_profile(profile: str, service: object) -> bool:
     """
     name = str(service).removesuffix(".service").rsplit("/", 1)[-1]
     if profile == "default":
-        return name in {"hermes-gateway", "ai.hermes.gateway", "gateway", "gateway-default"}
-    return name in {f"hermes-gateway-{profile}", f"ai.hermes.gateway-{profile}", f"gateway-{profile}"}
+        return name in {"huntington-gateway", "ai.huntington.gateway", "gateway", "gateway-default"}
+    return name in {f"huntington-gateway-{profile}", f"ai.huntington.gateway-{profile}", f"gateway-{profile}"}
 
 
 def _gateway_named_in(r: RuntimeRecord, names: set) -> bool:
@@ -574,7 +574,7 @@ def report_unaccounted_runtimes(outcomes: list[dict[str, Any]]) -> bool:
         print()
         print("  ⚠ Manual serve restarts deferred to their owner (reminders retained until the old processes exit):")
         for o in manual:
-            print(f"    • {o['kind']} [{o['profile']}] pid {o['pid']}: relaunch `hermes serve` / `hermes dashboard`, or reconnect Desktop for an SSH backend")
+            print(f"    • {o['kind']} [{o['profile']}] pid {o['pid']}: relaunch `huntington serve` / `huntington dashboard`, or reconnect Desktop for an SSH backend")
     deferred = [o for o in outcomes if o.get("outcome") == "deferred" and o.get("mechanism") != "respawn-argv"]
     if deferred:
         # Surfaced but not escalated: the updater has no authority over these, so holding
@@ -601,8 +601,8 @@ def report_unaccounted_runtimes(outcomes: list[dict[str, Any]]) -> bool:
         print(f"    ✗ {o['kind']} [{o['profile']}] pid {o['pid']} — planned mechanism: {o['mechanism']}")
     print("    Restart them manually, then verify:")
     if any(o.get("kind") not in _SERVE_KINDS for o in missed):
-        print("      hermes gateway restart                # active profile")
-        print("      hermes -p <profile> gateway restart   # named profile")
+        print("      huntington gateway restart                # active profile")
+        print("      huntington -p <profile> gateway restart   # named profile")
     if any(o.get("kind") in _SERVE_KINDS for o in missed):
         # A serve/dashboard is not reachable by any `gateway restart` command: name the process, not the wrong verb.
         # See #100479.
@@ -615,8 +615,8 @@ def report_unaccounted_runtimes(outcomes: list[dict[str, Any]]) -> bool:
                     print(f"      {command}   # pid {o['pid']}")
         if any(o.get("kind") in _SERVE_KINDS and not o.get("systemd_unit") for o in missed):
             if sys.platform == "linux":
-                print("      systemctl --user restart hermes-serve.service   # unit-managed serve")
-            print("      relaunch `hermes serve` / `hermes dashboard`")
+                print("      systemctl --user restart huntington-serve.service   # unit-managed serve")
+            print("      relaunch `huntington serve` / `huntington dashboard`")
     return True
 
 

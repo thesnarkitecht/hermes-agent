@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 _SPIN = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 _RST, _BOLD, _DIM = "\x1b[0m", "\x1b[1m", "\x1b[2m"
 _RED = "\x1b[38;2;239;83;80m"
-_TITLE_MAX = 72
 
 
 def is_modern(cli) -> bool:
@@ -54,9 +53,9 @@ def _fg(hex_color: str, bold: bool = False) -> str:
 def _brand_glyph() -> tuple[str, str]:
     """(glyph, name) from the skin's response label, e.g. ``" ☤ Hermes "`` → ("☤", "Hermes")."""
     from hermes_cli.skin_engine import get_active_skin
-    label = get_active_skin().get_branding("response_label", " ☤ Hermes ")
+    label = get_active_skin().get_branding("response_label", " ☤ Huntington ")
     parts = label.split(None, 1)
-    return (parts[0], parts[1].strip()) if len(parts) == 2 else ("☤", label.strip() or "Hermes")
+    return (parts[0], parts[1].strip()) if len(parts) == 2 else ("☤", label.strip() or "Huntington")
 
 
 def prompt_glyph() -> str:
@@ -112,28 +111,11 @@ def answer_label(timestamp: str = "") -> str:
     return f"\n{separator(True)}\n{_fg(_skin_hex('ui_accent', '#FFBF00'), bold=True)}{glyph} {name}{_RST}{stamp}"
 
 
-def _full_title(text: str) -> str:
-    """The reasoning's first ``**bold**`` heading, else its first sentence, whitespace-collapsed."""
-    text = (text or "").strip()
-    match = re.search(r"\*\*(.+?)\*\*", text)
-    title = match.group(1) if match else re.split(r"(?<=[.!?])\s|\n", text, maxsplit=1)[0]
-    return " ".join(title.split()).strip("*# ")
-
-
-def thought_title(text: str) -> str:
-    """Short title for a reasoning block: its first ``**bold**`` heading, else its first sentence."""
-    title = _full_title(text)
-    return title if len(title) <= _TITLE_MAX else title[:_TITLE_MAX - 1].rstrip() + "…"
-
-
-def thought_line(seconds: float | None, text: str) -> str:
-    """``∴ Thought for 3s · Planning the change`` (dim italic), closing a reasoning block."""
-    # The reasoning is printed above this line; a title that IS the whole reasoning would repeat it.
-    whole = _full_title(text) == " ".join((text or "").split()).strip("*# ")
-    title = "" if whole else thought_title(text)
+def thought_line(seconds: float | None) -> str:
+    """``∴ Thought for 3s`` (dim italic), closing a reasoning block. No title: the reasoning is
+    printed right above, so any excerpt of it would repeat what the user just read."""
     took = t("cli.modern.thought_for", seconds=f"{max(seconds or 0.0, 0.0):.0f}") if seconds else t("cli.modern.thought")
-    body = f"{took} · {title}" if title else took
-    return f"\x1b[2;3m∴ {body}{_RST}"
+    return f"\x1b[2;3m∴ {took}{_RST}"
 
 
 _REASONING_PREVIEW_LINES = 10  # classic's post-hoc reasoning box shows this many unless /reasoning full
@@ -152,7 +134,7 @@ def thought_rows(seconds: float | None, text: str, full: bool) -> list[str]:
     rows = ["", separator(False), *(reasoning_text_line(line) for line in shown)]
     if len(shown) < len(lines):
         rows.append(f"{_DIM}  {t('cli.chat.reasoning_more_lines', count=len(lines) - len(shown))}{_RST}")
-    return [*rows, thought_line(seconds, text), closing_separator(False)]
+    return [*rows, thought_line(seconds), closing_separator(False)]
 
 
 def completed_tool_line(cli, function_name: str, args: dict | None, duration: float, result=None,
@@ -330,7 +312,7 @@ def _render_safely(render, cli) -> list:
         return render(cli)
     except Exception:  # health: allow BLE001 -- a render callback must never take down the app frame
         logger.debug("%s failed", render.__name__, exc_info=True)
-        return [("", f" {getattr(cli, 'model', '') or 'Hermes'}")]
+        return [("", f" {getattr(cli, 'model', '') or 'Huntington'}")]
 
 
 def _status_line_fragments(cli) -> list:

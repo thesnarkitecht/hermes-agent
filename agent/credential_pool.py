@@ -736,7 +736,7 @@ def _guarded_global_root(global_path: Optional[Path]) -> Optional[Path]:
     if os.environ.get("PYTEST_CURRENT_TEST"):
         real_home_env = os.environ.get("HOME", "")
         if real_home_env:
-            real_root = Path(real_home_env) / ".hermes" / "auth.json"
+            real_root = Path(real_home_env) / ".huntington" / "auth.json"
             try:
                 # Comparing the guard path must not probe the real auth store.
                 if os.path.normcase(os.path.abspath(global_path)) == os.path.normcase(os.path.abspath(real_root)):
@@ -1406,7 +1406,7 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
             }
             if not any(v not in (None, "") and getattr(entry, k, None) != v for k, v in comparable.items()):
                 return entry
-            logger.debug("Pool entry %s: syncing Nous state from auth.json", entry.id)
+            logger.debug("Pool entry %s: syncing HIP state from auth.json", entry.id)
             field_updates: dict[str, Any] = dict(_CLEAR_STATUS)
             field_updates.update({k: v for k, v in comparable.items() if v})
             extra_updates = dict(entry.extra)
@@ -1415,7 +1415,7 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
             )
             return self._adopt(entry, extra=extra_updates, **field_updates)
         except Exception as exc:
-            logger.debug("Failed to sync Nous entry from auth.json: %s", exc)
+            logger.debug("Failed to sync HIP entry from auth.json: %s", exc)
         return entry
 
     def _sync_device_code_entry_to_auth_store(self, entry: PooledCredential) -> None:
@@ -1487,7 +1487,7 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
 
     # ---- refresh -----------------------------------------------------------
 
-    def _refresh_entry(self, entry: PooledCredential, *, force: bool) -> Optional[PooledCredential]:
+    def _refresh_entry(self, entry: PooledCredential, *, force: bool, failed_key: Optional[str] = None):
         if entry.auth_type != AUTH_TYPE_OAUTH or not entry.refresh_token:
             if force:
                 self._mark_exhausted(entry, None)
@@ -1496,7 +1496,7 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
         # the pool cannot know their grant semantics, and a needless in-lock re-read is cheaper than
         # a ``refresh_token_reused`` login loss. Eligibility comes from the hook, never a name set.
         if self.provider not in _SINGLE_USE_REFRESH_PROVIDERS and plugin_refresh_hook(self.provider) is None:
-            return self._refresh_entry_impl(entry, force=force)
+            return self._refresh_entry_impl(entry, force=force, failed_key=failed_key)
 
         # Single-use refresh tokens: sync -> POST -> write-back must be atomic
         # across Hermes processes, or two processes adopt the same on-disk
@@ -1616,7 +1616,7 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
         if entry.source == "claude_code":
             store = "~/.claude/.credentials.json"
         elif entry.source == "hermes_pkce":
-            store = "~/.hermes/.anthropic_oauth.json"
+            store = "~/.huntington/.anthropic_oauth.json"
         else:
             return
         try:
@@ -1675,7 +1675,7 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
             last_refresh=refreshed.get("last_refresh"),
         )
 
-    def _refresh_entry_impl(self, entry: PooledCredential, *, force: bool) -> Optional[PooledCredential]:
+    def _refresh_entry_impl(self, entry: PooledCredential, *, force: bool, failed_key: Optional[str] = None):
         # Single-use-token providers adopt fresher tokens from their store
         # BEFORE spending the refresh_token; ``entry`` is rebound to the synced
         # row so the failure path below recovers against the pair we POSTed.
@@ -1693,14 +1693,14 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
                     raise RuntimeError("provider refresh_credential returned no rotated fields")
                 updated = apply_plugin_refresh_result(entry, rotated)
             elif self.provider == "nous":
-                stale_key = entry.runtime_api_key or entry.agent_key or entry.access_token
+                # The bearer the request SENT, not this row's (maybe older) copy: adopting it replays the 401.
+                stale_key = failed_key or entry.runtime_api_key or entry.agent_key or entry.access_token
                 synced = self._sync_nous_entry_from_auth_store(entry)
                 if synced is not entry:
                     entry = synced
-                    # A peer already rotated and persisted a usable key: adopt
-                    # it without consuming the single-use refresh token again.
+                    # A peer persisted a DIFFERENT usable key: adopt it without re-spending the refresh token.
                     if force and entry.runtime_api_key and entry.runtime_api_key != stale_key:
-                        logger.debug("Nous entry %s: adopting peer-rotated token, skipping refresh", entry.id)
+                        logger.debug("HIP entry %s: adopting peer-rotated token, skipping refresh", entry.id)
                         return entry
                 auth_mod.resolve_nous_runtime_credentials(force_refresh=force, stale_access_token=stale_key or None)
                 updated = self._sync_nous_entry_from_auth_store(entry)
@@ -1774,7 +1774,7 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
                 # CLI's credentials file here — only Hermes' own row goes DEAD.
                 logger.warning(
                     "Anthropic OAuth refresh token for %s is terminally invalid (%s); the credential "
-                    "leaves rotation. Re-run 'hermes auth add anthropic' to sign in again.",
+                    "leaves rotation. Re-run 'huntington auth add anthropic' to sign in again.",
                     entry.label or entry.id[:8], exc)
                 self._mark_dead_refresh_grant(entry, exc)
                 return None
@@ -1793,7 +1793,7 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
                 # silent quarantine looked like "I logged in once and Hermes keeps failing" (#113023).
                 logger.warning(
                     "%s OAuth refresh token is terminally invalid (%s); clearing local token state. "
-                    "Re-run 'hermes auth add %s' to sign in again.", display, exc, self.provider)
+                    "Re-run 'huntington auth add %s' to sign in again.", display, exc, self.provider)
                 self._clear_terminal_tokens_state(entry, exc)
                 self._quarantine_sources(entry, {"device_code"})
                 self._mark_dead_refresh_grant(entry, exc)
@@ -1801,7 +1801,7 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
         elif self.provider == "nous":
             synced = self._sync_nous_entry_from_auth_store(entry)
             if synced.refresh_token != entry.refresh_token:
-                logger.debug("Nous refresh failed but auth.json has newer tokens — adopting")
+                logger.debug("HIP refresh failed but auth.json has newer tokens — adopting")
                 updated = self._adopt(synced, **_MARK_OK)
                 self._sync_device_code_entry_to_auth_store(updated)
                 return updated
@@ -1810,12 +1810,12 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
                 # nothing about the credential — benching it here emptied the
                 # pool for ~120 sessions ("matched no nous entry ... pool size
                 # 0"). The caller's retry re-syncs once the winner persisted.
-                logger.debug("Nous refresh skipped: auth store lock busy; not benching entry")
+                logger.debug("HIP refresh skipped: auth store lock busy; not benching entry")
                 return entry
             if auth_mod._is_terminal_nous_refresh_error(exc):
                 logger.warning(
-                    "Nous refresh token is terminally invalid (%s); clearing local token state. "
-                    "Re-run 'hermes auth add nous' to sign in again.", exc)
+                    "HIP refresh token is terminally invalid (%s); clearing local token state. "
+                    "Re-run 'huntington auth add nous' to sign in again.", exc)
                 self._clear_terminal_nous_state(entry, exc)
                 self._quarantine_sources(
                     entry,
@@ -1897,7 +1897,7 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
                     _save_provider_state(auth_store, "nous", state)
                     _save_auth_store(auth_store)
         except Exception as clear_exc:
-            logger.debug("Failed to clear terminal Nous OAuth state: %s", clear_exc)
+            logger.debug("Failed to clear terminal HIP OAuth state: %s", clear_exc)
 
     def _codex_quota_restored_upstream(self, entry: PooledCredential) -> bool:
         """Live-check whether an exhausted Codex entry's quota reset early.
@@ -2065,7 +2065,7 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
                     if dead_at and now - dead_at > DEAD_MANUAL_PRUNE_TTL_SECONDS:
                         logger.warning(
                             "credential pool: pruning DEAD manual entry %s "
-                            "(reason=%s, age=%.1fh) — re-add via `hermes auth add %s`",
+                            "(reason=%s, age=%.1fh) — re-add via `huntington auth add %s`",
                             entry.label or entry.id[:8],
                             entry.last_error_reason or "unknown",
                             (now - dead_at) / 3600.0,
@@ -2408,13 +2408,13 @@ class CredentialPool(CredentialPoolAdminMixin, CredentialPoolModelCooldownMixin)
             if entry is None:
                 return None
             self._current_id = entry.id
-            return self._try_refresh_current_unlocked()
+            return self._try_refresh_current_unlocked(failed_key=api_key_hint)
 
-    def _try_refresh_current_unlocked(self) -> Optional[PooledCredential]:
+    def _try_refresh_current_unlocked(self, failed_key: Optional[str] = None) -> Optional[PooledCredential]:
         entry = self._current_unlocked()
         if entry is None:
             return None
-        refreshed = self._refresh_entry(entry, force=True)
+        refreshed = self._refresh_entry(entry, force=True, failed_key=failed_key)
         if refreshed is not None:
             self._current_id = refreshed.id
         return refreshed
@@ -2797,7 +2797,7 @@ def _warn_env_ingestion_once(provider: str, env_var: str) -> None:
     logger.warning(
         "Ingested %s from environment into the %s credential pool — this "
         "enables %s spend. Remove the key or run "
-        "hermes auth remove %s <n> to suppress.",
+        "huntington auth remove %s <n> to suppress.",
         env_var,
         provider,
         "OpenRouter" if provider == "openrouter" else provider,

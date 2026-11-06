@@ -2131,7 +2131,7 @@ if config_exists(_config_path):
             file=sys.stderr)
         print(
             "  Gateway will fall back to .env values, which may not match "
-            "your current config.yaml. Run `hermes doctor` to investigate.",
+            "your current config.yaml. Run `huntington doctor` to investigate.",
             file=sys.stderr)
 
 # IPv4 preference must apply before any HTTP clients are created.
@@ -3612,7 +3612,7 @@ class GatewayRunner(
                 return
         logger.warning(
             "Docker backend is enabled for the messaging gateway but no explicit host-visible "
-            "output mount (for example '/home/user/.hermes/cache/documents:/output') is configured. "
+            "output mount (for example '/home/user/.huntington/cache/documents:/output') is configured. "
             "This is fine if the model already emits host-visible paths, but MEDIA file delivery can fail "
             "for container-local paths like '/workspace/...' or '/output/...'.")
 
@@ -4050,14 +4050,14 @@ class GatewayRunner(
         unset by default.
         """
         return GatewayRunner._get_or_create_pool(
-            self, "_executor", lambda: _UnboundedThreadExecutor(thread_name_prefix="hermes-gateway"))
+            self, "_executor", lambda: _UnboundedThreadExecutor(thread_name_prefix="huntington-gateway"))
 
     def _get_housekeeping_executor(self) -> concurrent.futures.Executor:
         """Return the gateway-owned executor for best-effort session housekeeping."""
         return GatewayRunner._get_or_create_pool(
             self, "_housekeeping_executor",
             lambda: concurrent.futures.ThreadPoolExecutor(
-                max_workers=_HOUSEKEEPING_MAX_WORKERS, thread_name_prefix="hermes-gateway-hk"))
+                max_workers=_HOUSEKEEPING_MAX_WORKERS, thread_name_prefix="huntington-gateway-hk"))
 
     @staticmethod
     def _stop_pool(executor) -> list:
@@ -4825,7 +4825,7 @@ def _start_gateway_make_restart_signal_handler(runner):
         # systemd's `reload` verb (ExecReload=kill -USR1) lands here too; say so, because operators
         # expect `reload` to mean an in-process config reload, not a drain-and-relaunch (#117267).
         logger.info(
-            "SIGUSR1 received (systemctl reload / hermes gateway restart): performing a graceful "
+            "SIGUSR1 received (systemctl reload / huntington gateway restart): performing a graceful "
             "gateway restart — drain active turns, exit, supervisor relaunches. Not an in-process "
             "config reload.")
         runner.request_restart(detached=False, via_service=True)
@@ -4901,7 +4901,7 @@ def _claim_host_gateway_role(force: bool = False) -> None:
         # The lock is per OS user, so a second tenant root can never win it against the first:
         # refusing 75 here would retry forever and its gateway would never start (#121352).
         logger.warning(
-            "Another Hermes home's gateway owns this host (%s); starting this home's gateway beside it.",
+            "Another Huntington home's gateway owns this host (%s); starting this home's gateway beside it.",
             hr.describe(owner))
         return
     if profile_is_standalone(get_hermes_home()):
@@ -4975,7 +4975,7 @@ def _refuse_second_host_gateway(owner) -> None:
         f"   second one (it would double-bind this profile's platforms).\n"
         f"   Fold every profile onto the owner:  {_migrate_command()}\n"
         f"   Or stop the other gateway first, then start this one.\n"
-        f"   Or start one anyway (skips the host-lock check):  hermes gateway run --force\n"
+        f"   Or start one anyway (skips the host-lock check):  huntington gateway run --force\n"
         f"   (--replace does not skip this check; it only replaces an owner that serves this profile.)")
     logger.error("Refusing to start a second gateway on this host: %s", who)
     print(message)
@@ -5141,7 +5141,7 @@ def main():
         logger.debug("boot bootstrap failed", exc_info=True)
 
     import argparse
-    parser = argparse.ArgumentParser(description="Hermes Gateway - Multi-platform messaging")
+    parser = argparse.ArgumentParser(description="Huntington Gateway - Multi-platform messaging")
     parser.add_argument("--config", "-c", help="Path to gateway config file")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     args = parser.parse_args()

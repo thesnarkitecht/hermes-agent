@@ -23,7 +23,7 @@ from hermes_cli import update_cmd, update_cmd_maint
 @pytest.fixture()
 def receipt_home(tmp_path, monkeypatch):
     """Isolated HERMES_HOME for receipt writes."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     # ``_receipt_dir`` resolves through ``hermes_constants.get_hermes_home`` (env var), not
     # ``hermes_cli.config`` — patch where production reads.
@@ -43,7 +43,7 @@ class TestReceiptLifecycle:
         ur.record_step("pre_update_backup", True, "snapshot=abc123")
         ur.record_skip("gateway_restart", "no gateways running")
         ur.record_gateway_restart(
-            restarted_services=["hermes-gateway"],
+            restarted_services=["huntington-gateway"],
             relaunched_profiles=["work"],
             killed_pids=[123],
             failed_units=[],
@@ -60,7 +60,7 @@ class TestReceiptLifecycle:
         assert payload["steps"][0]["ok"] is True
         assert payload["skips"][0]["reason"] == "no gateways running"
         gr = payload["gateway_restart"]
-        assert gr["restarted_services"] == ["hermes-gateway"]
+        assert gr["restarted_services"] == ["huntington-gateway"]
         assert gr["relaunched_profiles"] == ["work"]
         assert gr["killed_pids"] == [123]
         assert gr["incomplete"] is False
@@ -309,7 +309,7 @@ class TestFleetClassification:
         home.mkdir()
         gateway_record = {
             "gateway_state": "running",
-            "kind": "hermes-gateway",
+            "kind": "huntington-gateway",
             "argv": ["hermes", "gateway", "run"],
             **record,
         }
@@ -438,7 +438,7 @@ class TestFleetClassification:
         record = {
             "pid": 4242,
             "gateway_state": "running",
-            "kind": "hermes-gateway",
+            "kind": "huntington-gateway",
             "argv": ["hermes", "gateway", "run"],
             "code_sha": "a" * 40,
             "code_version": "1.0",

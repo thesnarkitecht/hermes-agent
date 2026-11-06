@@ -110,7 +110,7 @@ class GatewayStartupMixin:
         if not (self._external_drain_active or self._draining or not self._running):
             self._update_runtime_status(self._serving_state())
         logger.error(
-            "%s is parked after a non-retryable error (fix it, then `hermes gateway restart`). The gateway "
+            "%s is parked after a non-retryable error (fix it, then `huntington gateway restart`). The gateway "
             "is DEGRADED — it serves local clients and cron with no messaging platform. %s: %s",
             adapter.platform.value, adapter.fatal_error_code or "unknown",
             adapter.fatal_error_message or "unknown error",
@@ -1006,7 +1006,7 @@ class GatewayStartupMixin:
             _adv_msg = gateway_log_message(detect_compromised())
             if _adv_msg:
                 logger.warning("%s", _adv_msg)
-                logger.warning("Run `hermes doctor` on the gateway host for full remediation steps.")
+                logger.warning("Run `huntington doctor` on the gateway host for full remediation steps.")
 
     def _start_log_retired_session_reset(self) -> None:
         """Warn per served profile whose config still declares an idle/daily ``session_reset``,
@@ -1034,7 +1034,7 @@ class GatewayStartupMixin:
                 logger.warning(
                     "Stale systemd unit detected: %s has TimeoutStopSec=%.0fs but drain_timeout=%.0fs "
                     "cron_drain_timeout=%.0fs (expected >=%.0fs). systemd may SIGKILL the gateway "
-                    "mid-drain. Run `hermes gateway install --force` to regenerate the unit, or shorten "
+                    "mid-drain. Run `huntington gateway install --force` to regenerate the unit, or shorten "
                     "agent.restart_drain_timeout / agent.cron_drain_timeout.",
                     _alignment.get("unit", "(unknown)"), _alignment["timeout_stop_sec"],
                     _alignment["drain_timeout"],
@@ -1127,6 +1127,26 @@ class GatewayStartupMixin:
             logger.warning("relay adapter registration failed at gateway startup", exc_info=True)
         GatewayStartupMixin._register_launch_profile_config_hooks()
 
+    def _start_relay_provision_retry(self) -> None:
+        """Keep provisioning in the background when the boot attempt left the relay without
+        credentials; cancelled with ``_background_tasks`` at shutdown. Never raises."""
+        try:
+            from gateway.relay import relay_provision_pending, retry_self_provision
+            if relay_provision_pending():
+                self._retain_background_task(asyncio.create_task(
+                    retry_self_provision(self._on_relay_provisioned), name="relay-provision-retry"))
+        except Exception:
+            logger.warning("relay self-provision retry could not start", exc_info=True)
+
+    def _on_relay_provisioned(self) -> None:
+        """Credentials arrived after boot: the reconnect watcher builds every relay adapter from
+        the live env, so pull its queued retry forward instead of waiting out the backoff.
+        ``retry_now`` keeps it forward if a pass that began without them is still dialing."""
+        info = getattr(self, "_failed_platforms", {}).get(Platform.RELAY)
+        if info is not None:
+            info["next_retry"] = 0.0
+            info["retry_now"] = True
+
     @staticmethod
     def _register_launch_profile_config_hooks() -> None:
         """The launch profile's ``hooks:`` block, registered under ITS runtime scope when multiplexing.
@@ -1189,6 +1209,7 @@ class GatewayStartupMixin:
         """Plugins, relay, hooks, then crash/clean-exit recovery of processes and sessions."""
         from gateway.run import _hermes_home
         self._start_register_plugins_relay_hooks()
+        self._start_relay_provision_retry()
         # Plugins that load later (force re-discovery, install/enable nudge) re-wire live adapters (#87770).
         with _log_suppressed(logging.WARNING, "plugin re-wire subscription failed", exc_info=True):
             from hermes_cli.plugins import get_plugin_manager
@@ -1241,7 +1262,6 @@ class GatewayStartupMixin:
         """Create + wire an adapter per enabled platform (no connects). Returns
         (aborted, enabled_platform_count, multiplex_skipped_platforms, pending_connects)."""
         from gateway.run import _platform_has_bot_credential
-        from gateway.run_adapters import _adapter_unavailable_message
         enabled_platform_count = 0
         _multiplex_on = self._multiplex_on()
         _multiplex_skipped_platforms: list[Platform] = []
@@ -1279,12 +1299,7 @@ class GatewayStartupMixin:
                 # Only a platform that can heal on its own is queued for the reconnect watcher; either way
                 # flag it so the unserved enabled platform is visible.
                 heals = self._adapter_may_heal(platform, platform_config)
-                self._update_platform_runtime_status(
-                    platform.value, platform_state="retrying" if heals else "fatal",
-                    error_code="adapter_unavailable",
-                    error_message=_adapter_unavailable_message(platform, retrying=heals),
-                    needs_attention=True,
-                )
+                self._mark_adapter_unavailable(platform.value, platform, retrying=heals, needs_attention=True)
                 if heals:
                     self._failed_platforms[platform] = self._startup_retry_entry(platform, None, platform_config)
                 continue
@@ -1477,7 +1492,7 @@ class GatewayStartupMixin:
                 self._startup_parked_platforms = True
                 logger.error(
                     "%d configured platform(s) failed to start and are parked (fix the reported error, "
-                    "then `hermes gateway restart`): %s. The gateway is DEGRADED — it serves the "
+                    "then `huntington gateway restart`): %s. The gateway is DEGRADED — it serves the "
                     "remaining platform(s) with those unserved.",
                     len(startup_nonretryable_errors), "; ".join(startup_nonretryable_errors),
                 )
@@ -1494,7 +1509,7 @@ class GatewayStartupMixin:
             self._startup_parked_platforms = True
             logger.error(
                 "%d configured platform(s) failed to start and are parked (fix the reported error, then "
-                "`hermes gateway restart`): %s. The gateway is DEGRADED — it serves local clients and "
+                "`huntington gateway restart`): %s. The gateway is DEGRADED — it serves local clients and "
                 "cron with no messaging platform.",
                 len(startup_nonretryable_errors), "; ".join(startup_nonretryable_errors),
             )
@@ -1689,7 +1704,7 @@ class GatewayStartupMixin:
             await self._start_flush_runtime_status()
 
     async def _start_impl(self) -> bool:
-        logger.info("Starting Hermes Gateway...")
+        logger.info("Starting Huntington Gateway...")
         self._start_install_faulthandler()
         await self._start_log_startup_environment()
         if await self._abort_startup_if_shutdown_requested():

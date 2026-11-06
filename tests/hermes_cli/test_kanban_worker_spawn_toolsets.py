@@ -27,7 +27,7 @@ def _make_task(kb, *, assignee: str):
 
 def test_default_spawn_pins_assignee_profile_cli_toolsets(monkeypatch, tmp_path):
     """The transport client reaches the assigned profile with its exact run claim."""
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     profile = root / "profiles" / "elias"
     profile.mkdir(parents=True)
     profile.joinpath("config.yaml").write_text(
@@ -85,7 +85,7 @@ agent:
 
 def test_default_spawn_does_not_pass_mutable_launch_overrides(monkeypatch, tmp_path):
     """Owner policy reads overrides from the claimed card, not executable argv."""
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     (root / "profiles" / "elias").mkdir(parents=True)
     root.joinpath("config.yaml").write_text("{}\n", encoding="utf-8")
     monkeypatch.setenv("HERMES_HOME", str(root))
@@ -120,7 +120,7 @@ def test_default_spawn_resolves_env_passthrough_under_multiplex(monkeypatch, tmp
     forward the ASSIGNEE profile's own value, never crash on an unscoped read or leak the
     dispatcher's ambient os.environ (#109494).
     """
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     profile = root / "profiles" / "elias"
     profile.mkdir(parents=True)
     root.joinpath("config.yaml").write_text(
@@ -171,7 +171,7 @@ def test_worker_toolsets_come_from_the_assignee_profile_not_the_parent_config(tm
 
     from hermes_cli import kanban_db as kb
     from hermes_cli.kanban_db_connect import connect
-    from gateway.session_contract import Principal
+    from gateway.session_contract import SessionActor
     from gateway.session_kanban import build_kanban_policy
 
     profile = tmp_path / "profiles" / "elias"
@@ -189,7 +189,7 @@ def test_worker_toolsets_come_from_the_assignee_profile_not_the_parent_config(tm
                                  workspace_kind="dir", workspace_path=str(workspace))
         kb.recompute_ready(conn)
         task = kb.claim_task(conn, task_id)
-    actor = Principal("owner", str(profile), frozenset({"session:create"}), "transport")
+    actor = SessionActor("owner", str(profile), frozenset({"session:create"}), "transport")
     connection = SimpleNamespace(authority=SimpleNamespace(profile_id=str(profile)), actor=actor, native_owner=True)
     params = dict(board="owned", task_id=task.id, run_id=task.current_run_id, claim_lock=task.claim_lock)
 

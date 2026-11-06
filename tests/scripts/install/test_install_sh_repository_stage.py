@@ -213,9 +213,9 @@ def test_path_uv_is_never_used_even_when_newer_than_the_pin(tmp_path):
 
 def test_interactive_stages_skip_without_a_terminal(tmp_path):
     install = tmp_path / "install"
-    (install / ".hermes" / "bin").mkdir(parents=True)
+    (install / ".huntington" / "bin").mkdir(parents=True)
     marker = tmp_path / "ran"
-    hermes = install / ".hermes" / "bin" / "hermes"
+    hermes = install / ".huntington" / "bin" / "hermes"
     hermes.write_text(f"#!/bin/sh\ntouch {shlex.quote(marker.as_posix())}\n")
     hermes.chmod(0o755)
     # A new session has no controlling terminal, so opening /dev/tty fails.

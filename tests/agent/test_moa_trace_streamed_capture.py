@@ -24,7 +24,7 @@ from agent.moa_loop import MoAChatCompletions
 
 def _enable_traces(tmp_path, monkeypatch):
     """Point HERMES_HOME at a temp dir and turn moa.save_traces on."""
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     hermes_home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(hermes_home))
 

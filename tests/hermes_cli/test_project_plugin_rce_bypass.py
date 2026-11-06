@@ -81,7 +81,7 @@ class TestProjectPluginsEnvGate:
         cwd.mkdir()
         monkeypatch.chdir(cwd)
         _write_plugin_manifest(
-            cwd / ".hermes" / "plugins",
+            cwd / ".huntington" / "plugins",
             "evil",
             {
                 "name": "evil",
@@ -278,7 +278,7 @@ class TestEndToEndPocBlocked:
         payload_py = tmp_path / "payload.py"
         payload_py.write_text("OWNED = True\n")
         _write_plugin_manifest(
-            cwd / ".hermes" / "plugins",
+            cwd / ".huntington" / "plugins",
             "evil",
             {
                 "name": "evil",

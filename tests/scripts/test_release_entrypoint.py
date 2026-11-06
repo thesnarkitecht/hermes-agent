@@ -127,7 +127,7 @@ def test_release_claims_the_first_attempt_creates_a_draft_and_dispatches(source)
     assert "--verify-tag" in create and "--draft" in create
     assert "--generate-notes" not in create
     assert "--notes-file" in create
-    assert create[-2:] == ["--title", "Hermes Agent v0.21.5"]
+    assert create[-2:] == ["--title", "HUNTINGTON-AGENT v0.21.5"]
     assert calls[1:] == [
         # Stable dispatches the default-branch workflow. The tag is an input.
         ["gh", "workflow", "run", "stable-release.yml", "--ref", "main",
@@ -182,7 +182,7 @@ def test_release_output_names_the_ci_run_and_the_publish_step():
     # The publish command sits on its own line so it can be copied whole.
     assert "\n    python scripts/release.py publish --version 0.21.5 --remote origin" in text
     # The default set names what it leaves out, and warns about no test lane.
-    assert "Not built: macos-intel, termux." in text
+    assert "Not built: termux." in text
     assert "Not tested" not in text
 
     automatic = next_steps({**result, "autopublish": True})
@@ -191,7 +191,7 @@ def test_release_output_names_the_ci_run_and_the_publish_step():
 
     # --only windows,docker: no tests, no macOS, and a partial desktop set never moves the channel.
     windows = next_steps({**result, "lanes": lane_set.select(only=["windows", "docker"])})
-    assert "Not built: windows-store, macos-arm64, macos-intel, termux." in windows
+    assert "Not built: windows-store, macos-arm64, termux." in windows
     assert "Not tested: ci, nix, docker-tests, pm-bundle, windows-live, install-e2e, bootstrap-version, smoke, upgrade" in windows
     assert "partial desktop release" in windows
     assert "\033[" not in windows
@@ -590,7 +590,7 @@ def test_changelog_prints_the_notes_a_draft_would_carry_and_claims_nothing(sourc
     release_script.main()
 
     out = capsys.readouterr().out
-    assert out.startswith("# Hermes Agent v0.21.5 (rc.1-v0.21.5)")
+    assert out.startswith("# HUNTINGTON-AGENT v0.21.5 (rc.1-v0.21.5)")
     assert "New in this release" in out
     assert "hipped in the published release" not in out
     assert git(source, "ls-remote", "origin", "refs/tags/*") == ""
@@ -1071,14 +1071,14 @@ def test_a_concurrent_cut_of_another_version_is_stopped_before_dispatch(
 
 def test_release_refuses_an_unknown_lane_before_touching_git(tmp_path):
     ran = subprocess.run(
-        [sys.executable, "scripts/release.py", "release", "--commit", "HEAD", "--with", "macos-intell"],
+        [sys.executable, "scripts/release.py", "release", "--commit", "HEAD", "--with", "macos-arm"],
         cwd=ROOT, capture_output=True, text=True, encoding="utf-8", check=False)
     assert ran.returncode != 0
-    assert "unknown lane macos-intell" in ran.stderr and "macos-intel" in ran.stderr
+    assert "unknown lane macos-arm" in ran.stderr and "macos-arm64" in ran.stderr
     both = subprocess.run(
         [sys.executable, "scripts/release.py", "release", "--commit", "HEAD", "--with", "ci", "--without", "ci"],
         cwd=ROOT, capture_output=True, text=True, encoding="utf-8", check=False)
     assert "--with and --without both name ci" in both.stderr
     helped = subprocess.run([sys.executable, "scripts/release.py", "release", "--help"], cwd=ROOT,
                             capture_output=True, text=True, encoding="utf-8", check=False)
-    assert "macos-intel (off)" in helped.stdout and "docker-tests" in helped.stdout
+    assert "termux (off)" in helped.stdout and "docker-tests" in helped.stdout

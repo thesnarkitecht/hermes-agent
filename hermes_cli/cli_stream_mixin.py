@@ -273,9 +273,8 @@ class CLIStreamMixin:
             from hermes_cli.cli_modern_layout import reasoning_text_line, separator
             if not getattr(self, "_reasoning_box_opened", False):
                 self._reasoning_box_opened, self._reasoning_started_at = True, time.monotonic()
-                self._reasoning_buf, self._reasoning_full_text = "", ""
+                self._reasoning_buf = ""
                 _cprint("\n" + separator(False))
-            self._reasoning_full_text = getattr(self, "_reasoning_full_text", "") + text
             self._reasoning_buf = getattr(self, "_reasoning_buf", "") + text
             # Live, as classic: complete lines now, long partial lines force-flushed.
             while "\n" in self._reasoning_buf:
@@ -331,10 +330,9 @@ class CLIStreamMixin:
             if getattr(self, "_reasoning_buf", ""):
                 _cprint(reasoning_text_line(self._reasoning_buf))
             started = getattr(self, "_reasoning_started_at", 0.0)
-            _cprint(thought_line(time.monotonic() - started if started else None,
-                                 getattr(self, "_reasoning_full_text", "")))
+            _cprint(thought_line(time.monotonic() - started if started else None))
             _cprint(closing_separator(False))
-            self._reasoning_buf, self._reasoning_full_text, self._reasoning_box_opened = "", "", False
+            self._reasoning_buf, self._reasoning_box_opened = "", False
             if not getattr(self, "_stream_box_live", False):
                 self._release_held_status_lines()
             return
@@ -481,10 +479,10 @@ class CLIStreamMixin:
             try:
                 from hermes_cli.skin_engine import get_active_skin
                 _skin = get_active_skin()
-                label = _skin.get_branding("response_label", "☤ Hermes")
+                label = _skin.get_branding("response_label", "☤ Huntington")
                 _text_hex = _skin.get_color("banner_text", "#FFF8DC")
             except Exception:
-                label = "☤ Hermes"
+                label = "☤ Huntington"
                 _text_hex = "#FFF8DC"
             try:  # true-color escape so streamed text matches the Rich Panel appearance
                 _r, _g, _b = (int(_text_hex[i:i + 2], 16) for i in (1, 3, 5))

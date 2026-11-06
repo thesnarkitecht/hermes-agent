@@ -41,7 +41,7 @@ import pytest
 def isolated_home(monkeypatch):
     """Temp HERMES_HOME with config + clean credential env vars."""
     test_home = tempfile.mkdtemp(prefix="hermes_test_31179_")
-    hermes_home = os.path.join(test_home, ".hermes")
+    hermes_home = os.path.join(test_home, ".huntington")
     os.makedirs(hermes_home)
     monkeypatch.setenv("HERMES_HOME", hermes_home)
 
@@ -88,6 +88,17 @@ def _module_isolation():
 def _fresh_modules():
     """Drop cached hermes modules so each test reloads against current env."""
     _drop_reload_targets()
+
+
+def _seed_models_dev(monkeypatch, registry: dict) -> None:
+    """Serve ``registry`` as the in-memory models.dev catalog (fresh, so no fetch is attempted).
+
+    Capability verdicts come from models.dev; left unseeded, the test read whatever models.dev
+    served live, and offline every model was "capability unknown"."""
+    from agent import models_dev
+
+    monkeypatch.setattr(models_dev, "_models_dev_cache", registry)
+    monkeypatch.setattr(models_dev, "_models_dev_cache_time", float("inf"))
 
 
 # ---------------------------------------------------------------------------
@@ -176,6 +187,11 @@ model:
   default: deepseek-v4-pro
 """)
         monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-test")
+        _seed_models_dev(monkeypatch, {"deepseek": {"id": "deepseek", "models": {"deepseek-v4-pro": {
+            "id": "deepseek-v4-pro", "attachment": False,
+            "modalities": {"input": ["text"], "output": ["text"]},
+            "limit": {"context": 1048576, "output": 393216},
+        }}}})
         _fresh_modules()
 
         from agent.auxiliary_client import resolve_vision_provider_client
@@ -194,6 +210,11 @@ model:
   default: claude-sonnet-4-6
 """)
         monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+        _seed_models_dev(monkeypatch, {"anthropic": {"id": "anthropic", "models": {"claude-sonnet-4-6": {
+            "id": "claude-sonnet-4-6", "attachment": True,
+            "modalities": {"input": ["text", "image", "pdf"], "output": ["text"]},
+            "limit": {"context": 1000000, "output": 64000},
+        }}}})
         _fresh_modules()
 
         from agent.auxiliary_client import resolve_vision_provider_client

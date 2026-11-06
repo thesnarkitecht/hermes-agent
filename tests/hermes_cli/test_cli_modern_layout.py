@@ -38,20 +38,22 @@ def test_glyph_layout_scrollback_is_width_independent(monkeypatch, modern):
     assert narrow == wide and not boxed, wide
     rows = "\n".join(wide).split("\n")
     thought = [line for line in rows if line.startswith("∴")]
-    assert len(thought) == 1 and "Planning the change" in thought[0], rows
+    # The summary never excerpts the reasoning (printed in full right above it): bare "∴ Thought for Ns".
+    assert len(thought) == 1 and "·" not in thought[0], rows
     # Reasoning streams in full like classic, under a fixed-width dim bar (never re-wraps on resize)
     # and closed by the ∴ summary; the answer opens under its own bar.
     start = rows.index("**Planning the change**")
     assert rows[start - 1] == "─" * 40 and rows[start + 1] == "I will read calc.py first.", rows
     assert rows[start + 2] == thought[0], rows
-    assert rows[next(i for i, r in enumerate(rows) if r.startswith("☤ Hermes")) - 1] == "─" * 40, rows
+    assert rows[next(i for i, r in enumerate(rows) if r.startswith("☤ Huntington")) - 1] == "─" * 40, rows
     assert any("Added multiply to calc.py." in line for line in rows)
 
 
 @pytest.mark.parametrize("reasoning", [
     "scripted reasoning about gamma zeta-reason",
-    # Longer than the 72-char title cap: a shortened title would still repeat it.
-    "scripted reasoning about gamma zeta-reason that keeps going well past the title length cap here",
+    # Long and multi-sentence blocks must not add an excerpt to the summary either.
+    "scripted reasoning about gamma zeta-reason that keeps going well past any short title length here",
+    "I will check the failure first. Then I will compare it with main.",
 ])
 def test_one_line_reasoning_is_shown_once(monkeypatch, reasoning):
     """Reasoning streams above its ∴ summary, so a one-sentence block must not reappear as the title."""
@@ -112,7 +114,7 @@ def test_layout_and_busy_default_through_the_config_loader(tmp_path, monkeypatch
     import cli
     from hermes_cli.cli_modern_layout import busy_input_mode_from_config, layout_from_config
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(cli, "_hermes_home", home)

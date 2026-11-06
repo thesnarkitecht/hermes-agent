@@ -52,6 +52,13 @@ class LocalSessionAdapter(BasePlatformAdapter):
     def register_source(self, source):
         self.sources[self._source_key(source)] = source, self._identity(source)
 
+    def kept_source(self, source):
+        """The object this route was admitted with when *source* is that same source: a closed
+        conversation retired from memory comes back with it, so the results its background work
+        still holds pass ``authorize_source`` (an identity check)."""
+        saved = self.sources.get(self._source_key(source))
+        return saved[0] if saved is not None and saved[0].to_dict() == source.to_dict() else source
+
     def forget(self, source, route):
         """A deleted conversation's admission source, frozen policy and post-delivery slot (a local
         route names one conversation; a detached copy keeps only its own key, its chat's stays)."""
@@ -218,7 +225,7 @@ def project_plugins_warning(policy):
     from utils import is_truthy_value
     # The client's folder is a path on this host only for a client the gateway proved local.
     env = policy.client_env() if policy is not None and not policy.client_env_remote else None
-    folder = Path(policy.cwd) / '.hermes' / 'plugins' if env else None
+    folder = Path(policy.cwd) / '.huntington' / 'plugins' if env else None
     if not env or not is_truthy_value(env.get('HERMES_ENABLE_PROJECT_PLUGINS')) or not folder.is_dir():
         return None
     try:
@@ -226,8 +233,8 @@ def project_plugins_warning(policy):
             return None
     except OSError:  # an unlistable folder skips the optional notice, never the session
         return None
-    return (f'project plugins in {folder} are not loaded: the gateway that runs Hermes sessions does not '
-            'load ./.hermes/plugins, so HERMES_ENABLE_PROJECT_PLUGINS has no effect here.')
+    return (f'project plugins in {folder} are not loaded: the gateway that runs Huntington sessions does not '
+            'load ./.huntington/plugins, so HERMES_ENABLE_PROJECT_PLUGINS has no effect here.')
 
 
 def create_local_session(authority, actor, params, *, trusted_policy=None, trusted_secrets=None, skills_prompt=None,

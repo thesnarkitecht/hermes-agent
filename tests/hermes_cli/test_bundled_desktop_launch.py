@@ -66,7 +66,7 @@ def _payload(app_root: Path, *, resources_name: str = "resources") -> Path:
 def _linux_bundle(tmp_path: Path) -> Path:
     app = tmp_path / "linux-unpacked"
     repo = _payload(app)
-    _exe(app / "Hermes")
+    _exe(app / "Huntington")
     # The helpers a Linux Electron tree ships beside its launcher.
     _exe(app / "chrome-sandbox")
     _exe(app / "chrome_crashpad_handler")
@@ -76,17 +76,17 @@ def _linux_bundle(tmp_path: Path) -> Path:
 
 
 def _windows_bundle(tmp_path: Path) -> Path:
-    app = tmp_path / "Hermes"
+    app = tmp_path / "Huntington"
     repo = _payload(app)
-    _exe(app / "Hermes.exe")
-    _exe(app / "Uninstall Hermes.exe")
+    _exe(app / "Huntington.exe")
+    _exe(app / "Uninstall Huntington.exe")
     return repo
 
 
 def _macos_bundle(tmp_path: Path) -> Path:
-    app = tmp_path / "Hermes.app"
+    app = tmp_path / "Huntington.app"
     repo = _payload(app / "Contents", resources_name="Resources")
-    _exe(app / "Contents" / "MacOS" / "Hermes")
+    _exe(app / "Contents" / "MacOS" / "Huntington")
     return repo
 
 
@@ -99,11 +99,11 @@ def _host_bundle(tmp_path: Path) -> tuple[Path, Path]:
     """
     if sys.platform == "win32":
         repo = _windows_bundle(tmp_path)
-        return repo, tmp_path / "Hermes" / "Hermes.exe"
+        return repo, tmp_path / "Huntington" / "Huntington.exe"
     if sys.platform == "darwin":
-        return _macos_bundle(tmp_path), tmp_path / "Hermes.app/Contents/MacOS/Hermes"
+        return _macos_bundle(tmp_path), tmp_path / "Huntington.app/Contents/MacOS/Hermes"
     repo = _linux_bundle(tmp_path)
-    return repo, tmp_path / "linux-unpacked" / "Hermes"
+    return repo, tmp_path / "linux-unpacked" / "Huntington"
 
 
 class TestResolveBundleLayout:
@@ -113,19 +113,19 @@ class TestResolveBundleLayout:
         layout = resolve_bundle_layout(repo, platform="linux")
         assert layout.app_root == tmp_path / "linux-unpacked"
         assert layout.payload.name == "agent-payload"
-        assert layout.launcher == tmp_path / "linux-unpacked" / "Hermes"
+        assert layout.launcher == tmp_path / "linux-unpacked" / "Huntington"
 
     def test_windows_launcher_is_never_the_uninstaller(self, tmp_path):
         repo = _windows_bundle(tmp_path)
         layout = resolve_bundle_layout(repo, platform="win32")
-        assert layout.launcher == tmp_path / "Hermes" / "Hermes.exe"
+        assert layout.launcher == tmp_path / "Huntington" / "Huntington.exe"
 
     def test_macos_app_root_climbs_out_of_contents_resources(self, tmp_path):
         repo = _macos_bundle(tmp_path)
         layout = resolve_bundle_layout(repo, platform="darwin")
-        assert layout.app_root == tmp_path / "Hermes.app"
-        assert layout.resources == tmp_path / "Hermes.app" / "Contents" / "Resources"
-        assert layout.launcher == tmp_path / "Hermes.app" / "Contents" / "MacOS" / "Hermes"
+        assert layout.app_root == tmp_path / "Huntington.app"
+        assert layout.resources == tmp_path / "Huntington.app" / "Contents" / "Resources"
+        assert layout.launcher == tmp_path / "Huntington.app" / "Contents" / "MacOS" / "Huntington"
 
     def test_ambiguous_launcher_reports_none_rather_than_guessing(self, tmp_path):
         repo = _windows_bundle(tmp_path)
@@ -133,7 +133,7 @@ class TestResolveBundleLayout:
         assert resolve_bundle_layout(repo, platform="win32").launcher is None
 
     def test_a_checkout_is_not_a_bundle(self, tmp_path):
-        checkout = tmp_path / "hermes-agent"
+        checkout = tmp_path / "huntington-agent"
         (checkout / "apps" / "desktop").mkdir(parents=True)
         with pytest.raises(NotBundledApp):
             resolve_bundle_layout(checkout)
@@ -155,20 +155,20 @@ class TestShapePredicate:
     def test_a_surviving_desktop_package_json_does_not_make_a_bundle(self, tmp_path):
         """repo/apps/desktop survives the payload prune, so a filesystem
         probe cannot be the authority — only the stamp can."""
-        checkout = tmp_path / "hermes-agent"
+        checkout = tmp_path / "huntington-agent"
         (checkout / "apps" / "desktop").mkdir(parents=True)
         (checkout / "apps" / "desktop" / "package.json").write_text("{}\n")
         assert not is_bundled_payload(checkout)
 
     def test_a_bootstrap_artifact_is_not_bundled(self, tmp_path):
-        root = tmp_path / "hermes-agent"
+        root = tmp_path / "huntington-agent"
         root.mkdir()
         stamp = dict(STAMP, payload="bootstrap", tag=None)
         (root / "install-stamp.json").write_text(json.dumps(stamp) + "\n")
         assert not is_bundled_payload(root)
 
     def test_an_unreadable_stamp_is_not_bundled(self, tmp_path):
-        root = tmp_path / "hermes-agent"
+        root = tmp_path / "huntington-agent"
         root.mkdir()
         (root / "install-stamp.json").write_text("{ not json\n")
         assert not is_bundled_payload(root)
@@ -298,7 +298,7 @@ class TestCmdGuiOnABundle:
         assert launches == [[str(launcher), "--profile", "work"]]
 
     def test_a_checkout_still_takes_the_build_ladder(self, tmp_path, monkeypatch):
-        checkout = tmp_path / "hermes-agent"
+        checkout = tmp_path / "huntington-agent"
         (checkout / "apps" / "desktop").mkdir(parents=True)
         (checkout / "apps" / "desktop" / "package.json").write_text("{}\n")
         _code, builds, launches = self._run(monkeypatch, checkout, self._args())
@@ -332,8 +332,8 @@ class TestCmdGuiOnABundle:
     def test_a_bundle_with_no_resolvable_launcher_reports_damage(self, tmp_path, monkeypatch):
         app = tmp_path / "linux-unpacked"
         repo = _payload(app)
-        _exe(app / "Hermes")
-        _exe(app / "Hermes-Other")
+        _exe(app / "Huntington")
+        _exe(app / "Huntington-Other")
         code, builds, launches = self._run(monkeypatch, repo, self._args())
 
         assert code == 1

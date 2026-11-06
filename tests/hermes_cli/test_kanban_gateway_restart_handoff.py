@@ -16,7 +16,7 @@ from hermes_cli import kanban_db_dispatch as kbd
 
 @pytest.fixture
 def worker_setup(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Path, kb.Task]:
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     profile = root / "profiles" / "coder"
     profile.mkdir(parents=True)
     root.joinpath("config.yaml").write_text("{}\n", encoding="utf-8")
@@ -86,7 +86,7 @@ def test_managed_gateway_worker_is_spawned_in_restart_safe_scope(
     assert captured_cmd[separator + 1 :] == [sys.executable, "-m", "hermes_cli.kanban_worker_client"]
     assert task.assignee is not None
     assert captured_env["HERMES_PROFILE"] == task.assignee
-    assert captured_env["HERMES_HOME"] == str(workspace.parent / ".hermes" / "profiles" / task.assignee)
+    assert captured_env["HERMES_HOME"] == str(workspace.parent / ".huntington" / "profiles" / task.assignee)
     assert captured_cwd == str(workspace)
     assert captured_env["HERMES_KANBAN_TASK"] == task.id
     assert captured_env["HERMES_KANBAN_RUN_ID"] == "23"
@@ -249,12 +249,12 @@ def test_real_user_systemd_scope_preserves_worker_context(
         assert payload["run"] == "23"
         assert payload["claim"] == task.claim_lock
         assert payload["board"] == kb.get_current_board()
-        assert payload["home"] == str(workspace.parent / '.hermes' / 'profiles' / task.assignee)
+        assert payload["home"] == str(workspace.parent / '.huntington' / 'profiles' / task.assignee)
         assert payload["profile"] == task.assignee
         assert payload["source"] == 'kanban'
         assert payload["terminal_cwd"] == str(workspace)
         assert unit in payload["cgroup"]
-        assert "hermes-gateway.service" not in payload["cgroup"]
+        assert "huntington-gateway.service" not in payload["cgroup"]
         import psutil
         assert psutil.Process(pid).wait(timeout=5) == 0
     finally:

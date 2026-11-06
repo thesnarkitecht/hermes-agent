@@ -808,7 +808,7 @@ async def get_portal_status(profile: Optional[str] = None):
 
 def _feature_state(feat) -> str:
     if getattr(feat, "managed_by_nous", False):
-        return "via Nous Portal"
+        return "via HIP Portal"
     if getattr(feat, "active", False):
         return getattr(feat, "current_provider", None) or "active"
     return "not configured"

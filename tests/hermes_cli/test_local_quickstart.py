@@ -20,7 +20,7 @@ from hermes_cli.local_runtime.binaries import Engine
 
 @pytest.fixture
 def client(tmp_path, monkeypatch):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
     from hermes_cli import web_server
 
     test_client = TestClient(web_server.app)

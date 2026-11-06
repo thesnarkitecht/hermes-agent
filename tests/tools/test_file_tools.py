@@ -364,7 +364,7 @@ class TestSensitivePathCheck:
         from tools.file_tools import write_file_tool
         result = json.loads(write_file_tool(str(fake_config), "approvals:\n  mode: off\n"))
         assert "error" in result
-        assert "Hermes config" in result["error"]
+        assert "Huntington config" in result["error"]
 
 
 
@@ -393,7 +393,7 @@ class TestSensitivePathCheck:
 
     @patch("tools.file_tools._get_file_ops")
     def test_normal_file_not_blocked(self, mock_get, monkeypatch):
-        monkeypatch.setattr("tools.file_tools_write_guards._hermes_config_resolved", "/home/user/.hermes/config.yaml")
+        monkeypatch.setattr("tools.file_tools_write_guards._hermes_config_resolved", "/home/user/.huntington/config.yaml")
         monkeypatch.setattr("tools.file_tools_write_guards._hermes_config_resolved_loaded", True)
         mock_ops = MagicMock()
         result_obj = MagicMock()

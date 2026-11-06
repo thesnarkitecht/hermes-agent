@@ -76,7 +76,7 @@ def _codex_device_code_start_error(resp: Any) -> str:
     if "device" in lower and ("authori" in lower or "enable" in lower):
         message = (
             "OpenAI rejected the device-code login request. Your OpenAI "
-            "account may need device-code authorization enabled before Hermes "
+            "account may need device-code authorization enabled before Huntington "
             "can start this dashboard login. Enable device-code authorization "
             "in OpenAI, then return here and click Login again."
         )
@@ -382,7 +382,7 @@ def _epoch_ms_to_iso(value: Any) -> Optional[str]:
 # credential source), not the internal auth_mode string ("oauth_pkce").
 _PROVIDER_STATUS: dict[str, tuple[str, Callable[[dict], dict]]] = {
     "nous": ("get_nous_auth_status_local", lambda r: {**_status_card(
-        r, "nous_portal", r.get("portal_base_url") or "Nous Portal",
+        r, "nous_portal", r.get("portal_base_url") or "HIP Portal",
         _truncate_token(r.get("access_token")), r.get("access_expires_at"), bool(r.get("has_refresh_token")),
     ), "free_tier": bool(r.get("free_tier")), "account_tier": r.get("account_tier")}),
     "openai-codex": ("get_codex_auth_status", lambda r: _status_card(
@@ -665,7 +665,7 @@ def _oauth_provider_disconnect_hint(provider: dict[str, Any], status: dict[str, 
     if provider.get("flow") == "external" and provider.get("id") != "anthropic":
         if _oauth_provider_disconnect_command(provider):
             # Fallback wording for surfaces without the one-click "run in terminal" path.
-            return "Managed outside Hermes — run the disconnect command to remove it."
+            return "Managed outside Huntington — run the disconnect command to remove it."
         return "Managed by that provider's CLI; remove it there."
     if status.get("source") == "env_var":
         return "Remove the API key from Settings → Keys instead."
@@ -709,7 +709,7 @@ def _profile_account_row(d) -> Optional[dict[str, Any]]:
     return {
         "id": d.slug, "name": card.get("name") or d.label,
         "flow": "device_code" if device else card.get("flow") or "external",
-        "cli_command": card.get("cli_command") or f"hermes auth add {d.slug}",
+        "cli_command": card.get("cli_command") or f"huntington auth add {d.slug}",
         "docs_url": card.get("docs_url") or d.signup_url or "",
         "status_fn": getattr(prof, "account_status", None),
     }

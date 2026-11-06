@@ -21,7 +21,7 @@ PC = flow.Facts(os="windows", arch="amd64", machine_kind="PC", nvidia_platform="
 
 @pytest.fixture
 def home(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     (home / "plugins").mkdir(parents=True)
     (home / "config.yaml").write_text(json.dumps({"plugins": {"enabled": ["blender"]}}))
     bundled = tmp_path / "bundled"

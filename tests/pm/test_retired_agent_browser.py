@@ -36,7 +36,7 @@ def _record(facts: Facts, store: Path, name: str, version: str, entry: Path, env
 def upgraded_store(tmp_path, monkeypatch):
     """A store as the agent-browser era left it: both entries, the old chromium env, the opt-out."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
     monkeypatch.setenv("HERMES_RUNTIME_DIR", str(tmp_path / "runtime"))
     target = current_target()
     chromium = pm.get_package("chromium")

@@ -21,7 +21,7 @@ def test_routed_session_build_sees_the_profiles_external_secret_source(monkeypat
     from agent.secret_scope import get_secret, set_multiplex_active
     from hermes_cli import env_loader
 
-    launch = tmp_path / ".hermes"
+    launch = tmp_path / ".huntington"
     launch.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(launch))
     monkeypatch.setenv("VAULT_ONLY_KEY", "from-launch-env")

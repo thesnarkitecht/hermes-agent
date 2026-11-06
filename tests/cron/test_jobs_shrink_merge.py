@@ -17,7 +17,7 @@ import pytest
 
 @pytest.fixture
 def hermes_env(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "scripts").mkdir()
     (home / "cron").mkdir()

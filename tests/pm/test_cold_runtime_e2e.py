@@ -116,7 +116,7 @@ def test_cold_cli_builds_own_runtime_discovers_plugins_and_repairs_app(tmp_path,
         '[tool.uv]\npackage=false\n', encoding="utf-8",
     )
     home = tmp_path / "home"
-    hermes_home = home / ".hermes"
+    hermes_home = home / ".huntington"
     plugin = hermes_home / "plugins" / "cold-proof"
     plugin.mkdir(parents=True)
     config = hermes_home / "config.yaml"
@@ -188,7 +188,7 @@ assert importlib.util.find_spec('idna') is None
         assert not (hermes_home / "installs").exists()
         result = _bare(bootstrap_python, repo, bootstrap + cli.format(action="install"), env=env)
         assert "✓ venv" in result.stdout
-        assert "Preparing the isolated Hermes runtime" in result.stderr
+        assert "Preparing the isolated Huntington runtime" in result.stderr
         if bootstrap_name:
             # The installed launcher still starts on the old interpreter after
             # a source swap. Completion must re-exec before importing the app.
@@ -285,7 +285,7 @@ print(json.dumps({'yaml': ruamel.yaml.__file__, 'idna': idna.__file__,
     assert "ModuleNotFoundError" in broken.stderr
     assert "ruamel.yaml" in broken.stderr
     repaired = _bare(python, repo, bootstrap + cli.format(action="repair"), env=env)
-    assert "Restart Hermes" in repaired.stdout
+    assert "Restart Huntington" in repaired.stdout
     restored = json.loads(_bare(python, repo, app_code, env=env).stdout)
     repaired_app = Path(restored["app"])
     assert repaired_app != app

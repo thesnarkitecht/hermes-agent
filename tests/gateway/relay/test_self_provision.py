@@ -237,7 +237,7 @@ def test_relay_display_name_suppresses_stock_brand(monkeypatch):
 
     class _Skin:
         def get_branding(self, key, fallback=""):
-            return "Hermes Agent" if key == "agent_name" else fallback
+            return "HUNTINGTON-AGENT" if key == "agent_name" else fallback
 
     monkeypatch.setattr("hermes_cli.skin_engine.get_active_skin", lambda: _Skin())
     assert relay.relay_display_name() is None
@@ -249,7 +249,7 @@ def test_relay_display_name_suppresses_stock_brand(monkeypatch):
 def _boot_with_expired_login(tmp_path, monkeypatch, *, env_file: str, stored_portal: str) -> list[str]:
     """Launch home whose Nous access token expired while the box slept, so the startup
     self-provision is the first caller to refresh it. Returns the Portal URLs the refresh used."""
-    launch_home = tmp_path / ".hermes"
+    launch_home = tmp_path / ".huntington"
     launch_home.mkdir()
     (launch_home / ".env").write_text(env_file, encoding="utf-8")
     (launch_home / "auth.json").write_text(json.dumps({
@@ -319,7 +319,7 @@ def test_startup_idp_secret_ref_keeps_launch_env_value_when_multiplexed(tmp_path
     import io
     from unittest.mock import Mock
 
-    launch_home = tmp_path / ".hermes"
+    launch_home = tmp_path / ".huntington"
     launch_home.mkdir()
     (launch_home / ".env").write_text("", encoding="utf-8")
     (launch_home / "config.yaml").write_text(

@@ -46,7 +46,7 @@ def sign_out(webapp, tmp_path):
     from gateway.webapp_listener import TOKEN_PATH, register_control_verbs
 
     server = webapp.server
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     runner = SimpleNamespace(
         session_control_server=GatewayControlServer(home),
         webapp_status={"state": "serving", "url": "http://localhost:9120", "reason": None},

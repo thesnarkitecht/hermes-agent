@@ -112,7 +112,7 @@ def read_nous_access_token() -> Optional[str]:
 
         if isinstance(exc, AnonCredentialDead):
             return _replace_dead_guest_token(nous_provider, str(exc.code or "anon_credential_dead"))
-        logger.debug("Nous access token refresh failed: %s", exc)
+        logger.debug("HIP access token refresh failed: %s", exc)
     return cached_token
 
 
@@ -129,7 +129,7 @@ def _replace_dead_guest_token(dead_state: dict, code: str = "anon_credential_dea
             return None
         return _clean(resolve_nous_access_token(refresh_skew_seconds=_NOUS_ACCESS_TOKEN_REFRESH_SKEW_SECONDS))
     except Exception as exc:
-        logger.debug("Nous free tier replacement after a retired credential failed: %s", exc)
+        logger.debug("HIP free tier replacement after a retired credential failed: %s", exc)
         return None
 
 

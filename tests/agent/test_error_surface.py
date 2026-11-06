@@ -57,7 +57,7 @@ def test_auth_surface_names_oauth_vs_api_key_recovery():
     carries the kind + display label so the client never guesses from the slug."""
     oauth = build_error_surface_from_result(_failed_result("auth"), provider="nous")
     assert oauth["auth_kind"] == "oauth"
-    assert oauth["provider_label"] == "Nous Portal"
+    assert oauth["provider_label"] == "HIP Portal"
 
     key = build_error_surface_from_result(_failed_result("auth"), provider="openrouter")
     assert key["auth_kind"] == "api_key"
@@ -252,11 +252,11 @@ def test_free_tier_block_gets_its_own_code_and_carries_the_sentence():
     """A free-tier refusal is never an OAuth re-login: its own ``free_tier_<kind>`` code on the
     provider layer, with the chat sentence riding along as the card body."""
     result = _failed_result("auth_permanent", error="HTTP 403: no permissions",
-                            free_tier={"kind": "disabled", "message": "Using Hermes without signing in is switched off."})
+                            free_tier={"kind": "disabled", "message": "Using Huntington without signing in is switched off."})
     surface = build_error_surface_from_result(result, provider="nous", model="nous/welcome")
     assert surface["layer"] == LAYER_PROVIDER and surface["code"] == "free_tier_disabled"
     assert surface["retryable"] is False and "auth_kind" not in surface
-    assert surface["message"] == "Using Hermes without signing in is switched off."
+    assert surface["message"] == "Using Huntington without signing in is switched off."
 
 
 @pytest.mark.parametrize("kind,retryable", [

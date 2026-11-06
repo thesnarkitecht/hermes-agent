@@ -16,7 +16,7 @@ from tests.hermes_cli.anon_portal import as_local_desktop_backend
 
 @pytest.fixture
 def launched_under_work(tmp_path, monkeypatch) -> tuple[Path, Path]:
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     root.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(root))

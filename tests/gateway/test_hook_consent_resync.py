@@ -35,7 +35,7 @@ def _approve(home: Path, command: str, approve: bool) -> None:
 @pytest.mark.asyncio
 @pytest.mark.parametrize("multiplex", [False, True])
 async def test_consent_change_registers_and_revokes_hook_without_restart(tmp_path, monkeypatch, multiplex):
-    launch = tmp_path / ".hermes"
+    launch = tmp_path / ".huntington"
     profile = launch / "profiles" / "guarded"
     profile.mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(launch))

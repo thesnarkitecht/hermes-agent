@@ -28,7 +28,7 @@ def _run(coro):
 
 @pytest.fixture()
 def home(tmp_path: Path) -> Path:
-    d = tmp_path / "home" / ".hermes"
+    d = tmp_path / "home" / ".huntington"
     d.mkdir(parents=True)
     return d
 
@@ -53,7 +53,7 @@ def test_short_home_binds_in_home(tmp_path: Path):
     except OSError:
         pytest.skip("/tmp not writable on this host")
     try:
-        short_home = short_root / ".hermes"
+        short_home = short_root / ".huntington"
         short_home.mkdir()
         assert len(str(short_home / "gateway.sock").encode()) <= 100
         bind, pointer = resolve_server_socket_path(short_home)
@@ -66,7 +66,7 @@ def test_short_home_binds_in_home(tmp_path: Path):
 
 
 def test_long_home_uses_pointer_fallback(tmp_path: Path):
-    deep = tmp_path / ("x" * 120) / ".hermes"
+    deep = tmp_path / ("x" * 120) / ".huntington"
     deep.mkdir(parents=True)
     bind, pointer = resolve_server_socket_path(deep)
     assert bind != deep / "gateway.sock"
@@ -90,7 +90,7 @@ def test_client_resolution_prefers_direct_then_pointer(home: Path, tmp_path: Pat
 def test_windows_pipe_name_is_stable_and_home_scoped(tmp_path: Path):
     a = windows_pipe_name(tmp_path / "a")
     b = windows_pipe_name(tmp_path / "b")
-    assert a.startswith(r"\\.\pipe\hermes-gateway-")
+    assert a.startswith(r"\\.\pipe\huntington-gateway-")
     assert a != b
     assert a == windows_pipe_name(tmp_path / "a")
 
@@ -246,7 +246,7 @@ def short_home():
         root = Path(tempfile.mkdtemp(prefix="hgw-", dir="/tmp"))
     except OSError:
         pytest.skip("/tmp not writable on this host")
-    home = root / ".hermes"
+    home = root / ".huntington"
     home.mkdir()
     if resolve_server_socket_path(home)[1] is not None:
         shutil.rmtree(root, ignore_errors=True)
@@ -331,7 +331,7 @@ def test_bind_refused_for_other_reasons_still_fails(short_home: Path, monkeypatc
 
 
 def test_long_home_end_to_end_via_pointer(tmp_path: Path):
-    deep = tmp_path / ("p" * 120) / ".hermes"
+    deep = tmp_path / ("p" * 120) / ".huntington"
     deep.mkdir(parents=True)
 
     async def scenario():
@@ -395,14 +395,14 @@ def _fake_identity(pid: int, sha: str):
         "code_sha": sha,
         "code_version": "9.9.9",
         "supervisor": "systemd",
-        "kind": "hermes-gateway",
+        "kind": "huntington-gateway",
     }
 
 
 def test_collect_fleet_versions_prefers_socket(tmp_path: Path, monkeypatch):
     import hermes_cli.update_receipt as ur
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
 
     monkeypatch.setattr(
@@ -417,7 +417,7 @@ def test_collect_fleet_versions_prefers_socket(tmp_path: Path, monkeypatch):
     )
     # stale state file that would report a WRONG pid — socket must win
     (home / "gateway_state.json").write_text(
-        json.dumps({"pid": 1, "code_sha": "stalefile", "kind": "hermes-gateway"})
+        json.dumps({"pid": 1, "code_sha": "stalefile", "kind": "huntington-gateway"})
     )
     monkeypatch.setattr(
         "gateway.control_socket.identify_gateway",
@@ -444,7 +444,7 @@ def test_collect_fleet_versions_falls_back_to_state_file(tmp_path: Path, monkeyp
 
     import hermes_cli.update_receipt as ur
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
 
     monkeypatch.setattr(
@@ -465,7 +465,7 @@ def test_collect_fleet_versions_falls_back_to_state_file(tmp_path: Path, monkeyp
             {
                 "pid": os.getpid(),  # a live pid so _pid_exists passes
                 "code_sha": "OLDSHA",
-                "kind": "hermes-gateway",
+                "kind": "huntington-gateway",
             }
         )
     )
@@ -494,7 +494,7 @@ def test_runtime_inventory_dedupes_same_pid_across_homes(tmp_path: Path, monkeyp
     yield exactly ONE runtime record (reviewer point on #92447)."""
     import hermes_cli.update_inventory as ui
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     profiles_root = tmp_path / "profiles"
     (profiles_root / "coder").mkdir(parents=True)
@@ -525,7 +525,7 @@ def test_runtime_inventory_dedupes_same_pid_across_homes(tmp_path: Path, monkeyp
 def test_runtime_inventory_prefers_socket_supervisor(tmp_path: Path, monkeypatch):
     import hermes_cli.update_inventory as ui
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
 
     monkeypatch.setattr(

@@ -40,7 +40,7 @@ def _webhook(runner) -> WebhookAdapter:
 @pytest.fixture
 def profile_homes(tmp_path, monkeypatch):
     """Default home with a DEFAULT-HOME Slack home channel; ``profiles/sec`` with SEC-HOME + its own GH_TOKEN."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     sec = home / "profiles" / "sec"
     sec.mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(home))

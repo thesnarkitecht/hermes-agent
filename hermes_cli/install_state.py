@@ -314,7 +314,7 @@ def _launcher_root() -> Iterable[Path]:
         return (launcher.parent,)  # reading it would raise a macOS permission prompt; reported as unreadable
     python = _launcher_python(launcher)
     owners = [p.parent for p in (python.parents if python else ()) if p.name == "tools"]
-    if not owners and launcher.parent.name == "bin" and launcher.parent.parent.name == ".hermes":
+    if not owners and launcher.parent.name == "bin" and launcher.parent.parent.name == ".huntington":
         owners = [launcher.parent.parent.parent.parent]  # <root>/<checkout>/.hermes/bin/hermes
     return owners[:1]
 

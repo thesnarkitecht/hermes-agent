@@ -20,9 +20,9 @@ def _install_tts_extra(extra: str) -> bool:
         pm.sync_venv([extra], explicit=True)
     except (pm.InstallError, OSError, ValueError) as exc:
         _setup.print_error(f"Failed to install {extra}: {exc}")
-        _setup.print_info("Retry with: hermes setup tts")
+        _setup.print_info("Retry with: huntington setup tts")
         return False
-    _setup.print_success(f"{extra} installed. Restart Hermes to use it.")
+    _setup.print_success(f"{extra} installed. Restart Huntington to use it.")
     return True
 
 
@@ -117,6 +117,12 @@ _TTS_PROVIDER_CHOICES = [
     ("kittentts", "KittenTTS (local on-device, free, lightweight ~25-80MB ONNX)")]
 # Short label = menu label minus its parenthetical ("Edge TTS", "Mistral Voxtral TTS", ...).
 _TTS_PROVIDER_LABELS = {key: label.split(" (")[0] for key, label in _TTS_PROVIDER_CHOICES}
+_EDGE_VOICE_CHOICES = [
+    ("en-US-AriaNeural", "English (US) — Aria"),
+    ("zh-CN-XiaoxiaoNeural", "Chinese (Simplified) — Xiaoxiao"),
+    ("zh-TW-HsiaoChenNeural", "Chinese (Traditional) — HsiaoChen"),
+    ("zh-HK-HiuMaanNeural", "Chinese (Hong Kong) — HiuMaan"),
+]
 # provider -> (env vars that satisfy it, env var to save, prompt, success line, pre-prompt hint)
 _TTS_API_KEY_PROVIDERS = {
     "elevenlabs": (("ELEVENLABS_API_KEY",), "ELEVENLABS_API_KEY", "ElevenLabs API key",
@@ -199,7 +205,7 @@ def _xai_api_key_path():
         _setup.print_success("xAI TTS API key saved")
         return None
     from hermes_constants import display_hermes_home as _dhh
-    return ("No xAI API key provided for TTS. Configure XAI_API_KEY via hermes setup model "
+    return ("No xAI API key provided for TTS. Configure XAI_API_KEY via huntington setup model "
             f"or {_dhh()}/.env to use xAI TTS. Falling back to Edge TTS.")
 
 
@@ -241,7 +247,7 @@ def _setup_tts_provider(config: dict):
     options = list(_TTS_PROVIDER_CHOICES)
     if tool_backend_helpers.managed_nous_tools_enabled() and nous_subscription.get_nous_subscription_features(config).nous_auth_present:
         options.insert(0, ("nous-openai",
-                           "Nous Subscription (managed OpenAI TTS, billed to your subscription)"))
+                           "HIP Subscription (managed OpenAI TTS, billed to your subscription)"))
     choices = [label for _, label in options] + [f"Keep current ({current_label})"]
     keep_current_idx = len(choices) - 1
     idx = _setup.prompt_choice("Select TTS provider:", choices, keep_current_idx)
@@ -250,16 +256,34 @@ def _setup_tts_provider(config: dict):
     selected = options[idx][0]
     if selected == "nous-openai":
         selected = "openai"
-        _setup.print_info("OpenAI TTS will use the managed Nous gateway and bill to your subscription.")
+        _setup.print_info("OpenAI TTS will use the managed HIP gateway and bill to your subscription.")
         if _setup.get_env_value("VOICE_TOOLS_OPENAI_KEY") or _setup.get_env_value("OPENAI_API_KEY"):
             _setup.print_warning("Direct OpenAI credentials are still configured and may take precedence "
-                                 "until removed from ~/.hermes/.env.")
+                                 "until removed from ~/.huntington/.env.")
     elif selected in _TTS_LOCAL_PROVIDERS:
         selected = _tts_local_install_step(selected)
     elif selected in _TTS_API_KEY_PROVIDERS:
         selected = _tts_api_key_step(selected)
     elif selected == "xai":
         selected = _tts_xai_step(config)
+    if selected == "edge":
+        edge_config = config.setdefault("tts", {}).setdefault("edge", {})
+        current_voice = edge_config.get("voice", "en-US-AriaNeural")
+        voices = list(_EDGE_VOICE_CHOICES)
+        if current_voice not in {voice for voice, _ in voices}:
+            voices.insert(0, (current_voice, f"Current voice — {current_voice}"))
+        voice_labels = [label for _, label in voices] + ["Other voice (enter voice ID)"]
+        current_idx = next(i for i, (voice, _) in enumerate(voices) if voice == current_voice)
+        # The curses picker clears the screen, so pass the hint as its description too; the
+        # numbered fallback ignores description and relies on the printed line.
+        hint = "Choose a voice matching the language you want to speak."
+        _setup.print_info(hint)
+        voice_idx = _setup.prompt_choice("Select Edge TTS voice:", voice_labels, current_idx, description=hint)
+        if voice_idx == len(voices):
+            voice = (_setup.prompt("Edge TTS voice ID", default=current_voice) or "").strip()
+            edge_config["voice"] = voice or current_voice
+        else:
+            edge_config["voice"] = voices[voice_idx][0]
     config.setdefault("tts", {})["provider"] = selected
     _setup.save_config(config)
     _setup.print_success(f"TTS provider set to: {_TTS_PROVIDER_LABELS.get(selected, selected)}")

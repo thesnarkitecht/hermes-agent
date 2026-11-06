@@ -69,7 +69,7 @@ class Layout:
 
     def __post_init__(self) -> None:
         self.home, self.out = self.root / "home", self.root / "outside"
-        self.ws, self.hh = self.home / "work", self.home / ".hermes"
+        self.ws, self.hh = self.home / "work", self.home / ".huntington"
         for d in (self.ws, self.out, self.hh, self.home / ".ssh"):
             d.mkdir(parents=True, exist_ok=True)
 
@@ -145,8 +145,8 @@ def _confined_steps(lay: Layout) -> list[Step]:
              "absent", lay.out / "new-v4a-abs.txt"),
         Step("v4a_delete_symlink_parent", "patch", _v4a("Delete", "linkdir/doomed.txt"),
              "unchanged", lay.out / "doomed.txt"),
-        Step("read_quarantined_auth_copy", "read_file", {"path": "../.hermes/auth.json.corrupt"}, "hidden", quarantined),
-        Step("search_quarantined_auth_copy", "search_files", {"pattern": token, "path": "../.hermes"}, "hidden",
+        Step("read_quarantined_auth_copy", "read_file", {"path": "../.huntington/auth.json.corrupt"}, "hidden", quarantined),
+        Step("search_quarantined_auth_copy", "search_files", {"pattern": token, "path": "../.huntington"}, "hidden",
              quarantined),
         Step("control_write_inside", "write_file", {"path": "sub/inside.txt", "content": "inside-ok"}, "setup"),
         Step("setup_read_innerlink", "read_file", {"path": "innerlink.txt"}, "setup"),
@@ -174,7 +174,7 @@ def _protected_steps(lay: Layout) -> list[Step]:
     return [
         Step("env_direct_patch", "patch", _replace(str(env), env_mark), "unchanged", env),
         Step("env_symlink_patch", "patch", _replace("envlink", env_mark), "unchanged", env),
-        Step("env_dotdot_patch", "patch", _replace("../.hermes/.env", env_mark), "unchanged", env),
+        Step("env_dotdot_patch", "patch", _replace("../.huntington/.env", env_mark), "unchanged", env),
         Step("oauth_dangling_symlink_write", "write_file", {"path": "oauthlink", "content": "{}"},
              "absent", lay.hh / ".anthropic_oauth.json"),
         Step("setup_read_keys", "read_file", {"path": "sshdir/authorized_keys"}, "setup"),
@@ -188,7 +188,7 @@ def _protected_steps(lay: Layout) -> list[Step]:
         Step("ssh_config_symlink_parent_gated", "write_file", {"path": "sshdir/config", "content": "Host evil\n"},
              "unchanged", ssh_config),
         Step("read_auth_symlink", "read_file", {"path": "authlink.txt"}, "hidden", (lay.hh / "auth.json", auth)),
-        Step("read_webhooks_dotdot", "read_file", {"path": "../.hermes/webhook_subscriptions.json"}, "hidden",
+        Step("read_webhooks_dotdot", "read_file", {"path": "../.huntington/webhook_subscriptions.json"}, "hidden",
              (lay.hh / "webhook_subscriptions.json", hooks)),
         Step("read_google_oauth_symlink_dir", "read_file", {"path": "hhdir/auth/google_oauth.json"}, "hidden",
              (lay.hh / "auth" / "google_oauth.json", google)),

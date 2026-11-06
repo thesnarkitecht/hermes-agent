@@ -10,20 +10,20 @@ def build_debug_parser(subparsers, *, cmd_debug: Callable) -> None:
     """Attach the ``debug`` subcommand to ``subparsers``."""
     debug_parser = subparsers.add_parser(
         "debug", help="Debug tools — upload logs and system info for support",
-        description="Debug utilities for Hermes Agent. Use 'hermes debug share' to "
+        description="Debug utilities for HUNTINGTON-AGENT. Use 'huntington debug share' to "
         "upload a debug report (system info + recent logs) to a paste "
         "service and get a shareable URL.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""\
 Examples:
-    hermes debug share              Upload debug report (asks for confirmation)
-    hermes debug share --yes        Skip confirmation (for scripts/CI)
-    hermes debug share --lines 500  Include more log lines
-    hermes debug share --expire 30  Keep dpaste.com fallback pastes for 30 days
-    hermes debug share --local      Print report locally (no upload)
-    hermes debug share --no-redact  Disable upload-time secret redaction
-    hermes debug share --nous       Upload to Nous-internal storage (private)
-    hermes debug delete <url>       Delete a previously uploaded paste
+    huntington debug share              Upload debug report (asks for confirmation)
+    huntington debug share --yes        Skip confirmation (for scripts/CI)
+    huntington debug share --lines 500  Include more log lines
+    huntington debug share --expire 30  Keep dpaste.com fallback pastes for 30 days
+    huntington debug share --local      Print report locally (no upload)
+    huntington debug share --no-redact  Disable upload-time secret redaction
+    huntington debug share --nous       Upload to HIP-internal storage (private)
+    huntington debug delete <url>       Delete a previously uploaded paste
 """)
     debug_sub = debug_parser.add_subparsers(dest="debug_command")
     share_parser = debug_sub.add_parser(
@@ -52,13 +52,13 @@ Examples:
             "into the public paste service.")
     share_parser.add_argument(
         "--nous", action="store_true",
-        help="Upload the debug bundle to Nous-internal storage (AWS S3) instead "
+        help="Upload the debug bundle to HIP-internal storage (AWS S3) instead "
             "of a public paste service. The bundle is private — viewable only "
-            "by Nous staff (and allowlisted Discord mods) via a Google-login-"
+            "by HIP staff (and allowlisted Discord mods) via a Google-login-"
             "gated viewer — and auto-deletes after 14 days. Still force-redacts "
             "secrets unless --no-redact is also passed.")
     delete_parser = debug_sub.add_parser(
-        "delete", help="Delete a paste uploaded by 'hermes debug share'")
+        "delete", help="Delete a paste uploaded by 'huntington debug share'")
     delete_parser.add_argument(
         "urls", nargs="*", default=[],
         help="One or more paste URLs to delete (e.g. https://paste.rs/abc123)")

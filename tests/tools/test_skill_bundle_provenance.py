@@ -502,7 +502,7 @@ metadata:
   hermes:
     upstream:
       repo: acme/design-skill
-      path: .hermes/skills/design
+      path: .huntington/skills/design
 ---
 # Stub
 """
@@ -540,7 +540,7 @@ def test_optional_source_upstream_stub_fetches_from_external_repo(tmp_path, monk
 
     bundle = source.fetch("official/creative/upstream-demo")
 
-    assert fetched_ids == ["acme/design-skill/.hermes/skills/design"]
+    assert fetched_ids == ["acme/design-skill/.huntington/skills/design"]
     assert bundle is not None
     assert bundle.source == "official"
     assert bundle.identifier == "official/creative/upstream-demo"

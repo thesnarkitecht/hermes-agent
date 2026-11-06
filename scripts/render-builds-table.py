@@ -54,6 +54,7 @@ from urllib.parse import quote
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.releases import handoff, r2, semver, stable, versioning
+from scripts.releases.desktop_targets import TARGETS as DESKTOP_TARGETS
 
 MARKER = "<!-- HERMES_BUILDS_TABLE -->"
 END_MARKER = "<!-- /HERMES_BUILDS_TABLE -->"
@@ -71,14 +72,13 @@ _ASSET_RE = re.compile(
 _OS_LABEL = {"mac": "macOS", "win": "Windows", "linux": "Linux (AppImage)"}
 _ARCH_LABEL = {
     ("mac", "arm64"): "Apple Silicon (M-series)",
-    ("mac", "x64"): "Intel",
     ("win", "x64"): "x86 (64-bit)",
     ("win", "arm64"): "ARM (arm64 / aarch64)",
     ("linux", "x64"): "x86 (64-bit)",
     ("linux", "arm64"): "arm64",
 }
 _KIND_LABEL = {"dmg": "DMG", "msix": "MSIX", "AppImage": "AppImage"}
-_ROW_ORDER = [("mac", "arm64"), ("mac", "x64"), ("win", "x64"), ("win", "arm64"),
+_ROW_ORDER = [("mac", "arm64"), ("win", "x64"), ("win", "arm64"),
               ("linux", "x64"), ("linux", "arm64")]
 
 
@@ -105,7 +105,7 @@ def table_rows(assets_by_app: dict) -> list[tuple[str, list[tuple[str, str, str,
     a row exists only for an object that is actually in the bucket.
     """
     sections: list[tuple[str, list[tuple[str, str, str, str]]]] = []
-    for app, title in (("HermesBundled", "Hermes Desktop"), ("HermesLight", "Hermes Light (remote-only client)")):
+    for app, title in (("HermesBundled", "Huntington Desktop"), ("HermesLight", "Huntington Light (remote-only client)")):
         rows = []
         for key in _ROW_ORDER:
             entry = assets_by_app.get(app, {}).get(key)
@@ -183,12 +183,8 @@ _COMMIT_EXPECTED = [
      r"^HermesBundled-[^-]+-win\.msixbundle$"),
     ("macOS Apple Silicon (DMG)", "darwin-arm64",
      r"^HermesBundled-[^-]+-mac-arm64\.dmg$"),
-    ("macOS Intel (DMG)", "darwin-x64",
-     r"^HermesBundled-[^-]+-mac-x64\.dmg$"),
     ("macOS Apple Silicon (ZIP)", "darwin-arm64",
      r"^HermesBundled-[^-]+-mac-arm64\.zip$"),
-    ("macOS Intel (ZIP)", "darwin-x64",
-     r"^HermesBundled-[^-]+-mac-x64\.zip$"),
     ("Termux aarch64 (.deb)", "termux", r"^.*\.deb$"),
 ]
 
@@ -199,7 +195,7 @@ _COMMIT_DISABLED = ["Linux x64 (AppImage)", "Linux ARM64 (AppImage)"]
 COMMIT_RECEIPT_NAMES = sorted({leg for _label, leg, _pattern in _COMMIT_EXPECTED})
 _COMMIT_JOBS = {
     "win32-x64": "build-win32-x64", "win32-arm64": "build-win32-arm64",
-    "darwin-x64": "build-darwin-x64", "darwin-arm64": "build-darwin-arm64",
+    "darwin-arm64": "build-darwin-arm64",
     "windows-universal": "assemble-win32-bundle", "termux": "termux-deb",
 }
 
@@ -405,7 +401,7 @@ def render_page(tag: str, assets_by_app: dict, base_url: str,
     channel = r2.channel_for_tag(tag)
     tag_url = f"https://github.com/{quote(repo, safe='/')}/releases/tag/{quote(tag, safe='')}"
     body = [
-        f"<h1>Hermes Desktop {channel} builds</h1>",
+        f"<h1>Huntington Desktop {channel} builds</h1>",
         f"<p>Release {_link(tag_url)}<code>{html.escape(tag)}</code></a>. Only objects this release "
         "actually staged in the bucket are listed.</p>",
     ]
@@ -438,7 +434,7 @@ def render_page(tag: str, assets_by_app: dict, base_url: str,
             [[html.escape(job), f"{_link(run_url)}View build run</a>"] for job in incomplete_jobs],
         ))
     body.extend(smoke_html(smoke_results))
-    return _page(f"Hermes Desktop {channel} builds", tag, body)
+    return _page(f"Huntington Desktop {channel} builds", tag, body)
 
 
 def render_commit_page(commit: str, names: list[str], base_url: str,
@@ -455,7 +451,7 @@ def render_commit_page(commit: str, names: list[str], base_url: str,
         cell = (f"{_link(url)}{html.escape(link_text)}</a>" if url and link_text else "—")
         rows.append([html.escape(label), html.escape(status), cell])
     body = [
-        f"<h1>Hermes commit build <code>{html.escape(commit[:12])}</code></h1>",
+        f"<h1>Huntington commit build <code>{html.escape(commit[:12])}</code></h1>",
         f"<p>Commit {_link(commit_url)}<code>{html.escape(commit)}</code></a>. Every expected binary is listed; "
         "built rows link to downloads; incomplete rows link to the build run when available.</p>",
         *_table(("Binary", "Status", "Download / diagnostics"), rows),
@@ -474,7 +470,7 @@ def render_commit_page(commit: str, names: list[str], base_url: str,
             ]),
         ])
     body.extend(smoke_html(smoke_results))
-    return _page(f"Hermes commit build {commit[:12]}", commit, body)
+    return _page(f"Huntington commit build {commit[:12]}", commit, body)
 
 
 def recorded_build(page: str | None) -> str | None:
@@ -574,17 +570,16 @@ def splice(body: str, block: str) -> str:
 def render_channel_summary(manifest: dict) -> str:
     request = manifest["request"]
     rows = []
-    for platform in ("darwin", "win32"):
-        for arch in ("arm64", "x64"):
-            selected = [row for row in manifest["packages"] if row["platform"] == platform
-                        and row["arch"] == arch and row["variant"] == "bundled"]
-            label = f"{platform} {arch}"
-            if len(selected) != 1:
-                rows.append(f"| {label} | Unavailable | — |")
-                continue
-            item = selected[0]
-            url = r2.public_url_for(request["publicBase"], item["artifact"]["key"])
-            rows.append(f"| {label} | {item['version']} | [Download]({url}) |")
+    for platform, arch in DESKTOP_TARGETS:
+        selected = [row for row in manifest["packages"] if row["platform"] == platform
+                    and row["arch"] == arch and row["variant"] == "bundled"]
+        label = f"{platform} {arch}"
+        if len(selected) != 1:
+            rows.append(f"| {label} | Unavailable | — |")
+            continue
+        item = selected[0]
+        url = r2.public_url_for(request["publicBase"], item["artifact"]["key"])
+        rows.append(f"| {label} | {item['version']} | [Download]({url}) |")
     return (f"## Channel `{request['channel']}` build `{request['buildId']}`\n\n"
             f"Source `{request['commit']}` ({request['sourceVersion']}); sequence {request['sequence']}.\n\n"
             "| Native package | Version | Download |\n|---|---|---|\n" + "\n".join(rows) + "\n")

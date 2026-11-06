@@ -35,7 +35,7 @@ class _FakeResource:
 
 def test_real_config_loader_reads_runtime_nofile_setting(monkeypatch, tmp_path):
     """The helper uses the canonical config loader, not a second YAML parser."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text(
         "runtime:\n  nofile_soft_limit: 2048\n",
@@ -234,7 +234,7 @@ def test_serve_startup_applies_limit_before_web_server(monkeypatch):
         lambda **kwargs: (calls.append("server"), served.update(kwargs)),
     )
     # Desktop SSH serve: the owner watchdog's lock sits next to the validated token (#132034).
-    token_dir = Path("/home/u/.hermes/desktop-ssh") / ("f" * 32)
+    token_dir = Path("/home/u/.huntington/desktop-ssh") / ("f" * 32)
     monkeypatch.setattr(cli_main, "_read_ssh_session_token_file", lambda path: "s" * 64)
 
     args = SimpleNamespace(

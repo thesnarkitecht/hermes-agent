@@ -48,8 +48,8 @@ class TestGatewayLifecyclePattern:
         "hermes.exe gateway restart",
         "hermes.cmd gateway stop",
         r'"C:\Program Files\hermes.exe" gateway restart',
-        "taskkill /F /IM hermes-gateway.exe",
-        "Stop-Process -Name hermes-gateway -Force",
+        "taskkill /F /IM huntington-gateway.exe",
+        "Stop-Process -Name huntington-gateway -Force",
     ])
     def test_interpreter_and_windows_kill_forms_are_blocked(self, text):
         assert _contains_gateway_lifecycle_command(text), f"Should match: {text!r}"
@@ -84,19 +84,19 @@ class TestGatewayLifecyclePattern:
         # #62891: a blocked direct restart/kill laundered through a NEW
         # launchd keepalive job wrapping a helper script, instead of a
         # direct kickstart/unload/stop/restart on the existing service.
-        "launchctl submit -l ai.hermes.gateway-hard-restart-no-photon-notice -- /bin/sh ~/.hermes/scripts/hard_restart_gateway_no_photon_notice.sh",
-        "launchctl submit -l hermes-gateway-restart-helper -- /bin/sh helper.sh",
+        "launchctl submit -l ai.huntington.gateway-hard-restart-no-photon-notice -- /bin/sh ~/.huntington/scripts/hard_restart_gateway_no_photon_notice.sh",
+        "launchctl submit -l huntington-gateway-restart-helper -- /bin/sh helper.sh",
         # bootstrap loads an arbitrary plist — same laundering shape.
-        "launchctl bootstrap gui/501 ~/Library/LaunchAgents/ai.hermes.gateway.restart-once.plist",
-        "launchctl bootout gui/501/ai.hermes.gateway",
+        "launchctl bootstrap gui/501 ~/Library/LaunchAgents/ai.huntington.gateway.restart-once.plist",
+        "launchctl bootout gui/501/ai.huntington.gateway",
         # The exact reported shape: split across shell line-continuations
         # (`\` immediately followed by a newline). `[^\n]*` alone can't span
         # that, so the verb and the gateway-label token land on different
         # physical lines unless continuations are normalized first.
         (
             "launchctl submit \\\n"
-            "  -l ai.hermes.gateway-hard-restart-no-photon-notice \\\n"
-            "  -- /bin/sh ~/.hermes/scripts/hard_restart_gateway_no_photon_notice.sh"
+            "  -l ai.huntington.gateway-hard-restart-no-photon-notice \\\n"
+            "  -- /bin/sh ~/.huntington/scripts/hard_restart_gateway_no_photon_notice.sh"
         ),
     ])
     def test_launchctl_submit_bootstrap_commands(self, text):
@@ -111,9 +111,9 @@ class TestGatewayLifecyclePattern:
         label text to appear AFTER the verb IN THE SAME SEGMENT and never
         sees it — restarted 4 gateways with zero approval."""
         cmd = (
-            "uid=$(id -u); for item in 'ai.hermes.gateway-apollo:/a.plist' "
-            "'ai.hermes.gateway-cronus:/c.plist' 'ai.hermes.gateway-plutus:/p.plist' "
-            "'ai.hermes.gateway:/Users/botuser/Library/LaunchAgents/ai.hermes.gateway.plist'; "
+            "uid=$(id -u); for item in 'ai.huntington.gateway-apollo:/a.plist' "
+            "'ai.huntington.gateway-cronus:/c.plist' 'ai.huntington.gateway-plutus:/p.plist' "
+            "'ai.huntington.gateway:/Users/botuser/Library/LaunchAgents/ai.huntington.gateway.plist'; "
             "do label=${item%%:*}; plist=${item#*:}; "
             'launchctl bootout "gui/$uid/$label"; '
             'launchctl bootstrap "gui/$uid" "$plist"; done'
@@ -126,7 +126,7 @@ class TestGatewayLifecyclePattern:
         # (no trailing backslash) must not be bridged into a false match.
         text = (
             "this restarts the payment gateway\n"
-            "unrelated hermes note on the next line"
+            "unrelated huntington note on the next line"
         )
         assert not _contains_gateway_lifecycle_command(text), f"Should NOT match: {text!r}"
 
@@ -137,18 +137,18 @@ class TestGatewayLifecyclePattern:
         # the blocked `kickstart` form. Raw-text matching sees the quote (or
         # backslash) wedged between the verb's halves and misses it, leaving
         # the bypassable approval layer as the only cover.
-        'launchctl kick"start" -k gui/501/ai.hermes.gateway',
-        "launchctl kick'start' -k gui/501/ai.hermes.gateway",
-        "launchctl kick\\start -k gui/501/ai.hermes.gateway",
-        'launchctl "kickstart" -k gui/501/ai.hermes.gateway',
+        'launchctl kick"start" -k gui/501/ai.huntington.gateway',
+        "launchctl kick'start' -k gui/501/ai.huntington.gateway",
+        "launchctl kick\\start -k gui/501/ai.huntington.gateway",
+        'launchctl "kickstart" -k gui/501/ai.huntington.gateway',
         # Splices on the newer/legacy unload spellings this PR added.
-        'launchctl boot"out" gui/501/ai.hermes.gateway',
-        "launchctl dis\\able gui/501/ai.hermes.gateway",
+        'launchctl boot"out" gui/501/ai.huntington.gateway',
+        "launchctl dis\\able gui/501/ai.huntington.gateway",
         # The gateway identifier itself can be spliced just as easily.
-        'launchctl bootout gui/501/ai.hermes."gateway"',
+        'launchctl bootout gui/501/ai.huntington."gateway"',
         # Same class on the systemctl and hermes-CLI branches.
-        'systemctl re"start" hermes-gateway',
-        'hermes gateway re"start"',
+        'systemctl re"start" huntington-gateway',
+        'huntington gateway re"start"',
     ])
     def test_shell_token_spliced_lifecycle_verbs(self, text):
         assert _contains_gateway_lifecycle_command(text), f"Should match: {text!r}"
@@ -165,7 +165,7 @@ class TestGatewayLifecyclePattern:
             contains_gateway_lifecycle_command_or_referenced_script,
         )
 
-        command = 'sh -c \'launchctl kick"start" -k gui/501/ai.hermes.gateway\''
+        command = 'sh -c \'launchctl kick"start" -k gui/501/ai.huntington.gateway\''
         assert contains_gateway_lifecycle_command_or_referenced_script(command)
 
     @pytest.mark.parametrize("text", [
@@ -173,7 +173,7 @@ class TestGatewayLifecyclePattern:
         # non-gateway services stay allowed even though tokenization now
         # strips their quotes too.
         'echo "restart the payment gateway"',
-        'launchctl kick"start" -k gui/501/ai.hermes.update-checker',
+        'launchctl kick"start" -k gui/501/ai.huntington.update-checker',
         'systemctl re"start" hermes-meta.service',
         "Summarize how the API gateway handles a restart after rate limiting",
     ])
@@ -183,9 +183,9 @@ class TestGatewayLifecyclePattern:
 
     @pytest.mark.parametrize("text", [
         "restart the server application",
-        "hermes cron list",
-        "hermes update",
-        "hermes config set model claude",
+        "huntington cron list",
+        "huntington update",
+        "huntington config set model claude",
         "echo 'just a normal cron job'",
         "run the backup script",
         "gateway is running fine",
@@ -193,13 +193,13 @@ class TestGatewayLifecyclePattern:
         # gateway is a no-op / "already running", and a legit cron job may
         # start a sibling profile's gateway. Only restart/stop/kill are the
         # foot-gun (#30719 lists only those).
-        "hermes gateway start",
-        "hermes gateway start --all",
+        "huntington gateway start",
+        "huntington gateway start --all",
         # Tightened launchctl/systemctl branches: ops on NON-gateway hermes
         # services must not be falsely blocked (the old `.*hermes` matched any
         # hermes token).
-        "launchctl unload ai.hermes.update-checker.plist",
-        "launchctl restart ai.hermes.daemon",
+        "launchctl unload ai.huntington.update-checker.plist",
+        "launchctl restart ai.huntington.daemon",
         # `submit` on an unrelated launchd label must not match the text
         # pattern (a cron PROMPT is prose fed to an LLM). The execution-aware
         # `contains_launchctl_submit_command` handles neutral-label submits
@@ -219,11 +219,11 @@ class TestGatewayLifecyclePattern:
         # #92372 Branch A: no trailing boundary meant ordinary prose matched —
         # "restarted" carries the "restart" prefix and the old pattern ended
         # exactly there. \b after the verb group fixes it.
-        "echo after the hermes gateway restarted cleanly",
-        "the hermes gateway stopped responding, please investigate",
+        "echo after the huntington gateway restarted cleanly",
+        "the huntington gateway stopped responding, please investigate",
         # #92372 Branch D: `p?kill` without a leading \b matched the "kill"
         # tail of "skill".
-        "hermes skill view gateway-notes && echo hermes gateway docs",
+        "huntington skill view gateway-notes && echo huntington gateway docs",
         # #77173/#77536: a file path with embedded spaces containing the
         # lifecycle words must not match — `hermes` is a path component
         # there, not a command.
@@ -235,15 +235,15 @@ class TestGatewayLifecyclePattern:
 
     @pytest.mark.parametrize("text", [
         # Trailing-boundary fix must not weaken real commands.
-        "hermes gateway restart",
-        "hermes gateway restart; echo done",
-        "hermes gateway stop && echo stopped",
+        "huntington gateway restart",
+        "huntington gateway restart; echo done",
+        "huntington gateway stop && echo stopped",
         # #77173 command-position anchor must not weaken separator/subshell
         # forms either.
-        "true;hermes gateway restart",
-        "true && hermes gateway stop",
-        "echo $(hermes gateway restart)",
-        "echo `hermes gateway restart`",
+        "true;huntington gateway restart",
+        "true && huntington gateway stop",
+        "echo $(huntington gateway restart)",
+        "echo `huntington gateway restart`",
     ])
     def test_boundary_fix_still_blocks_real_commands(self, text):
         assert _contains_gateway_lifecycle_command(text), f"Should match: {text!r}"
@@ -271,9 +271,9 @@ class TestGatewayLifecyclePattern:
     @pytest.mark.parametrize("text", [
         # #68289: execute_code payloads carry the argv as a Python list —
         # brackets/commas separate the words the OS will exec.
-        'import subprocess\nsubprocess.run(["launchctl", "bootout", "gui/501/ai.hermes.gateway"])',
+        'import subprocess\nsubprocess.run(["launchctl", "bootout", "gui/501/ai.huntington.gateway"])',
         'subprocess.run(["hermes", "gateway", "restart"])',
-        'os.system("launchctl kickstart -k gui/501/ai.hermes.gateway")',
+        'os.system("launchctl kickstart -k gui/501/ai.huntington.gateway")',
     ])
     def test_python_argv_list_forms_blocked(self, text):
         assert _contains_gateway_lifecycle_command(text), f"Should match: {text!r}"
@@ -291,7 +291,7 @@ class TestGatewayLifecyclePattern:
         # data — runbook prose inside it must not block.
         text = (
             "cat > /tmp/runbook.md <<'EOF'\n"
-            "If the box is wedged, a human can run: hermes gateway restart\n"
+            "If the box is wedged, a human can run: huntington gateway restart\n"
             "EOF"
         )
         assert not _contains_gateway_lifecycle_command(text), f"Should NOT match: {text!r}"
@@ -321,35 +321,35 @@ class TestProfileFlagGatewayLifecycle:
         monkeypatch.delenv("HERMES_PROFILE_NAME", raising=False)
 
     @pytest.mark.parametrize("text", [
-        "hermes -p zeus gateway stop",
-        "hermes -p zeus gateway restart",
-        "hermes --profile zeus gateway restart",
-        "hermes --profile zeus gateway stop",
-        "hermes --profile=zeus gateway restart",
+        "huntington -p zeus gateway stop",
+        "huntington -p zeus gateway restart",
+        "huntington --profile zeus gateway restart",
+        "huntington --profile zeus gateway stop",
+        "huntington --profile=zeus gateway restart",
         # Global flags before/after the selector must not hide the shape.
-        "hermes -v -p zeus gateway restart",
-        "hermes -p zeus -v gateway restart",
-        "hermes --debug --profile zeus gateway stop",
+        "huntington -v -p zeus gateway restart",
+        "huntington -p zeus -v gateway restart",
+        "huntington --debug --profile zeus gateway stop",
         # Shell quoting of the profile id is equivalent to the bare name.
-        "hermes -p 'zeus' gateway restart",
-        "hermes --profile \"zeus\" gateway stop",
+        "huntington -p 'zeus' gateway restart",
+        "huntington --profile \"zeus\" gateway stop",
     ])
     def test_self_target_blocked(self, text):
         assert _contains_gateway_lifecycle_command(text), f"Should block: {text!r}"
 
     @pytest.mark.parametrize("text", [
-        "hermes -p venus gateway stop",
-        "hermes -p venus gateway restart",
-        "hermes --profile venus gateway restart",
-        "hermes --profile=venus gateway stop",
-        "hermes -p venus -v gateway restart",
+        "huntington -p venus gateway stop",
+        "huntington -p venus gateway restart",
+        "huntington --profile venus gateway restart",
+        "huntington --profile=venus gateway stop",
+        "huntington -p venus -v gateway restart",
     ])
     def test_sibling_allowed(self, text):
         assert not _contains_gateway_lifecycle_command(text), f"Should allow: {text!r}"
 
     @pytest.mark.parametrize("text", [
-        "hermes -p zeus gateway start",
-        "hermes -p zeus gateway start --all",
+        "huntington -p zeus gateway start",
+        "huntington -p zeus gateway start --all",
     ])
     def test_start_still_allowed(self, text):
         # `start` is intentionally excluded from the guard, with or without
@@ -366,8 +366,8 @@ class TestProfileFlagGatewayLifecycle:
         import hermes_cli.profiles as profiles_mod
 
         monkeypatch.setattr(profiles_mod, "get_active_profile_name", lambda: "zeus")
-        assert _contains_gateway_lifecycle_command("hermes -p zeus gateway restart")
-        assert not _contains_gateway_lifecycle_command("hermes -p venus gateway restart")
+        assert _contains_gateway_lifecycle_command("huntington -p zeus gateway restart")
+        assert not _contains_gateway_lifecycle_command("huntington -p venus gateway restart")
 
     def test_no_profile_context_conservative_allow(self, monkeypatch):
         # With no profile identity the guard cannot prove self-targeting, so
@@ -376,8 +376,8 @@ class TestProfileFlagGatewayLifecycle:
         from cron import lifecycle_guard
 
         monkeypatch.setattr(lifecycle_guard, "_current_profile_name", lambda: None)
-        assert not _contains_gateway_lifecycle_command("hermes -p zeus gateway restart")
-        assert _contains_gateway_lifecycle_command("hermes gateway restart")
+        assert not _contains_gateway_lifecycle_command("huntington -p zeus gateway restart")
+        assert _contains_gateway_lifecycle_command("huntington gateway restart")
 
 
 class TestCronCreateLifecycleBlock:
@@ -393,7 +393,7 @@ class TestCronCreateLifecycleBlock:
         args = Namespace(
             cron_command="create",
             schedule="30m",
-            prompt="Upgrade hermes then run hermes gateway restart",
+            prompt="Upgrade huntington then run huntington gateway restart",
             name=None,
             deliver=None,
             repeat=None,
@@ -414,8 +414,8 @@ class TestCronCreateLifecycleBlock:
         # A no_agent job whose script IS the job (the issue's real abuse path:
         # restart_hermes_gateway_once.sh). The script must live under
         # HERMES_HOME/scripts so the scheduler — and the guard — resolve it.
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
-        scripts_dir = tmp_path / ".hermes" / "scripts"
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
+        scripts_dir = tmp_path / ".huntington" / "scripts"
         scripts_dir.mkdir(parents=True)
         (scripts_dir / "restart.sh").write_text("#!/usr/bin/env bash\nhermes gateway restart\n", encoding="utf-8")
         args = Namespace(
@@ -529,17 +529,17 @@ class TestTerminalToolGatewayLifecycleGuard:
         )
 
     @pytest.mark.parametrize("cmd", [
-        "systemctl restart hermes-gateway",
-        "systemctl --user restart hermes-gateway",
-        "systemctl stop hermes-gateway.service",
-        "hermes gateway restart",
-        "hermes gateway uninstall",
-        "launchctl kickstart gui/501/ai.hermes.gateway",
-        "launchctl bootout gui/501/ai.hermes.gateway",
+        "systemctl restart huntington-gateway",
+        "systemctl --user restart huntington-gateway",
+        "systemctl stop huntington-gateway.service",
+        "huntington gateway restart",
+        "huntington gateway uninstall",
+        "launchctl kickstart gui/501/ai.huntington.gateway",
+        "launchctl bootout gui/501/ai.huntington.gateway",
         # #62891 exact reported shape and its bootstrap sibling.
-        "launchctl submit -l ai.hermes.gateway-hard-restart-no-photon-notice -- /bin/sh ~/.hermes/scripts/hard_restart_gateway_no_photon_notice.sh",
+        "launchctl submit -l ai.huntington.gateway-hard-restart-no-photon-notice -- /bin/sh ~/.huntington/scripts/hard_restart_gateway_no_photon_notice.sh",
         "launchctl submit -l com.foo -- /path/gateway",
-        "launchctl bootstrap gui/501 ~/Library/LaunchAgents/ai.hermes.gateway.restart-once.plist",
+        "launchctl bootstrap gui/501 ~/Library/LaunchAgents/ai.huntington.gateway.restart-once.plist",
         "pkill -f hermes.*gateway",
     ])
     def test_blocks_lifecycle_commands_inside_gateway(self, monkeypatch, cmd):
@@ -556,7 +556,7 @@ class TestTerminalToolGatewayLifecycleGuard:
         self._patch_env(monkeypatch, self._make_fake_env(), inside_gateway=True)
 
         result = json.loads(tt.terminal_tool(
-            command="systemctl restart hermes-gateway", force=True
+            command="systemctl restart huntington-gateway", force=True
         ))
 
         assert result["exit_code"] == 1
@@ -608,7 +608,7 @@ class TestTerminalToolGatewayLifecycleGuard:
         # Neutral, non-hermes label: label-independent detection is the point
         # (#62891 second reproduction used `ai.hermes.svc-reload-tmp`).
         "launchctl submit -l com.foo -- /path/gateway",
-        "launchctl submit -l ai.hermes.svc-reload-tmp -- /bin/sh /tmp/h-svc-reload.sh",
+        "launchctl submit -l ai.huntington.svc-reload-tmp -- /bin/sh /tmp/h-svc-reload.sh",
         # bootstrap variant: loads an arbitrary plist as a persistent job.
         "launchctl bootstrap gui/501 /tmp/com.foo.plist",
     ])
@@ -677,10 +677,10 @@ class TestTerminalToolGatewayLifecycleGuard:
             tt, "_check_all_guards", lambda cmd, env, **kwargs: {"approved": True}
         )
 
-        result = json.loads(tt.terminal_tool(command="hermes gateway restart"))
+        result = json.loads(tt.terminal_tool(command="huntington gateway restart"))
 
         assert result["exit_code"] == 0
-        assert calls == ["hermes gateway restart"]
+        assert calls == ["huntington gateway restart"]
 
     def test_blocks_launchctl_submit_hidden_in_referenced_script(
         self, monkeypatch, tmp_path
@@ -689,7 +689,7 @@ class TestTerminalToolGatewayLifecycleGuard:
 
         script = tmp_path / "wrapper.sh"
         script.write_text(
-            "#!/usr/bin/env bash\nlaunchctl submit -l ai.hermes.loop -- /bin/true\n"
+            "#!/usr/bin/env bash\nlaunchctl submit -l ai.huntington.loop -- /bin/true\n"
         )
         self._patch_env(monkeypatch, self._make_fake_env(), inside_gateway=True)
 
@@ -734,7 +734,7 @@ class TestTerminalToolGatewayLifecycleGuard:
 
         self._patch_env(monkeypatch, self._make_fake_env(), inside_gateway=True)
         result = json.loads(tt.terminal_tool(
-            command="launchctl sub\"\"mit -l ai.hermes.loop -- /bin/true"
+            command="launchctl sub\"\"mit -l ai.huntington.loop -- /bin/true"
         ))
 
         assert result["exit_code"] == 1
@@ -757,7 +757,7 @@ class TestTerminalToolGatewayLifecycleGuard:
         import tools.terminal_tool as tt
 
         script = tmp_path / "nested.sh"
-        script.write_text("#!/usr/bin/env bash\nlaunchctl submit -l ai.hermes.loop -- /bin/true\n", encoding="utf-8")
+        script.write_text("#!/usr/bin/env bash\nlaunchctl submit -l ai.huntington.loop -- /bin/true\n", encoding="utf-8")
 
         class _FakeEnv:
             env = {}
@@ -954,7 +954,7 @@ class TestLifecycleGuardModule:
     def test_prompt_with_command_raises(self):
         from cron.lifecycle_guard import GatewayLifecycleBlocked, check_gateway_lifecycle
         with pytest.raises(GatewayLifecycleBlocked):
-            check_gateway_lifecycle("please run hermes gateway restart", None)
+            check_gateway_lifecycle("please run huntington gateway restart", None)
 
 
     def test_script_with_command_raises(self, tmp_path, monkeypatch):
@@ -996,11 +996,11 @@ class TestLifecycleGuardModule:
         same place the scheduler runs it from) — otherwise the guard would read
         a nonexistent relative path and scan prompt-only content."""
         from cron.lifecycle_guard import GatewayLifecycleBlocked, check_gateway_lifecycle
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
-        scripts_dir = tmp_path / ".hermes" / "scripts"
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
+        scripts_dir = tmp_path / ".huntington" / "scripts"
         scripts_dir.mkdir(parents=True)
         (scripts_dir / "restart.sh").write_text(
-            "launchctl kickstart -k gui/501/ai.hermes.gateway\n"
+            "launchctl kickstart -k gui/501/ai.huntington.gateway\n"
         )
         with pytest.raises(GatewayLifecycleBlocked):
             check_gateway_lifecycle("daily", "restart.sh")
@@ -1021,7 +1021,7 @@ class TestLifecycleGuardModule:
         script = tmp_path / "digest.py"
         script.write_text(
             "from pathlib import Path\n"
-            'ENV = Path.home() / ".hermes" / ".env"\n'
+            'ENV = Path.home() / ".huntington" / ".env"\n'
             'print("digest ok")\n'
         )
         check_gateway_lifecycle("clean prompt", str(script))
@@ -1034,7 +1034,7 @@ class TestLifecycleGuardModule:
         by the direct regex scan."""
         from cron.lifecycle_guard import GatewayLifecycleBlocked, check_gateway_lifecycle
         script = tmp_path / "evil.py"
-        script.write_text('import os\nos.system("hermes gateway restart")\n', encoding="utf-8")
+        script.write_text('import os\nos.system("huntington gateway restart")\n', encoding="utf-8")
         with pytest.raises(GatewayLifecycleBlocked):
             check_gateway_lifecycle("clean prompt", str(script))
 
@@ -1217,7 +1217,7 @@ class TestLifecycleGuardModule:
         )
 
         def _remote_read(_path: str):
-            return "MZ\x00\x00\x90\x00 hermes gateway restart \x00\x00junk"
+            return "MZ\x00\x00\x90\x00 huntington gateway restart \x00\x00junk"
 
         result = contains_gateway_lifecycle_command_or_referenced_script(
             "bash /nonexistent/dir/helper.sh",
@@ -1281,7 +1281,7 @@ class TestLifecycleGuardModule:
         monkeypatch.setattr(lg, "_contains_unsafe_gateway_action", _boom)
         # Direct scan still blocks a literal lifecycle command...
         assert lg.contains_gateway_lifecycle_command_or_referenced_script(
-            "hermes gateway restart"
+            "huntington gateway restart"
         ) is True
         # ...and a benign command fails open instead of crashing.
         assert lg.contains_gateway_lifecycle_command_or_referenced_script(
@@ -1514,10 +1514,10 @@ class TestRelativePathDoesNotDisableDataExemption:
         return contains_gateway_lifecycle_command_or_referenced_script(command)
 
     @pytest.mark.parametrize("command", [
-        "grep -r 'systemctl restart hermes-gateway' .",
-        "grep -rn 'hermes gateway restart' ./logs",
-        "rg 'hermes gateway restart' ../archive",
-        "grep -c 'systemctl stop hermes-gateway' ./var/log/syslog",
+        "grep -r 'systemctl restart huntington-gateway' .",
+        "grep -rn 'huntington gateway restart' ./logs",
+        "rg 'huntington gateway restart' ../archive",
+        "grep -c 'systemctl stop huntington-gateway' ./var/log/syslog",
         "sqlite3 ./stats.db \"SELECT restart_reason FROM hermes_gateway_restarts\"",
     ])
     def test_relative_path_operands_keep_the_exemption(self, command):
@@ -1526,16 +1526,16 @@ class TestRelativePathDoesNotDisableDataExemption:
     @pytest.mark.parametrize("command", [
         # Narrowing the dot test must not open an execution route: every
         # escape hatch still fires with a relative-path operand present.
-        'sqlite3 ./db ".shell hermes gateway restart"',
-        'sqlite3 ./db ".system systemctl restart hermes-gateway"',
-        'psql ./x -c "\\! systemctl restart hermes-gateway"',
-        "grep -r 'hermes gateway restart' . | sh",
-        "grep -r 'hermes gateway restart' ./logs | bash",
-        "grep -r 'hermes gateway restart' . | sudo sh",
-        "grep -r 'x' . ; hermes gateway restart",
-        "grep -r 'x' . && systemctl restart hermes-gateway",
-        'grep -r "$(hermes gateway restart)" .',
-        "rg 'x' ./logs | xargs systemctl restart hermes-gateway",
+        'sqlite3 ./db ".shell huntington gateway restart"',
+        'sqlite3 ./db ".system systemctl restart huntington-gateway"',
+        'psql ./x -c "\\! systemctl restart huntington-gateway"',
+        "grep -r 'huntington gateway restart' . | sh",
+        "grep -r 'huntington gateway restart' ./logs | bash",
+        "grep -r 'huntington gateway restart' . | sudo sh",
+        "grep -r 'x' . ; huntington gateway restart",
+        "grep -r 'x' . && systemctl restart huntington-gateway",
+        'grep -r "$(huntington gateway restart)" .',
+        "rg 'x' ./logs | xargs systemctl restart huntington-gateway",
     ])
     def test_relative_path_does_not_open_an_execution_route(self, command):
         assert self._scan(command) is True
@@ -1557,7 +1557,7 @@ class TestCreateJobBlocksLifecycleCommands:
         from cron.jobs import create_job
         from cron.lifecycle_guard import GatewayLifecycleBlocked
         with pytest.raises(GatewayLifecycleBlocked):
-            create_job(prompt="then run hermes gateway restart", schedule="30m")
+            create_job(prompt="then run huntington gateway restart", schedule="30m")
 
     def test_create_job_allows_benign_prompt(self):
         from cron.jobs import create_job
@@ -1568,12 +1568,12 @@ class TestCreateJobBlocksLifecycleCommands:
     def test_cronjob_tool_surfaces_block_as_error(self, tmp_path, monkeypatch):
         """End-to-end through the model tool: the block comes back as
         result['error'] with the #30719 hint, not an unhandled exception."""
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
-        (tmp_path / ".hermes").mkdir(parents=True)
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
+        (tmp_path / ".huntington").mkdir(parents=True)
         from tools.cronjob_tools import cronjob
         result = json.loads(cronjob(
             action="create", schedule="0 9 * * *",
-            prompt="please run hermes gateway restart nightly",
+            prompt="please run huntington gateway restart nightly",
         ))
         assert result.get("success") is False
         assert "#30719" in result.get("error", "")
@@ -1590,8 +1590,8 @@ class TestRestartLoopGuard:
 
     @pytest.fixture(autouse=True)
     def _isolate_state(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
-        (tmp_path / ".hermes").mkdir(parents=True)
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
+        (tmp_path / ".huntington").mkdir(parents=True)
         import gateway.restart_loop_guard as rlg
         rlg.clear()
 
@@ -1746,13 +1746,13 @@ class TestLifecycleGuardDataArgumentExemption:
         # Exact live false-positive shapes: SQL string literals carrying the
         # full lifecycle command as text.
         'sqlite3 db "SELECT msg FROM log WHERE msg LIKE '
-        "'%systemctl restart hermes-gateway%'\"",
+        "'%systemctl restart huntington-gateway%'\"",
         'psql -c "SELECT * FROM events WHERE cmd = '
-        "'systemctl stop hermes-gateway'\"",
+        "'systemctl stop huntington-gateway'\"",
         # grep/rg pattern arguments hunting for the lifecycle string.
-        "grep -c 'systemctl restart hermes-gateway' /var/log/syslog",
-        "rg 'hermes gateway restart' /home/user/.hermes/logs/",
-        "journalctl -u hermes-gateway --grep 'systemctl restart hermes-gateway'",
+        "grep -c 'systemctl restart huntington-gateway' /var/log/syslog",
+        "rg 'huntington gateway restart' /home/user/.huntington/logs/",
+        "journalctl -u huntington-gateway --grep 'systemctl restart huntington-gateway'",
         # SQL with stop/restart column/value words but no command shape.
         'sqlite3 stats.db "SELECT stop_time, restart_reason FROM '
         'hermes_gateway_restarts"',
@@ -1764,16 +1764,16 @@ class TestLifecycleGuardDataArgumentExemption:
 
     @pytest.mark.parametrize("command", [
         # Execution smuggled through or around a data sink must still block.
-        'sqlite3 db ".shell hermes gateway restart"',
-        'psql -c "\\! systemctl restart hermes-gateway"',
-        "grep 'systemctl restart hermes-gateway' cmds.txt | sh",
-        "grep gateway f | xargs systemctl restart hermes-gateway",
-        'grep "$(systemctl restart hermes-gateway)" f',
-        "grep 'restart' log; systemctl restart hermes-gateway",
-        'sqlite3 db "SELECT 1"; hermes gateway stop',
+        'sqlite3 db ".shell huntington gateway restart"',
+        'psql -c "\\! systemctl restart huntington-gateway"',
+        "grep 'systemctl restart huntington-gateway' cmds.txt | sh",
+        "grep gateway f | xargs systemctl restart huntington-gateway",
+        'grep "$(systemctl restart huntington-gateway)" f',
+        "grep 'restart' log; systemctl restart huntington-gateway",
+        'sqlite3 db "SELECT 1"; huntington gateway stop',
         # Plain lifecycle commands are unaffected by the exemption.
-        "hermes gateway restart",
-        "sudo systemctl stop hermes-gateway",
+        "huntington gateway restart",
+        "sudo systemctl stop huntington-gateway",
     ])
     def test_command_position_lifecycle_still_blocked(self, command):
         assert self._scan(command) is True
@@ -1791,7 +1791,7 @@ class TestLifecycleGuardDataArgumentExemption:
         script.write_text("print('nightly report')\n", encoding="utf-8")
         prompt = (
             'sqlite3 db "SELECT msg FROM log '
-            "WHERE msg LIKE '%systemctl restart hermes-gateway%'\""
+            "WHERE msg LIKE '%systemctl restart huntington-gateway%'\""
         )
         check_gateway_lifecycle(prompt, str(script))
 

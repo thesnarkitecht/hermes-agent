@@ -55,7 +55,7 @@ from hermes_cli.update_inventory import (
 @pytest.fixture()
 def receipt_home(tmp_path, monkeypatch):
     """Hermetic HERMES_HOME so receipts never touch the real profile."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(
         "hermes_cli.config.get_hermes_home", lambda: home, raising=False
@@ -200,7 +200,7 @@ class TestSuccessImpliesAccounting:
             plan,
             # Serve/dashboard runtimes are reconciled in their own unit
             # vocabulary and never borrow a gateway relaunch (#100479).
-            restarted_services=["hermes-serve-ops.service"],
+            restarted_services=["huntington-serve-ops.service"],
             relaunched_profiles=["work"],
             externally_supervised_profiles=[],
             killed_pids={101},
@@ -228,7 +228,7 @@ class TestSuccessImpliesAccounting:
             relaunched_profiles=[],
             externally_supervised_profiles=[],
             killed_pids=set(),
-            failed_units=["hermes-gateway.service"],
+            failed_units=["huntington-gateway.service"],
         )
         assert outcomes[0]["outcome"] == "failed"
         ur.finalize_update_receipt("partial")
@@ -249,7 +249,7 @@ class TestRefusalIsNotFailure:
 
         # Run 2: a preflight refusal (venv-holder / concurrent instance).
         ur.begin_update_receipt()
-        ur.record_step("venv_preflight", False, "another hermes holds venv")
+        ur.record_step("venv_preflight", False, "another huntington holds venv")
         refused_path = ur.finalize_pending_update_receipt(2, "sys.exit(2)")
         refused = json.loads(refused_path.read_text(encoding="utf-8"))
 

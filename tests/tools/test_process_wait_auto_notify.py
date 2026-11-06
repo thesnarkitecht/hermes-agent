@@ -9,7 +9,7 @@ import tools.process_registry as pr
 
 @pytest.fixture
 def sleeper(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     session = pr.process_registry.spawn_local("sleep 30", cwd=str(tmp_path), task_id="t-autonotify")

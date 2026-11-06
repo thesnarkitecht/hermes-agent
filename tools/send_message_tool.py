@@ -411,7 +411,7 @@ def _home_chat_id(config, platform, platform_name):
     home_env = _HOME_CHANNEL_ENV_OVERRIDES.get(platform_name, f"{platform_name.upper()}_HOME_CHANNEL")
     return None, (f"No home channel set for {platform_name} to determine where to send the message. "
                   f"Either specify a channel directly with '{platform_name}:CHANNEL_NAME', "
-                  f"or set a home channel via: hermes config set {home_env} <channel_id>")
+                  f"or set a home channel via: huntington config set {home_env} <channel_id>")
 
 
 def _slack_dm_chat_id(pconfig, chat_id):
@@ -497,6 +497,7 @@ async def _send_live_adapter_media(adapter, chat_id, message, media_files, *, th
             return {"error": f"Adapter send failed: {_bounded_send_error(last_result.error)}"}
     from gateway.platforms.base import BasePlatformAdapter
     total = len(media_files)
+    unconfirmed = []
     for index, descriptor in enumerate(media_files):
         media_path = descriptor[0] if isinstance(descriptor, (list, tuple)) and descriptor else None
         if not isinstance(media_path, str) or not media_path:
@@ -519,12 +520,21 @@ async def _send_live_adapter_media(adapter, chat_id, message, media_files, *, th
             detail = _bounded_send_error(exc)
         else:
             if last_result.success:
+                raw = last_result.raw_response
+                if isinstance(raw, dict) and raw.get("ambiguous"):
+                    unconfirmed.append(index + 1)
                 continue
             detail = _bounded_send_error(last_result.error or "media send failed")
         return {"error": f"Adapter media send failed after {index}/{total} files: {detail}"}
     if last_result is None:
         return {"error": _NO_DELIVERABLE}
-    return {"success": True, "message_id": last_result.message_id, "media_delivered": True}
+    result = {"success": True, "message_id": last_result.message_id, "media_delivered": True}
+    if unconfirmed:
+        # Frame sent, ack lost: possibly delivered. A failure here would invite a duplicate re-send.
+        result["delivery_unconfirmed"] = (
+            f"media file(s) {unconfirmed} of {total} were sent but the platform never confirmed "
+            "receipt; they may already be in the chat, so do not resend them")
+    return result
 
 
 async def _dispatch_on_gateway_loop(runner, make_coro, log_message):

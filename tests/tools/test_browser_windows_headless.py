@@ -20,7 +20,7 @@ _WITH_DISPLAY = {"DISPLAY": ":0", "WAYLAND_DISPLAY": "wayland-0"}
 
 @pytest.fixture(autouse=True)
 def home(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(home))

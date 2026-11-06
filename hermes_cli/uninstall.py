@@ -130,7 +130,7 @@ def remove_path_from_shell_configs():
             
             for line in content.split('\n'):
                 # Skip the "# Hermes Agent" comment and following line
-                if '# Hermes Agent' in line or '# hermes-agent' in line:
+                if '# HUNTINGTON-AGENT' in line or '# hermes-agent' in line:
                     skip_next = True
                     continue
                 if skip_next and ('hermes' in line.lower() and 'PATH' in line):
@@ -167,7 +167,9 @@ def remove_wrapper_script():
     wrapper_paths = [
         Path.home() / ".local" / "bin" / "hermes",
         Path.home() / ".local" / "bin" / "hermes-acp",
-        Path.home() / ".local" / "bin" / "hermes-agent",
+        Path.home() / ".local" / "bin" / "huntington-agent",
+        Path.home() / ".local" / "bin" / "huntington",
+        Path.home() / ".local" / "bin" / "huntington-acp",
         Path("/usr/local/bin/hermes"),
         Path("/usr/local/bin/hermes-acp"),
         Path("/usr/local/bin/hermes-agent"),
@@ -299,7 +301,7 @@ def _remove_systemd_gateway() -> bool:
 # installed. An uninstall must sweep BOTH — a stale agent keeps respawning the
 # gateway after the code tree is gone (#62209).
 _LAUNCHD_GATEWAY_PLIST_PATTERNS = (
-    "ai.hermes.gateway*.plist",
+    "ai.huntington.gateway*.plist",
     "io.nousresearch.hermes-agent.gateway*.plist",
 )
 
@@ -652,7 +654,7 @@ def run_data_uninstall(args):
         log_warn(str(exc))
         raise SystemExit(1) from exc
     if not plan.remove:
-        print(f"No Hermes user data found in {home}.")
+        print(f"No Huntington user data found in {home}.")
         return
     print("Data-only removal: installed code and other profiles stay intact.")
     print("Will remove:")
@@ -678,11 +680,11 @@ def run_data_uninstall(args):
     for path in removed:
         log_success(f"Removed {path}")
     if failed:
-        print("Hermes data was only partially removed. Surviving targets:")
+        print("Huntington data was only partially removed. Surviving targets:")
         for path, reason in failed:
             log_warn(f"{path}: {reason}")
         raise SystemExit(1)
-    log_success("Hermes data removed.")
+    log_success("Huntington data removed.")
 
 
 def run_gui_uninstall(args):
@@ -707,15 +709,15 @@ def run_gui_uninstall(args):
     skip_confirm = bool(getattr(args, "yes", False))
 
     print()
-    _print_box("│         ☤ Hermes Chat GUI Uninstaller                  │", Colors.MAGENTA)
+    _print_box("│         ☤ Huntington Chat GUI Uninstaller                  │", Colors.MAGENTA)
     print()
 
     if not summary["gui_installed"]:
-        print("No Hermes Chat GUI installation was found.")
+        print("No Huntington Chat GUI installation was found.")
         print(f"  Checked: {hermes_home}, and the standard app locations for this OS.")
         return
 
-    print(color("This removes the Chat GUI only. The Hermes agent stays installed.", Colors.CYAN))
+    print(color("This removes the Chat GUI only. The Huntington agent stays installed.", Colors.CYAN))
     print()
     print(color("Will remove:", Colors.YELLOW, Colors.BOLD))
     for p in (*summary["source_built_artifacts"], *summary["packaged_app_paths"]):
@@ -727,9 +729,9 @@ def run_gui_uninstall(args):
     print()
     if agent_is_installed(hermes_home):
         print(color("Kept intact:", Colors.GREEN, Colors.BOLD))
-        print(f"  • The Hermes agent at {hermes_home / 'hermes-agent'}")
+        print(f"  • The Huntington agent at {hermes_home / 'hermes-agent'}")
         print(f"  • Your config, sessions, and secrets under {hermes_home}")
-        if (shared_modules := hermes_home / "hermes-agent" / "node_modules").exists():
+        if (shared_modules := hermes_home / "huntington-agent" / "node_modules").exists():
             print(f"  • Shared workspace dependencies at {shared_modules}")
         print()
 
@@ -748,8 +750,8 @@ def run_gui_uninstall(args):
     print()
     _print_box("│            ✓ Chat GUI Uninstalled!                      │", Colors.GREEN)
     print()
-    print("The Hermes agent is still installed. Run 'hermes' to use the CLI,")
-    print("or 'hermes uninstall' to remove the agent too.")
+    print("The Huntington agent is still installed. Run 'huntington' to use the CLI,")
+    print("or 'huntington uninstall' to remove the agent too.")
     print()
 
 
@@ -786,7 +788,7 @@ def run_uninstall(args):
         return
 
     print()
-    _print_box("│            ☤ Hermes Agent Uninstaller                  │", Colors.MAGENTA)
+    _print_box("│            ☤ HUNTINGTON-AGENT Uninstaller                  │", Colors.MAGENTA)
     print()
 
     # Show what will be affected
@@ -846,12 +848,12 @@ def run_uninstall(args):
     # Final confirmation
     print()
     if full_uninstall:
-        print(color("⚠️  WARNING: This will permanently delete ALL Hermes data!", Colors.RED, Colors.BOLD))
+        print(color("⚠️  WARNING: This will permanently delete ALL Huntington data!", Colors.RED, Colors.BOLD))
         print(color("   Including: configs, API keys, sessions, scheduled jobs, logs", Colors.RED))
         if remove_profiles:
             print(color(f"   Plus {n_profiles} profile(s): {profile_names}", Colors.RED))
     else:
-        print("This will remove the Hermes code but keep your configuration and data.")
+        print("This will remove the Huntington code but keep your configuration and data.")
 
     print()
     if not _confirm_yes("to confirm"):
@@ -869,18 +871,18 @@ def _print_uninstall_dry_run(*, project_root: Path, hermes_home: Path, full_unin
     print()
     print(color("Would inspect/remove:", Colors.YELLOW, Colors.BOLD))
     print("  • Gateway services and standalone gateway processes")
-    print("  • Hermes PATH entries from shell configs / Windows User PATH")
-    print("  • Hermes wrapper scripts and Hermes-managed node/npm/npx symlinks")
+    print("  • Huntington PATH entries from shell configs / Windows User PATH")
+    print("  • Huntington wrapper scripts and Huntington-managed node/npm/npx symlinks")
     print("  • Desktop Chat GUI artifacts")
     print(f"  • Code checkout: {project_root}")
     from hermes_cli.gui_uninstall import desktop_userdata_dir
     userdata = desktop_userdata_dir()
     if not full_uninstall:
-        print(f"  • Keep Hermes config/data: {hermes_home}")
+        print(f"  • Keep Huntington config/data: {hermes_home}")
         if userdata.exists():
             print(f"  • Keep desktop app data: {userdata}")
     else:
-        print(f"  • Hermes config/data: {hermes_home}")
+        print(f"  • Huntington config/data: {hermes_home}")
         if sys.platform == "darwin":
             print("  • macOS: dashboard/serve launchd jobs, Electron + setup caches")
         if userdata.exists():
@@ -923,7 +925,7 @@ def _macos_cache_leftover_dirs() -> list[Path]:
     (``Application Support/Hermes``) but never these (#62209)."""
     caches = Path.home() / "Library" / "Caches"
     return [
-        caches / "Hermes",
+        caches / "Huntington",
         caches / "com.nousresearch.hermes",
         caches / "hermes-setup",
         caches / "com.nousresearch.hermes.setup",
@@ -1030,14 +1032,14 @@ def _perform_uninstall(
         (windows, "Removing PATH entries from Windows User environment...",
          lambda: remove_path_from_windows_registry(
              Path(os.path.expandvars(str(hermes_home))), include_managed_bin=sweep_managed_bin),
-         "Removed from User PATH: {}", "No Hermes-owned PATH entries in User environment"),
+         "Removed from User PATH: {}", "No Huntington-owned PATH entries in User environment"),
         (windows, "Removing HERMES_HOME / HERMES_GIT_BASH_PATH User env vars...",
-         remove_hermes_env_vars_windows, "Removed User env var: {}", "No Hermes-set User env vars to remove"),
-        (True, "Removing hermes command...", remove_wrapper_script, "Removed {}", "No wrapper script found"),
-        (windows, "Removing Windows hermes launchers...",
-         remove_windows_bin_launchers, "Removed {}", "No Windows hermes launchers found"),
-        (True, "Removing Hermes-managed node/npm/npx symlinks...",
-         lambda: remove_node_symlinks(hermes_home), "Removed {}", "No Hermes-managed node/npm/npx symlinks found"),
+         remove_hermes_env_vars_windows, "Removed User env var: {}", "No Huntington-set User env vars to remove"),
+        (True, "Removing huntington command...", remove_wrapper_script, "Removed {}", "No wrapper script found"),
+        (windows, "Removing Windows huntington launchers...",
+         remove_windows_bin_launchers, "Removed {}", "No Windows huntington launchers found"),
+        (True, "Removing Huntington-managed node/npm/npx symlinks...",
+         lambda: remove_node_symlinks(hermes_home), "Removed {}", "No Huntington-managed node/npm/npx symlinks found"),
     ):
         if on_this_platform:
             _remove_step(label, remove, success_fmt, none_msg)
@@ -1138,7 +1140,7 @@ def _perform_uninstall(
     for line, col in _RELOAD_HINT[windows]:
         print(color(line, col) if col else line)
     print()
-    print("Thank you for using Hermes Agent! ☤")
+    print("Thank you for using HUNTINGTON-AGENT! ☤")
     print()
 
 

@@ -111,7 +111,7 @@ def _modal_unavailable_reason(modal_state: dict[str, Any]) -> tuple[str, str]:
     Single decision shared by the requirements checker and the env builder."""
     gateway = nous_tool_gateway_unavailable_message("managed Modal execution")
     if modal_state["managed_mode_blocked"] or modal_state["mode"] == "managed":
-        tail = (("Nous Tool Gateway access is not currently available and no direct Modal credentials/config "
+        tail = (("HIP Tool Gateway access is not currently available and no direct Modal credentials/config "
                  f"were found. {gateway} Choose TERMINAL_MODAL_MODE=direct/auto to use direct Modal credentials.")
                 if modal_state["managed_mode_blocked"] else f"the managed tool gateway is unavailable. {gateway}")
         return (f"Modal backend selected with TERMINAL_MODAL_MODE=managed, but {tail}",
@@ -243,7 +243,7 @@ def _build_plugin_env(*, env_type, image, cwd, timeout, cc, task_id, **_):
             # sandbox nothing here could use or clean up.
             raise ValueError(
                 f"terminal.backend is {env_type}, a plugin that runs in the plugin host (plugins.isolation: host), "
-                f"and the host cannot hand its environment to Hermes, so commands cannot run in it. Set "
+                f"and the host cannot hand its environment to Huntington, so commands cannot run in it. Set "
                 f"plugins.isolation: in_process to use this backend.")
         env_obj = provider.create_environment(cwd=cwd, timeout=timeout, task_id=task_id, image=image,
                                               container_config=cc)
@@ -280,6 +280,11 @@ def _create_environment(env_type: str, image: str, cwd: str, timeout: int,
     the host dir bound into Docker when cwd mounting is enabled. ``probe_only`` asks ssh for a throwaway
     connection with no remote setup/sync (the prompt-time probe). Unknown types fall through to plugin backends."""
     builder = _ENV_BUILDERS.get(env_type)
+    from hermes_cli.huntington import SUPPORTED_TERMINAL_BACKENDS, terminal_backend_supported
+    if builder is not None and not terminal_backend_supported(env_type):
+        raise ValueError(f"terminal backend {env_type!r} is not available in HUNTINGTON-AGENT "
+                         f"(supported: {', '.join(sorted(SUPPORTED_TERMINAL_BACKENDS))}); "
+                         "set terminal.backend: local")
     kwargs = dict(image=image, cwd=cwd, timeout=timeout, cc=container_config or {}, task_id=task_id,
                   ssh_config=ssh_config, local_config=local_config, host_cwd=host_cwd, probe_only=probe_only)
     if builder is not None:
@@ -311,7 +316,7 @@ def _check_vercel(config: dict[str, Any]) -> bool:
                        "Use the default shared setting (51200 MB).")
     if importlib.util.find_spec("vercel") is None:
 
-        return _reject("vercel is required for the Vercel Sandbox terminal backend. Run hermes setup terminal and select Vercel Sandbox.")
+        return _reject("vercel is required for the Vercel Sandbox terminal backend. Run huntington setup terminal and select Vercel Sandbox.")
     from agent.secret_scope import get_secret
     if get_secret("VERCEL_OIDC_TOKEN"):
         return True
@@ -338,7 +343,7 @@ def _ssh_pre(config: dict[str, Any]) -> bool:
     if config.get("ssh_host") and config.get("ssh_user"):
         return True
     return _reject("the SSH host and user are not configured (TERMINAL_SSH_HOST / TERMINAL_SSH_USER); "
-                   "run `hermes setup terminal` to enter them or pick the 'local' backend")
+                   "run `huntington setup terminal` to enter them or pick the 'local' backend")
 
 
 def _daytona_post(config: dict[str, Any]) -> bool:
@@ -353,7 +358,7 @@ _BACKEND_SPECS: dict[str, dict[str, Any]] = {
                           "Docker is not installed — no docker executable in PATH or the usual install locations")},
     "ssh": {"pre": _ssh_pre},
     "modal": {"pre": _modal_pre,
-              "module": ("modal", "modal is required for direct modal terminal backend. Run hermes setup terminal and select Modal.")},
+              "module": ("modal", "modal is required for direct modal terminal backend. Run huntington setup terminal and select Modal.")},
     "vercel_sandbox": {"pre": _check_vercel},
     "daytona": {"post": _daytona_post},
 }

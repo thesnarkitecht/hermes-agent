@@ -131,7 +131,7 @@ def test_keepalive_binds_launch_scope_for_multiplexed_singleton_refresh(tmp_path
     from agent.secret_scope import is_multiplex_active, set_multiplex_active
     from hermes_cli.auth_nous import _nous_inference_env_override, _nous_portal_env_override
 
-    launch_home = tmp_path / ".hermes"
+    launch_home = tmp_path / ".huntington"
     launch_home.mkdir()
     (launch_home / ".env").write_text(
         "NOUS_INFERENCE_BASE_URL=https://inference.example/v1\n"
@@ -168,7 +168,7 @@ def test_keepalive_binds_launch_scope_for_multiplexed_pool_refresh(tmp_path, mon
     """Pool refreshes run under the same launch scope as singleton refreshes."""
     from agent.secret_scope import current_secret_scope, is_multiplex_active, set_multiplex_active
 
-    launch_home = tmp_path / ".hermes"
+    launch_home = tmp_path / ".huntington"
     launch_home.mkdir()
     (launch_home / ".env").write_text(
         "NOUS_INFERENCE_BASE_URL=https://inference.example/v1\n", encoding="utf-8"

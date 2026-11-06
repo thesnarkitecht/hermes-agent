@@ -15,7 +15,7 @@ from hermes_cli.plugins import PluginManager
 
 
 def _home_with_plugin(tmp_path, monkeypatch, name: str, body: str):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     plugin_dir = home / "plugins" / name
     plugin_dir.mkdir(parents=True)
     (plugin_dir / "plugin.yaml").write_text(yaml.safe_dump({"name": name, "version": "1.0"}), encoding="utf-8")

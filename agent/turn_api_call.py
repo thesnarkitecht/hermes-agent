@@ -264,7 +264,7 @@ def nous_rate_limit_guard(
                     _nous_msg = anon_auth.FREE_TIER_RATE_LIMIT_CHAT.format(
                         reset=anon_auth.friendly_wait(_nous_remaining))
                 else:
-                    _nous_msg = f"Your Nous account has hit its rate limit; it resets in {reset}."
+                    _nous_msg = f"Your HIP account has hit its rate limit; it resets in {reset}."
                 agent._buffer_vprint(f"⏳ {_nous_msg} Trying fallback...")
                 agent._buffer_diagnostic_status(f"⏳ {_nous_msg}")
                 if agent._try_activate_fallback():

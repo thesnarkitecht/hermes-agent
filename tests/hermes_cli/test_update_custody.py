@@ -224,7 +224,7 @@ def test_a_refused_build_join_is_logged_and_noted_in_the_receipt(tmp_path, monke
     import hermes_cli.update_receipt as ur
     from hermes_cli import update_custody
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     report = tmp_path / "report.txt"
@@ -257,7 +257,7 @@ def test_a_swallowed_refusal_is_what_the_update_reports(tmp_path, monkeypatch, c
 
     monkeypatch.setattr(update_custody, "_RUN", {"ran": False, "refused": None})
     monkeypatch.setattr(update_owning_install, "retarget_to_owning_install", lambda root: None)
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
     (tmp_path / "checkout").mkdir()
     monkeypatch.setattr(main, "PROJECT_ROOT", tmp_path / "checkout")
     monkeypatch.setattr(main, "_update_preflight_handled", lambda args: False)
@@ -276,8 +276,8 @@ def test_a_swallowed_refusal_is_what_the_update_reports(tmp_path, monkeypatch, c
         main.cmd_update(SimpleNamespace(gateway=False))
     assert stop.value.code == 1
     out = capsys.readouterr().out
-    assert "`hermes update` stopped: Windows would not put `git` in this update's process job" in out, out
-    assert "Nothing was changed" in out and "Run `hermes update` again from a regular terminal" in out, out
+    assert "`huntington update` stopped: Windows would not put `git` in this update's process job" in out, out
+    assert "Nothing was changed" in out and "Run `huntington update` again from a regular terminal" in out, out
     payload = ur.read_latest_receipt()
     steps = [s for s in payload["steps"] if s["name"] == "update_custody"]
     assert steps and steps[0]["ok"] is False and "rev-parse" in steps[0]["detail"], payload["steps"]

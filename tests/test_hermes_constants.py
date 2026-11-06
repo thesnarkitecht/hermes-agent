@@ -32,7 +32,7 @@ class TestGetDefaultHermesRoot:
         monkeypatch.delenv("HERMES_HOME", raising=False)
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
 
-        assert get_default_hermes_root() == tmp_path / ".hermes"
+        assert get_default_hermes_root() == tmp_path / ".huntington"
 
 
 
@@ -404,7 +404,7 @@ class TestSecureParentDir:
 
     def test_safe_path_calls_chmod(self, tmp_path, monkeypatch):
         """Normal nested path (depth >= 3) should call os.chmod."""
-        safe_dir = tmp_path / "home" / "user" / ".hermes"
+        safe_dir = tmp_path / "home" / "user" / ".huntington"
         safe_dir.mkdir(parents=True)
         target = safe_dir / "auth.json"
         target.touch()
@@ -621,7 +621,7 @@ class TestProjectVenvDirOutOfTree:
             json.dumps({"url": source.resolve().as_uri(), "dir_info": {"editable": True}}), encoding="utf-8")
 
     def test_out_of_tree_install_resolves_the_running_interpreter_venv(self, monkeypatch, tmp_path):
-        checkout = tmp_path / "hermes-agent"
+        checkout = tmp_path / "huntington-agent"
         checkout.mkdir()
         venv = tmp_path / "venvs" / "hermes"
         self._venv_installed_from(venv, checkout)
@@ -633,9 +633,9 @@ class TestProjectVenvDirOutOfTree:
         """``PYTHONPATH=<dev checkout> <app venv>/bin/python``: the code comes from the dev checkout,
         but the venv belongs to the app install. Claiming it pointed the dev checkout's update sync at
         the app's venv, which became an editable install of the dev tree."""
-        dev = tmp_path / "dev" / "hermes-agent"
+        dev = tmp_path / "dev" / "huntington-agent"
         dev.mkdir(parents=True)
-        app = tmp_path / "app" / "hermes-agent"
+        app = tmp_path / "app" / "huntington-agent"
         app.mkdir(parents=True)
         venv = tmp_path / "app" / "venv"
         self._venv_installed_from(venv, app)
@@ -645,7 +645,7 @@ class TestProjectVenvDirOutOfTree:
 
     def test_foreign_root_and_in_tree_venv_are_unchanged(self, monkeypatch, tmp_path):
         """A temp dir / another clone never claims the running venv; an in-tree venv still wins."""
-        checkout = tmp_path / "hermes-agent"
+        checkout = tmp_path / "huntington-agent"
         checkout.mkdir()
         venv = tmp_path / "venvs" / "hermes"
         self._venv_installed_from(venv, checkout)

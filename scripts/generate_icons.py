@@ -108,8 +108,8 @@ try:
     import resvg_py
 except ImportError:
     sys.exit(
-        "resvg-py is missing: run the generator with a Hermes runtime interpreter\n"
-        "  (HERMES_PYTHON=<hermes venv python> node scripts/generate-icons.mjs)"
+        "resvg-py is missing: run the generator with a Huntington runtime interpreter\n"
+        "  (HERMES_PYTHON=<huntington venv python> node scripts/generate-icons.mjs)"
     )
 
 # Copy of hermes_cli.update_channel._CANARY_TAG_RE: builders run this renderer

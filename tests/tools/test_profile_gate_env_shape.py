@@ -23,7 +23,7 @@ def test_routed_no_agent_script_env_keeps_operator_allowlist_and_drops_platform_
     from agent.secret_scope import build_profile_secret_scope, reset_secret_scope, set_secret_scope
     from hermes_constants import reset_hermes_home_override, set_hermes_home_override
 
-    launch = tmp_path / ".hermes"
+    launch = tmp_path / ".huntington"
     other = launch / "profiles" / "other"
     other.mkdir(parents=True)
     (other / ".env").write_text("OTHER_MARKER=1\n", encoding="utf-8")

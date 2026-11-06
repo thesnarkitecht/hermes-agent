@@ -68,7 +68,7 @@ def _sandbox(tmp_path, *, hermes=None, before_stage=""):
     creates its private stage, i.e. after its own import check failed."""
     system_path = _system_path()
     if shutil.which("hermes", path=system_path):
-        pytest.skip("a hermes on the system PATH would take the PM branch")
+        pytest.skip("a huntington on the system PATH would take the PM branch")
     home, stubs = tmp_path / "home", tmp_path / "stubs"
     home.mkdir()
     stubs.mkdir()

@@ -41,7 +41,6 @@ _FEISHU_TOOLS = [
     "feishu_doc_read", "feishu_drive_list_comments", "feishu_drive_list_comment_replies",
     "feishu_drive_reply_comment", "feishu_drive_add_comment",
 ]
-_YUANBAO_TOOLS = ["yb_query_group_info", "yb_query_group_members", "yb_send_dm", "yb_search_sticker", "yb_send_sticker"]
 
 
 def _ts(description, tools=(), includes=(), **extra):
@@ -76,7 +75,7 @@ TOOLSETS = {
         "Search X (Twitter) posts and threads via xAI's built-in x_search Responses "
         "tool. Read-only public X discovery; use the xurl skill for authenticated X "
         "API reads and account actions. Available when xAI credentials are configured "
-        "(SuperGrok OAuth or XAI_API_KEY). Off by default; enable in `hermes tools` → "
+        "(SuperGrok OAuth or XAI_API_KEY). Off by default; enable in `huntington tools` → "
         "X (Twitter) Search.",
         ["x_search"],
     ),
@@ -87,7 +86,7 @@ TOOLSETS = {
         "Video generation tools. Single ``video_generate`` tool covers text-to-video "
         "(prompt only) and image-to-video (prompt + image_url), plus "
         "reference-to-video. Provider-specific edit/extend workflows may appear as "
-        "separate tools. Configure via ``hermes tools`` → Video Generation.",
+        "separate tools. Configure via ``huntington tools`` → Video Generation.",
         ["video_generate", "xai_video_edit", "xai_video_extend"],
     ),
     "computer_use": _ts(
@@ -163,7 +162,6 @@ TOOLSETS = {
     ),
     "discord": _ts("Discord read and participate tools (fetch messages, search members, create threads)", ["discord"]),
     "discord_admin": _ts("Discord server management (list channels/roles, pin messages, assign roles)", ["discord_admin"]),
-    "yuanbao": _ts("Yuanbao platform tools - group info, member queries, DM, stickers", _YUANBAO_TOOLS),
     "feishu_doc": _ts("Read Feishu/Lark document content", ["feishu_doc_read"]),
     "feishu_drive": _ts("Feishu/Lark document comment operations (list, reply, add)", _FEISHU_TOOLS[1:]),
 
@@ -199,7 +197,7 @@ TOOLSETS = {
 
     # Mirrors hermes-cli; `hermes tools` platform config filters it down and
     # _get_platform_tools() drops _DEFAULT_OFF_TOOLSETS unless user-enabled.
-    "hermes-cron": _bundle("Default cron toolset - same core tools as hermes-cli; gated by `hermes tools`"),
+    "hermes-cron": _bundle("Default cron toolset - same core tools as hermes-cli; gated by `huntington tools`"),
     "hermes-telegram": _bundle("Telegram bot toolset - full access for personal use (terminal has safety checks)"),
     "hermes-discord": _bundle(
         "Discord bot toolset - full access (terminal has safety checks via dangerous "
@@ -210,7 +208,7 @@ TOOLSETS = {
     "hermes-slack": _bundle("Slack bot toolset - full access for workspace use (terminal has safety checks)"),
     "hermes-signal": _bundle("Signal bot toolset - encrypted messaging platform (full access)"),
     "hermes-bluebubbles": _bundle("BlueBubbles iMessage bot toolset - Apple iMessage via local BlueBubbles server"),
-    "hermes-email": _bundle("Email bot toolset - interact with Hermes via email (IMAP/SMTP)"),
+    "hermes-email": _bundle("Email bot toolset - interact with Huntington via email (IMAP/SMTP)"),
     "hermes-mattermost": _bundle("Mattermost bot toolset - self-hosted team messaging (full access)"),
     "hermes-matrix": _bundle("Matrix bot toolset - decentralized encrypted messaging (full access)"),
     "hermes-dingtalk": _bundle("DingTalk bot toolset - enterprise messaging platform (full access)"),
@@ -219,15 +217,9 @@ TOOLSETS = {
     "hermes-qqbot": _bundle("QQBot toolset - QQ messaging via Official Bot API v2 (full access)"),
     "hermes-wecom": _bundle("WeCom bot toolset - enterprise WeChat messaging (full access)"),
     "hermes-wecom-callback": _bundle("WeCom callback toolset - enterprise self-built app messaging (full access)"),
-    "hermes-yuanbao": {
-        "description": "Yuanbao Bot 元宝消息平台工具集 - 群信息、成员查询、私聊、贴纸表情",
-        "tools": _HERMES_CORE_TOOLS + _YUANBAO_TOOLS,
-        "module": "tools.yuanbao_tools",
-        "includes": [],
-    },
-    "hermes-sms": _bundle("SMS bot toolset - interact with Hermes via SMS (Twilio)"),
+    "hermes-sms": _bundle("SMS bot toolset - interact with Huntington via SMS (Twilio)"),
     "hermes-webhook": _ts("Webhook toolset - receive and process external webhook events", _HERMES_WEBHOOK_SAFE_TOOLS),
-    "hermes-gateway": _ts(
+    "huntington-gateway": _ts(
         "Gateway toolset - union of all messaging platform tools",
         [],
         includes=[
@@ -235,7 +227,7 @@ TOOLSETS = {
             "hermes-signal", "hermes-bluebubbles", "hermes-email",
             "hermes-sms", "hermes-mattermost", "hermes-matrix", "hermes-dingtalk",
             "hermes-feishu", "hermes-wecom", "hermes-wecom-callback", "hermes-weixin",
-            "hermes-qqbot", "hermes-webhook", "hermes-yuanbao",
+            "hermes-qqbot", "hermes-webhook",
         ],
     ),
 }
@@ -464,6 +456,12 @@ def session_disabled_toolsets(
     gated += ONESHOT_DISABLED_TOOLSETS if oneshot else ()
     gated = [name for name in gated if name not in (disabled or ())]
     return [*(disabled or ()), *gated] if gated else disabled
+
+
+def tool_selection_key(enabled: Optional[list[str]], disabled: Optional[list[str]]) -> tuple:
+    """The toolset selection a tools[] snapshot was built from, order-free. Recorded next to the registry
+    generation: the tools[] freeze (``tools.mcp_tool_agent``) holds new tools back only while neither moved."""
+    return frozenset(enabled) if enabled is not None else None, frozenset(disabled or ())
 
 
 def agent_tool_drops(agent: Any) -> frozenset:

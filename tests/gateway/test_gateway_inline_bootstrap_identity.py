@@ -25,7 +25,7 @@ from gateway.status_inline_source import inline_bootstrap_argv
 from hermes_cli import _launchers, venv_sync
 from hermes_cli.update_cmd_windows import _hermes_holder_subcommand
 
-ROOT = Path("/opt/Hermes Agent/hermes-agent")
+ROOT = Path("/opt/HUNTINGTON-AGENT/hermes-agent")
 PY = "/opt/venv/bin/python3"
 _SCRIPT = _launchers._launcher_script("hermes", ROOT, None)
 _JOINS = {"space-joined": " ".join, "windows": subprocess.list2cmdline}
@@ -153,14 +153,14 @@ def test_live_payload_launched_gateway_is_found_for_its_home(argv, profile, foun
     started through the payload ``bin/hermes`` proves its home's runtime record (#127865)."""
     import hermes_constants
 
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     home = root / "profiles" / profile if profile else root
     home.mkdir(parents=True)
     monkeypatch.setattr(hermes_constants.Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(root))
     monkeypatch.setattr(hermes_constants, "_default_hermes_root_memo", None, raising=False)
     record = {
-        "pid": 4242, "kind": "hermes-gateway", "gateway_state": "running", "start_time": 1000,
+        "pid": 4242, "kind": "huntington-gateway", "gateway_state": "running", "start_time": 1000,
         "argv": ["/opt/hermes/hermes-agent/hermes_cli/main.py", *argv], "hermes_home": str(home),
     }
     (home / "gateway_state.json").write_text(json.dumps(record), encoding="utf-8")

@@ -1,3 +1,4 @@
+# health: allow FILE_LINES -- HUNTINGTON-AGENT fork: one-line provider-allowlist hooks at the existing auto-resolution rungs; the policy lives in hermes_cli/huntington.py
 """Multi-provider authentication system for Hermes Agent.
 
 - ``ProviderConfig`` / ``PROVIDER_REGISTRY`` describe every known inference provider.
@@ -170,7 +171,7 @@ def _api_key_provider(
 # [, auth_type]])``; OAuth / bespoke rows are full ``ProviderConfig`` objects.
 _REGISTRY_ROWS: tuple[Any, ...] = (
     ProviderConfig(
-        "nous", "Nous Portal", "oauth_device_code", portal_base_url=DEFAULT_NOUS_PORTAL_URL,
+        "nous", "HIP Portal", "oauth_device_code", portal_base_url=DEFAULT_NOUS_PORTAL_URL,
         inference_base_url=DEFAULT_NOUS_INFERENCE_URL, client_id=DEFAULT_NOUS_CLIENT_ID,
         scope=DEFAULT_NOUS_SCOPE),
     ProviderConfig("openai-codex", "OpenAI Codex", "oauth_external", inference_base_url=DEFAULT_CODEX_BASE_URL),
@@ -458,7 +459,7 @@ def format_auth_error(error: Exception) -> str:
         # Profile-aware: a bare `hermes model` from a named profile re-signs the ROOT store (#114012).
         from hermes_constants import profile_cli_selector
 
-        return f"{error} Run `hermes {profile_cli_selector()}model` to re-authenticate."
+        return f"{error} Run `huntington {profile_cli_selector()}model` to re-authenticate."
     if error.code in _ENTITLEMENT_ERROR_CODES:
         if error.provider == "nous":
             return _format_nous_entitlement_auth_error(error)
@@ -481,7 +482,7 @@ def _auth_file_path() -> Path:
     # Seat belt: under pytest, refuse to touch the real user's auth store (tests that forgot to
     # monkeypatch HERMES_HOME or escaped the hermetic conftest). In production: one dict lookup.
     if (os.environ.get("PYTEST_CURRENT_TEST")
-            and _same_path(path, Path.home() / ".hermes" / "auth.json")):
+            and _same_path(path, Path.home() / ".huntington" / "auth.json")):
         raise RuntimeError(
             f"Refusing to touch real user auth store during test run: {path}. "
             "Set HERMES_HOME to a tmp_path in your test fixture, or run "
@@ -518,7 +519,7 @@ def _load_global_auth_store() -> dict[str, Any]:
     if cache_key is not None and cached is not None and cached[:2] == cache_key:
         return cached[2]
     if os.environ.get("PYTEST_CURRENT_TEST") and os.environ.get("HOME"):
-        real_root = Path(os.environ["HOME"]) / ".hermes" / "auth.json"
+        real_root = Path(os.environ["HOME"]) / ".huntington" / "auth.json"
         try:
             if os.path.normcase(os.path.abspath(global_path)) == os.path.normcase(os.path.abspath(real_root)):
                 _global_auth_store_cache = None
@@ -619,7 +620,7 @@ def _lock_holder_hint(lock_path: Path) -> str:
         except OSError:
             pass  # exists but is not signalable (e.g. EPERM): still a live holder
     # No example holder: many stores use this lock; the caller's timeout_message names which one.
-    return f"another hermes process (pid {pid}) probably still holds it"
+    return f"another huntington process (pid {pid}) probably still holds it"
 
 
 def _stamp_lock_holder_pid(lock_file: Any) -> None:
@@ -1408,7 +1409,7 @@ def _refuse_env_adoption_if_config_corrupt() -> None:
     raise AuthError(
         f"config.yaml at {path} is corrupt ({err}) — refusing to auto-select "
         f"an inference provider from environment keys. Fix the YAML (a backup "
-        f"was saved next to it) or run hermes setup.",
+        f"was saved next to it) or run huntington setup.",
         code="corrupt_config")
 
 
@@ -1584,11 +1585,11 @@ def _env_key_auto_detected(
     scoped_key_env: Callable[[str], str], oauth_active: Optional[str]) -> Optional[str]:
     """First registry api_key provider (registry order) with a usable env key, warning when it
     preempts a logged-in OAuth provider so a stale key in ~/.hermes/.env never switches silently."""
+    from hermes_cli.huntington import provider_supported as _supported
     from providers import list_providers
-
     ambient = {p.name for p in list_providers() if p.ambient_credentials}  # never per-pid lookups: a miss walks the ladder
     for pid, pconfig in _canonical_registry_rows():
-        if pconfig.auth_type != "api_key" or pid in _NO_AUTO_DETECT_PROVIDERS or pid in ambient:
+        if pconfig.auth_type != "api_key" or pid in _NO_AUTO_DETECT_PROVIDERS or pid in ambient or not _supported(pid):
             continue
         for env_var in pconfig.api_key_env_vars:
             if has_usable_secret(scoped_key_env(env_var)):
@@ -1635,8 +1636,8 @@ def resolve_provider(
     if normalized != "auto":
         from hermes_cli.auth_error_copy import unknown_provider_hint
         hint = unknown_provider_hint(normalized)
-        tail = (f"\n\n{hint}" if hint else " Check 'hermes model' for available providers, "
-                "or run 'hermes doctor' to diagnose config issues.")
+        tail = (f"\n\n{hint}" if hint else " Check 'huntington model' for available providers, "
+                "or run 'huntington doctor' to diagnose config issues.")
         raise AuthError(f"Unknown provider '{normalized}'." + tail, code="invalid_provider")
 
     if explicit_api_key or explicit_base_url:  # one-off CLI creds always mean openrouter/custom
@@ -1646,8 +1647,9 @@ def resolve_provider(
     if cfg_provider:
         return cfg_provider
 
+    from hermes_cli.huntington import provider_supported  # HUNTINGTON-AGENT: "auto" lands only on supported providers
     _scoped_key_env = _scoped_key_env_reader()
-    if _openrouter_auto_detected(_scoped_key_env):
+    if provider_supported("openrouter") and _openrouter_auto_detected(_scoped_key_env):
         _refuse_env_adoption_if_config_corrupt()
         return "openrouter"
 
@@ -1662,7 +1664,7 @@ def resolve_provider(
     # checks, so a stale login silently overrode explicit intent).
     # Logged-in OAuth provider (auth.json `active_provider`) — a LAST-RESORT fallback, chosen only when the
     # user expressed no other preference above. Demoted here so explicit intent always wins. See #29285.
-    if _oauth_active:
+    if _oauth_active and provider_supported(_oauth_active):
         if isinstance(_model_cfg, dict) and _model_cfg and not _model_cfg.get("provider"):
             logger.warning(
                 "Provider resolved to logged-in OAuth provider %r because "
@@ -1677,7 +1679,7 @@ def resolve_provider(
     # keys, a sign-in); the boto chain below is implicit host state, and a leftover ~/.aws profile
     # used to win the first turn of a fresh install (NS-829). The rung never CREATES the identity:
     # only the desktop's trial claim does (welcome_trial), so provider resolution stays free of network.
-    if not skip_free_tier:
+    if not skip_free_tier and provider_supported("nous"):
         try:
             from hermes_cli.anon_auth import free_inference_active
             if free_inference_active():
@@ -1689,14 +1691,14 @@ def resolve_provider(
     try:
         from agent.bedrock_adapter import has_aws_credentials
         from hermes_cli.anon_auth import on_local_desktop_backend  # a laptop: no EC2 metadata lookup
-        if has_aws_credentials(instance_metadata=not on_local_desktop_backend()):
+        if provider_supported("bedrock") and has_aws_credentials(instance_metadata=not on_local_desktop_backend()):
             return "bedrock"
     except ImportError:
         pass  # boto3 not installed
     from hermes_constants import display_hermes_home
     raise AuthError(
-        "Hermes is not connected to any AI provider yet. Run `hermes model` to pick one, type `/login` in chat, "
-        f"or add a key with `hermes auth add <provider>`. (Advanced: put an API key such as OPENROUTER_API_KEY in "
+        "Huntington is not connected to any AI provider yet. Run `huntington model` to pick one, type `/login` in chat, "
+        f"or add a key with `huntington auth add <provider>`. (Advanced: put an API key such as OPENROUTER_API_KEY in "
         f"{display_hermes_home()}/.env.)",
         code="no_provider_configured")
 
@@ -1821,7 +1823,7 @@ def _resolve_nous_access_token(
 
     with _provider_state_transaction("nous") as (auth_store, state, state_source_path):
         if not state:
-            raise _nous_err("Hermes is not logged into Nous Portal.", "nous_auth_missing", relogin=True)
+            raise _nous_err("Huntington is not logged into HIP Portal.", "nous_auth_missing", relogin=True)
         portal_base_url = _nous_portal_base_url(state)
         client_id = str(state.get("client_id") or DEFAULT_NOUS_CLIENT_ID)
         verify = _resolve_verify(insecure=insecure, ca_bundle=ca_bundle, auth_state=state)
@@ -1847,7 +1849,7 @@ def _resolve_nous_access_token(
             refresh_token = state.get("refresh_token")
             if not isinstance(access_token, str) or not access_token:
                 raise _nous_err(
-                    "No access token found for Nous Portal login.", "nous_auth_missing_access_token", relogin=True)
+                    "No access token found for HIP Portal login.", "nous_auth_missing_access_token", relogin=True)
 
             if not _is_expiring(state.get("expires_at"), refresh_skew_seconds):
                 if merged_shared:
@@ -2183,11 +2185,11 @@ def _get_azure_foundry_auth_status() -> dict[str, Any]:
                 credential_verified=False, logged_in=bool(installed),
                 hint=(
                     "azure-identity is installed; live credential validation "
-                    "is skipped here. Run `hermes doctor` to verify token acquisition."
+                    "is skipped here. Run `huntington doctor` to verify token acquisition."
                 ) if installed else (
-                    "azure-identity not installed. From the Hermes environment, run: "
+                    "azure-identity not installed. From the Huntington environment, run: "
                     f"{install_hint('azure-identity')}. "
-                    "Then restart Hermes."))
+                    "Then restart Huntington."))
         except Exception as exc:
             info["logged_in"] = False
             info["error"] = f"azure-identity check failed: {exc}"
@@ -2369,8 +2371,8 @@ def _reset_config_provider() -> Path:
 
 def login_command(args) -> None:
     """Deprecated: use 'hermes model' or 'hermes setup' instead."""
-    print("The 'hermes login' command has been removed.\nUse 'hermes auth' to manage credentials,\n"
-          "'hermes model' to select a provider, or 'hermes setup' for full setup.")
+    print("The 'huntington login' command has been removed.\nUse 'huntington auth' to manage credentials,\n"
+          "'huntington model' to select a provider, or 'huntington setup' for full setup.")
     raise SystemExit(0)
 
 
@@ -2419,6 +2421,6 @@ def logout_command(args) -> None:
     if not should_reset_config:
         print("Model provider configuration was unchanged.")
     elif os.getenv("OPENROUTER_API_KEY"):
-        print("Hermes will use OpenRouter for inference.")
+        print("Huntington will use OpenRouter for inference.")
     else:
-        print("Run `hermes model` or configure an API key to use Hermes.")
+        print("Run `huntington model` or configure an API key to use Huntington.")

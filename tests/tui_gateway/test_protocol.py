@@ -1094,7 +1094,7 @@ def test_idle_reaper_rearms_missing_ws_orphan_timer(server, monkeypatch, tmp_pat
         try_acquire_active_session,
     )
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     monkeypatch.setenv("HERMES_HOME", str(home))
     sid = "detached-without-reaper"
     sibling_sid = "live-sibling"
@@ -1184,7 +1184,7 @@ def test_idle_reaper_rearms_missing_ws_orphan_timer(server, monkeypatch, tmp_pat
 def test_sync_session_key_after_compress_reanchors_active_session_lease(
     server, monkeypatch, tmp_path
 ):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     monkeypatch.setenv("HERMES_HOME", str(home))
 
     from hermes_cli.active_sessions import (
@@ -1363,7 +1363,7 @@ def test_command_dispatch_expands_stacked_skills_from_temp_home(server, tmp_path
     from agent import skill_commands
     from tools import skills_tool
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     skills_dir = home / "skills"
     for name, instructions in (
         ("nature-figure", "Render figures with natural colors."),
@@ -1413,7 +1413,7 @@ def test_command_dispatch_stacked_split_keeps_unknown_tokens_as_instruction(serv
     from agent import skill_commands
     from tools import skills_tool
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     skills_dir = home / "skills"
     skill_dir = skills_dir / "nature-figure"
     skill_dir.mkdir(parents=True)

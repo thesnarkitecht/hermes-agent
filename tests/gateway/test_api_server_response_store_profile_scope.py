@@ -42,7 +42,7 @@ async def test_a_profile_key_never_reaches_another_profiles_responses(tmp_path, 
     from gateway.platforms import api_server as api
     from gateway.platforms.api_server import APIServerAdapter
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     for name, key in (("alice", ALICE), ("bob", BOB)):
         (home / "profiles" / name).mkdir(parents=True)
         (home / "profiles" / name / ".env").write_text(f"API_SERVER_KEY={key}\n", encoding="utf-8")

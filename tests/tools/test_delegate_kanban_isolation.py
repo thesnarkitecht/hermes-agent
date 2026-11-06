@@ -27,7 +27,7 @@ def _python_with_repo_path(code: str) -> str:
 
 
 def _make_running_kanban_task(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     attachments_root = tmp_path / "attachments"
     workspace = tmp_path / "parent-workspace"
@@ -70,7 +70,7 @@ def test_delegated_child_context_suppresses_env_gated_kanban_tools(monkeypatch, 
     """
     monkeypatch.setenv("HERMES_KANBAN_TASK", "t_parent")
     monkeypatch.setenv("HERMES_KANBAN_RUN_ID", "123")
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
 
@@ -98,6 +98,7 @@ def test_build_child_agent_strips_kanban_toolset_even_when_parent_is_worker(monk
             captured.update(kwargs)
             self.valid_tool_names = {"terminal"}
             self.session_id = "child-session"
+            self._session_db = kwargs.get("session_db")
 
     import run_agent
     from tools import delegate_tool
@@ -144,7 +145,7 @@ def test_delegate_child_execute_code_env_bridges_contextvar_and_scrubs_kanban(
     ``os.environ`` and therefore never wrote HERMES_DELEGATED_CHILD_CONTEXT into
     the sandbox env.
     """
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setenv("HERMES_KANBAN_TASK", "t_parent")
@@ -192,7 +193,7 @@ def test_auto_heartbeat_reports_failure_without_mutating_fenced_child_board(
     try:
         task_before = kb.get_task(conn, tid)
         events_before = kb.list_events(conn, tid)
-        monkeypatch.setenv("HERMES_DELEGATED_CHILD_CONTEXT", str(tmp_path / ".hermes"))
+        monkeypatch.setenv("HERMES_DELEGATED_CHILD_CONTEXT", str(tmp_path / ".huntington"))
         monkeypatch.setattr(kanban_tools, "_auto_heartbeat_last_attempt", 0.0)
         # raising=False: a regression that drops the module flag must fail on the
         # symptom assertions below, not on this attribute probe.

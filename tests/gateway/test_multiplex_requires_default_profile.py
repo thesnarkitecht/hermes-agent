@@ -5,7 +5,7 @@ from gateway.restart import GATEWAY_FATAL_CONFIG_EXIT_CODE
 
 
 def _root(tmp_path):
-    root = tmp_path / '.hermes'
+    root = tmp_path / '.huntington'
     root.mkdir()
     (root / 'config.yaml').write_text('model: {default: m}\n')
     (root / 'profiles' / 'foo').mkdir(parents=True)

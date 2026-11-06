@@ -71,7 +71,7 @@ def build_cli(data, out, tmp_path):
     return subprocess.run(
         [sys.executable, "-B", "-m", "scripts.build.agent", "--inputs", str(document), "--out", str(out)],
         cwd=tmp_path, env={"PATH": os.environ["PATH"], "HOME": str(home),
-                          "HERMES_HOME": str(home / ".hermes"), "PYTHONPATH": str(ROOT)},
+                          "HERMES_HOME": str(home / ".huntington"), "PYTHONPATH": str(ROOT)},
         capture_output=True, text=True, timeout=30,
         check=False,
     )
@@ -95,7 +95,7 @@ def test_contained_cli_assembly_runs_after_move_and_preserves_prepared_state(tmp
     assert json.loads((out / "app/hermes_cli/tui_dist/package.json").read_text())["type"] == "module"
     assert (out / "app/hermes_cli/web_dist/index.html").is_file()
     assert (out / "app/apps/desktop/dist-webapp/index.html").read_text() == "built webapp"
-    assert not (tmp_path / "home/.hermes").exists()
+    assert not (tmp_path / "home/.huntington").exists()
     moved = tmp_path / "relocated payload"
     out.rename(moved)
     (tmp_path / "entry.py").write_text("raise RuntimeError('cwd shadowed source')", encoding="utf-8")

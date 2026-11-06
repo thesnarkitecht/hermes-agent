@@ -15,7 +15,7 @@ from hermes_cli import config as config_mod
 
 @pytest.fixture
 def hermes_home(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.delenv("HERMES_MANAGED", raising=False)
@@ -96,7 +96,7 @@ def test_managed_install_names_its_system_and_offers_an_update(
     assert config_mod.detect_install_method(install_tree) == managed_value
     # `hermes update` cannot run on a managed install, so the advice must not
     # name it.
-    assert config_mod.recommended_update_command() != "hermes update"
+    assert config_mod.recommended_update_command() != "huntington update"
 
 
 @pytest.mark.parametrize("managed_value", ["nixos", "home-manager"])

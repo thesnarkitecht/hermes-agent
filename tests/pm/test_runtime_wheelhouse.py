@@ -16,6 +16,9 @@ from pm.runtime import runtime_environment
 from scripts.bundles.payload import seal_pm_runtime
 from tests.pm._fixtures import stage_host_python
 
+# The wheelhouse is downloaded from PyPI on purpose (only the stage afterwards is offline).
+pytestmark = pytest.mark.allow_network
+
 
 @pytest.fixture(scope="module")
 def locked_wheelhouse(tmp_path_factory):
@@ -104,7 +107,7 @@ print(json.dumps({canonicalize_name(d.metadata['Name']): d.version
     assert json.loads(result.stdout) == versions
     from pm import paths
     from pm.runtime import runtime_command
-    repo = moved / "hermes-agent"
+    repo = moved / "huntington-agent"
     repo.mkdir()
     (moved / "manifest.json").write_text('{"repo":"hermes-agent"}', encoding="utf-8")
     script = repo / "probe.py"

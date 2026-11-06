@@ -74,7 +74,7 @@ class TestCollectProfileGatewayTopology:
     def test_running_standalone_profile_is_in_topology(self, tmp_path, monkeypatch):
         from hermes_cli import profiles
 
-        root = tmp_path / ".hermes"
+        root = tmp_path / ".huntington"
         solo = root / "profiles" / "solo"
         solo.mkdir(parents=True)
         (solo / "config.yaml").write_text("gateway:\n  standalone: true\n")
@@ -393,7 +393,7 @@ class TestStatusEndpointTopology:
         import hermes_cli.web_routers.status as status_router
         from hermes_cli import web_server_profiles
 
-        home = tmp_path / ".hermes"  # the shipped default root: basename != profile id
+        home = tmp_path / ".huntington"  # the shipped default root: basename != profile id
         home.mkdir()
         # The resolver names a default root by IDENTITY, not basename: only the root the
         # process resolves (HERMES_HOME here) folds as "default".

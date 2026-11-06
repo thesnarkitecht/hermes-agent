@@ -35,7 +35,7 @@ def _panel(pick):
 
 @pytest.fixture
 def plugin_home(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     plugin = home / "plugins" / "pick"
     plugin.mkdir(parents=True)
     (plugin / "plugin.yaml").write_text(json.dumps({"name": "pick", "version": "0.1.0"}))

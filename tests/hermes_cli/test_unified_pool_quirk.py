@@ -193,7 +193,7 @@ def test_vulkan_device_type_decides_discrete_vs_unified(monkeypatch, tmp_path, d
     from hermes_cli.local_runtime import devices
 
     total = 16304 << 20
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text("local_runtime:\n  backend: vulkan\n", encoding="utf-8")
     monkeypatch.setenv("HERMES_HOME", str(home))

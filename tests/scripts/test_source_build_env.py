@@ -169,7 +169,7 @@ def test_posix_build_children_stamp_old_and_new_without_changing_parent(tmp_path
 
 @pytest.mark.platforms("windows", "posix")
 def test_powershell_build_children_stamp_old_and_new_without_changing_parent(tmp_path):
-    path = os.pathsep.join(p for p in os.get_exec_path() if ".hermes" not in Path(p).parts)
+    path = os.pathsep.join(p for p in os.get_exec_path() if ".huntington" not in Path(p).parts)
     # Windows PowerShell 5.1 is what install-e2e-windows-run.yml drives windows-e2e.ps1 (the
     # asset's real consumer) with; pwsh is the only PowerShell a POSIX host offers.
     order = ("powershell", "pwsh") if os.name == "nt" else ("pwsh", "powershell")

@@ -181,7 +181,7 @@ class ModalEnvironment(BaseEnvironment):
             raise
         logger.info("Modal: sandbox created (task=%s)", self._task_id)
         self._sync_manager = FileSyncManager(
-            get_files_fn=lambda: iter_sync_files("/root/.hermes"),
+            get_files_fn=lambda: iter_sync_files("/root/.huntington"),
             upload_fn=self._modal_upload, delete_fn=self._modal_delete,
             bulk_upload_fn=self._modal_bulk_upload, bulk_download_fn=self._modal_bulk_download)
         self._sync_manager.sync(force=True)
@@ -224,7 +224,7 @@ class ModalEnvironment(BaseEnvironment):
     def _modal_bulk_download(self, dest: Path) -> None:
         """Download remote .hermes/ as a tar archive (sandboxes run as root, so /root/.hermes)."""
         # --exclude: live sockets cannot be archived ("socket ignored") and must not fail the download.
-        data = self._exec("tar cf - --exclude='*.sock' -C / root/.hermes", timeout=120, fail_label="bulk download", capture=True)
+        data = self._exec("tar cf - --exclude='*.sock' -C / root/.huntington", timeout=120, fail_label="bulk download", capture=True)
         dest.write_bytes(data.encode() if isinstance(data, str) else data)
 
     def _modal_delete(self, remote_paths: list[str]) -> None:

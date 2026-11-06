@@ -65,7 +65,7 @@ def _resolve_managed_fal_gateway():
         if gateway is None:
             raise ValueError(selection_error(
                 "image_gen", NOUS_MANAGED_PROVIDER,
-                "the Nous Tool Gateway is not available (not entitled or unreachable)"))
+                "the HIP Tool Gateway is not available (not entitled or unreachable)"))
         return gateway
     if selected is not None:
         if fal_key_is_configured():
@@ -139,16 +139,16 @@ def _submit_fal_request(model: str, arguments: dict[str, Any]):
             billing = _managed_fal_billing_error(exc, "model")
             if billing is not None:
                 raise ValueError(
-                    f"Nous Subscription gateway rejected model '{model}' (HTTP {status}): {billing}") from exc
+                    f"HIP Subscription gateway rejected model '{model}' (HTTP {status}): {billing}") from exc
             gateway_message = ""
             if status in {401, 402, 403}:
                 gateway_message = "\n\n" + nous_tool_gateway_unavailable_message(
                     "managed FAL image generation", force_fresh=True)
             raise ValueError(
-                f"Nous Subscription gateway rejected model '{model}' (HTTP {status}). This model "
-                f"may not yet be enabled on the Nous Portal's FAL proxy. Either:\n"
+                f"HIP Subscription gateway rejected model '{model}' (HTTP {status}). This model "
+                f"may not yet be enabled on the HIP Portal's FAL proxy. Either:\n"
                 f"  • Set FAL_KEY in your environment to use FAL.ai directly, or\n"
-                f"  • Pick a different model via `hermes tools` → Image Generation."
+                f"  • Pick a different model via `huntington tools` → Image Generation."
                 f"{gateway_message}") from exc
         raise
 
@@ -187,11 +187,17 @@ def _read_configured_image_provider():
 
 
 def _plugin_provider_name() -> Optional[str]:
-    """Configured provider that must go through the plugin registry; None for unset/fal/nous."""
+    """HUNTINGTON-AGENT: the OpenAI image backend, always through the plugin registry. A configured
+    ``openai`` (API key) or ``openai-codex`` (ChatGPT sign-in) wins; otherwise the first available."""
+    from hermes_cli.huntington import IMAGE_GEN_PROVIDERS
     configured = _read_configured_image_provider()
-    if not configured or configured in ("fal", NOUS_MANAGED_PROVIDER):
-        return None
-    return configured
+    if configured in IMAGE_GEN_PROVIDERS:
+        return configured
+    for name in IMAGE_GEN_PROVIDERS:
+        provider = _get_plugin_provider(name)
+        if provider is not None and provider.is_available():
+            return name
+    return IMAGE_GEN_PROVIDERS[0]
 
 
 def _resolve_fal_model() -> tuple:
@@ -287,7 +293,7 @@ def _upscale_image(image_url: str, original_prompt: str) -> Optional[dict[str, A
 _CONTAINER_HOME_ENVS = {"DockerEnvironment", "ModalEnvironment"}
 # No env yet: only deterministic cache roots translate side-effect free (SSH: tilde path; its
 # first sync uploads the cache file).
-_CACHE_BASE_BY_BACKEND = {"docker": "/root/.hermes", "modal": "/root/.hermes", "ssh": "~/.hermes"}
+_CACHE_BASE_BY_BACKEND = {"docker": "/root/.huntington", "modal": "/root/.huntington", "ssh": "~/.huntington"}
 
 
 def _looks_like_absolute_file_path(value: str) -> bool:
@@ -318,9 +324,9 @@ def _agent_cache_base_for_env(env: Any) -> str | None:
                 logger.debug("active env agent_visible_cache_base failed: %s", exc)
         remote_home = getattr(env, "_remote_home", None)
         if remote_home:
-            return f"{str(remote_home).rstrip('/')}/.hermes"
+            return f"{str(remote_home).rstrip('/')}/.huntington"
         if env.__class__.__name__ in _CONTAINER_HOME_ENVS:
-            return "/root/.hermes"
+            return "/root/.huntington"
     from tools.terminal_scope import terminal_env
     backend = (terminal_env("TERMINAL_ENV") or "local").strip().lower()
     return _CACHE_BASE_BY_BACKEND.get(backend)
@@ -442,7 +448,7 @@ def _prepare_fal_request(model_id, meta, prompt, aspect_ratio, seed, overrides, 
         raise ValueError(
             f"Model '{display}' ({model_id}) is not capable of image-to-image / editing. "
             f"Provide a text-only prompt (omit image_url), or switch to an edit-capable model "
-            f"via `hermes tools` → Image Generation.")
+            f"via `huntington tools` → Image Generation.")
     aspect_lc = (aspect_ratio or DEFAULT_ASPECT_RATIO).lower().strip()
     if aspect_lc not in VALID_ASPECT_RATIOS:
         logger.warning("Invalid aspect_ratio '%s', defaulting to '%s'", aspect_ratio, DEFAULT_ASPECT_RATIO)
@@ -563,10 +569,10 @@ def _build_no_backend_setup_message() -> str:
               "  1. Get a free API key at https://fal.ai and set FAL_KEY=<your-key> "
               "(then restart the session)"]
     if managed:
-        lines.append("  2. Sign in to a Nous account that has the managed FAL gateway enabled "
-                     "(`hermes setup`)")
-    lines.append("  3. Configure a different image_gen provider via `hermes tools` → Image Generation "
-                 "(run `hermes plugins list` to see installed backends)")
+        lines.append("  2. Sign in to a HIP account that has the managed FAL gateway enabled "
+                     "(`huntington setup`)")
+    lines.append("  3. Configure a different image_gen provider via `huntington tools` → Image Generation "
+                 "(run `huntington plugins list` to see installed backends)")
     return "\n".join(lines)
 
 
@@ -582,14 +588,7 @@ def _get_plugin_provider(name: str, *, force: bool = False):
 
 
 def check_image_generation_requirements() -> bool:
-    """True if FAL or the explicitly configured image backend is available."""
-    try:
-        if check_fal_api_key():
-            # Lazy import doubles as the SDK presence check: ImportError falls through to plugins.
-            _load_fal_client()
-            return True
-    except ImportError:
-        pass
+    """True if the OpenAI image backend (API key or ChatGPT sign-in) is available."""
     configured = _plugin_provider_name()
     if configured is None:
         return False
@@ -705,7 +704,7 @@ def _dispatch_to_plugin_provider(
     if provider is None:
         return _provider_error(
             f"image_gen.provider='{configured}' is set but no plugin registered that name. "
-            f"Run `hermes plugins list` to see available image gen backends.", "provider_not_registered")
+            f"Run `huntington plugins list` to see available image gen backends.", "provider_not_registered")
     pname = getattr(provider, "name", "?")
     kwargs: dict[str, Any] = {"prompt": prompt, "aspect_ratio": aspect_ratio}
     try:
@@ -722,7 +721,7 @@ def _dispatch_to_plugin_provider(
             return _provider_error(
                 f"Provider '{pname}' does not support image-to-image / editing (its generate() "
                 f"signature is out of date with the image_generate schema). Omit image_url for "
-                f"text-to-image, or pick a backend that supports editing via `hermes tools` → "
+                f"text-to-image, or pick a backend that supports editing via `huntington tools` → "
                 f"Image Generation.", "modality_unsupported")
         logger.warning("Image gen provider '%s' raised%s: %s", pname,
                        " TypeError" if is_type_error else "", exc)
@@ -775,8 +774,8 @@ def _maybe_route_managed_model(
         if plugin_name == "krea":
             return None
         return _provider_error(
-            f"image_gen.model='{model_id}' is a Nous Portal model but the Portal image backend is not "
-            f"available. Pick another model via `hermes tools` → Image Generation.", "provider_not_registered")
+            f"image_gen.model='{model_id}' is a HIP Portal model but the Portal image backend is not "
+            f"available. Pick another model via `huntington tools` → Image Generation.", "provider_not_registered")
     kwargs: dict[str, Any] = {"prompt": prompt, "aspect_ratio": aspect_ratio, "model": model_id}
     try:
         _add_provider_kwargs(kwargs, image_url, reference_image_urls, upscale,

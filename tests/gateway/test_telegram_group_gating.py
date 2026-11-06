@@ -545,7 +545,7 @@ def test_bot_self_messages_are_ignored_in_dm_and_group():
 
 
 def test_config_bridges_telegram_group_settings(monkeypatch, tmp_path):
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     hermes_home.mkdir()
     (hermes_home / "config.yaml").write_text(
         "telegram:\n"
@@ -615,7 +615,7 @@ def test_top_level_require_mention_bridges_to_telegram(monkeypatch, tmp_path):
     """require_mention at the config.yaml top level (alongside group_sessions_per_user)
     must behave identically to telegram.require_mention: true (#3979).
     """
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     hermes_home.mkdir()
     # Intentionally no "telegram:" section — keys are at the top level.
     (hermes_home / "config.yaml").write_text(

@@ -260,7 +260,7 @@ class TestHasAnyProviderConfigured:
     def test_claude_code_creds_ignored_on_fresh_install(self, monkeypatch, tmp_path):
         """Claude Code credentials should NOT skip the wizard when Hermes is unconfigured."""
         from hermes_cli import config as config_module
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir()
         monkeypatch.setattr(config_module, "get_env_path", lambda: hermes_home / ".env")
         monkeypatch.setattr(config_module, "get_hermes_home", lambda: hermes_home)
@@ -290,7 +290,7 @@ class TestHasAnyProviderConfigured:
         """config.yaml with model.provider set should count as configured."""
         import hermes_yaml as yaml
         from hermes_cli import config as config_module
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir()
         config_file = hermes_home / "config.yaml"
         config_file.write_text(yaml.safe_dump({
@@ -319,7 +319,7 @@ class TestHasAnyProviderConfigured:
 
     def _setup_home(self, monkeypatch, tmp_path):
         from hermes_cli import config as config_module
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir()
         monkeypatch.setattr(config_module, "get_env_path", lambda: hermes_home / ".env")
         monkeypatch.setattr(config_module, "get_hermes_home", lambda: hermes_home)

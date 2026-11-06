@@ -20,7 +20,7 @@ import hermes_cli.web_routers.cron as _rt_cron
 def homes(tmp_path, monkeypatch):
     from hermes_cli import profiles
 
-    default_home = tmp_path / ".hermes"
+    default_home = tmp_path / ".huntington"
     profiles_root = default_home / "profiles"
     worker_home = profiles_root / "worker_alpha"
     for home in (default_home, worker_home):

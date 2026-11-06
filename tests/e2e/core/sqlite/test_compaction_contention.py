@@ -128,11 +128,11 @@ def rig(request, tmp_path_factory):
     ctx = "  context_length: 128000\n"
     write_hermes_home(ch.hermes_home, server.base_url, extra_config=MICRO_CONFIG + DB_CONFIG)
     tui_home = ch.root / "tui-home"
-    write_hermes_home(tui_home / ".hermes", server.base_url, extra_config=DB_CONFIG)
-    for home in (ch.hermes_home, tui_home / ".hermes"):
+    write_hermes_home(tui_home / ".huntington", server.base_url, extra_config=DB_CONFIG)
+    for home in (ch.hermes_home, tui_home / ".huntington"):
         cfg = home / "config.yaml"
         cfg.write_text(cfg.read_text(encoding="utf-8").replace(ctx, "  context_length: 64000\n"), encoding="utf-8")
-    yield Rig(ch, server, aux, {"HOME": str(tui_home), "HERMES_HOME": str(tui_home / ".hermes")})
+    yield Rig(ch, server, aux, {"HOME": str(tui_home), "HERMES_HOME": str(tui_home / ".huntington")})
     ch.shutdown()
     server.stop()
 

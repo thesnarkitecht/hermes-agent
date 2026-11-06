@@ -43,8 +43,8 @@ async def _start_gateway_replace_existing_instance(existing_pid: int, replace: b
             f"   One gateway per host serves every profile, so there is nothing to start here.\n"
             f"   Attach is impossible: PID {existing_pid} published no usable host record\n"
             f"   (an older build, or an unwritable lock directory).\n"
-            f"   Take the host over:  hermes gateway run --replace\n"
-            f"   Or stop it first:    hermes gateway stop\n")
+            f"   Take the host over:  huntington gateway run --replace\n"
+            f"   Or stop it first:    huntington gateway stop\n")
         return False
 
     # Never signal a process not provably ours (a poisoned PID record → cross-profile restart loop).
@@ -287,6 +287,7 @@ async def _start_gateway_start_control_socket(runner):
         )
         from gateway.run_plugin_rewire import reload_plugins_verb
         from gateway.run_active_work_verb import active_work_verb
+        from gateway.relay.link import relay_link_verb
         from gateway.drain_control import RESTART_WAIT_REASON
         descriptor = runner.session_runtime_descriptor
 
@@ -362,7 +363,10 @@ async def _start_gateway_start_control_socket(runner):
                            "active-work": active_work_verb(runner, _main_loop),
                            # A plugin installed/enabled by another process loads now and re-wires the
                            # live adapters' handlers (#87770); tools/prompt still wait for the next session.
-                           "reload-plugins": reload_plugins_verb(runner, _main_loop)})
+                           "reload-plugins": reload_plugins_verb(runner, _main_loop),
+                           # The per-gateway relay secret exists only in this process: the dashboard
+                           # mints Team Gateway link codes through it.
+                           "relay-link": relay_link_verb})
         _control_server.ticket_store = runner.session_ticket_store
         # The Webapp's verbs answer from the socket's first moment ("starting" until the listener
         # settles): a client polling a restarting gateway must never read "unknown verb" as a failure.
@@ -449,7 +453,7 @@ def _start_gateway_start_cron_and_housekeeping(runner):
                 "loopback HTTP and will all fail (jobs only run when "
                 "triggered manually). Most common cause: API_SERVER_KEY is "
                 "missing from this gateway process's environment. Restart "
-                "the gateway through its supervisor (`hermes gateway "
+                "the gateway through its supervisor (`huntington gateway "
                 "restart`) so the profile env loads.",
                 getattr(cron_provider, "name", "external"))
 
@@ -537,7 +541,7 @@ def _launch_home_may_multiplex(config=None) -> bool:
         decision = MultiplexDecision(
             False, "guard",
             f"profile {name!r} launched the gateway, and only the default profile runs the multiplexer "
-            "(start it with `hermes gateway run` from the default profile to serve every profile)")
+            "(start it with `huntington gateway run` from the default profile to serve every profile)")
         config.multiplex_profiles = False
         log_multiplex_decision(decision)
         return True
@@ -546,7 +550,7 @@ def _launch_home_may_multiplex(config=None) -> bool:
     logger.error(
         "gateway.multiplex_profiles is set on profile %r, but only the default profile can run the "
         "multiplexer. Unset the flag in this profile's config.yaml, or start the gateway from the "
-        "default profile (`hermes gateway run`), which serves this profile too.", name)
+        "default profile (`huntington gateway run`), which serves this profile too.", name)
     _write_runtime_status_quiet(gateway_state="startup_failed", exit_reason="multiplex_requires_default_profile")
     raise SystemExit(GATEWAY_FATAL_CONFIG_EXIT_CODE)
 
@@ -609,7 +613,7 @@ def _start_gateway_reserve_profiles(profile_homes) -> bool:
             from gateway.run import _write_runtime_status_quiet
             logger.error(
                 "The default gateway is running as a profile multiplexer and already serves this profile. "
-                "Manage it with `hermes gateway restart` from the default profile instead of starting a "
+                "Manage it with `huntington gateway restart` from the default profile instead of starting a "
                 "second gateway for the profile.")
             _write_runtime_status_quiet(gateway_state="startup_failed", exit_reason=str(exc))
             raise SystemExit(GATEWAY_FATAL_CONFIG_EXIT_CODE)
@@ -857,7 +861,7 @@ async def start_gateway(config: Optional[GatewayConfig] = None, replace: bool = 
             start_nous_auth_keepalive()
 
         _unclean_exit = _best_effort(_lifecycle_record_startup, "Lifecycle ledger startup record failed: %s")
-        _best_effort(_start_keepalive, "Nous auth keepalive did not start: %s")
+        _best_effort(_start_keepalive, "HIP auth keepalive did not start: %s")
         _ensure_windows_gateway_venv_imports()
 
         _early_verdict = await _start_gateway_run_runner(runner, _signal_initiated_shutdown)

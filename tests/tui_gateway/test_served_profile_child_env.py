@@ -26,7 +26,7 @@ _PROBE = ("import json,os;print(json.dumps({k:os.environ.get(k) for k in "
 @pytest.fixture
 def mux_homes(tmp_path, monkeypatch):
     """Launch home A (its .env mirrored into os.environ, as the multiplexer loads it) and served home B."""
-    a = tmp_path / ".hermes"
+    a = tmp_path / ".huntington"
     b = a / "profiles" / "b"
     b.mkdir(parents=True)
     (a / ".env").write_text("A_MARKER=a\nHERMES_MODEL=a-model\nTERMINAL_ENV=docker\nFIRECRAWL_API_KEY=a-fc\n"

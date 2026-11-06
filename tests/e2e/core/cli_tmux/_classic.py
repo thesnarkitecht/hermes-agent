@@ -151,7 +151,7 @@ class ClassicHome:
 
     @property
     def hermes_home(self) -> Path:
-        return self.home / ".hermes"
+        return self.home / ".huntington"
 
     @property
     def work(self) -> Path:

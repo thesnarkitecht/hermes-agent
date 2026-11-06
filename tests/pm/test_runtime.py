@@ -66,7 +66,7 @@ def test_cold_worker_bootstrap_reuses_the_requests_cache(tmp_path, monkeypatch):
     cache = tmp_path / "shared-cache"
     monkeypatch.setenv("HOME", str(tmp_path / "home"))
     monkeypatch.setenv("USERPROFILE", str(tmp_path / "home"))
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "home/.hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "home/.huntington"))
     monkeypatch.setenv("HERMES_RUNTIME_DIR", str(tmp_path / "tools"))
     monkeypatch.setattr("pm.paths.repo_root", lambda: tmp_path / "project")
     monkeypatch.setattr("pm._uv._toolchain", lambda **kwargs: tools)
@@ -106,7 +106,7 @@ def test_sealed_worker_command_uses_only_its_recorded_site(tmp_path, monkeypatch
     from pm import paths
     from pm.runtime import runtime_command
 
-    repo = tmp_path / "payload" / "hermes-agent"
+    repo = tmp_path / "payload" / "huntington-agent"
     repo.mkdir(parents=True)
     (repo.parent / "manifest.json").write_text('{"repo":"hermes-agent"}')
     runtime = repo.parent / "pm-runtime"

@@ -53,7 +53,7 @@ def _install_platform_plugin(home, monkeypatch, *, dir_name, platform, catalog_n
 
 
 def test_platform_names_are_published_or_proven_by_the_installer_record(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     monkeypatch.setenv("HERMES_HOME", str(home))
     cleanup = [
         _install_platform_plugin(home, monkeypatch, dir_name="vk", platform="vk", catalog_name="vk-platform"),

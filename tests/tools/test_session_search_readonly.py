@@ -13,7 +13,7 @@ def test_search_does_not_create_current_storage_for_empty_or_foreign_reads(tmp_p
     from tools.registry import registry
 
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     token = set_hermes_home_override(home)

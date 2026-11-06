@@ -34,7 +34,7 @@ class TestProfileCopyExclusions:
         from hermes_cli import profiles, profile_distribution
 
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".huntington"
         home.mkdir()
         monkeypatch.setenv("HERMES_HOME", str(home))
         monkeypatch.setattr(profiles, "_maybe_register_gateway_service", lambda name: None)

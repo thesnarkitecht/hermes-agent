@@ -19,7 +19,7 @@ SECRET = "123456:shared-secret-value"
 
 @pytest.fixture
 def homes(tmp_path, monkeypatch):
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     (root / "profiles" / "worker").mkdir(parents=True)
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(root))

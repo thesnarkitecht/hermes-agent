@@ -23,7 +23,7 @@ from hermes_constants import get_hermes_home
 
 @pytest.fixture
 def served(tmp_path, monkeypatch):
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     alpha = root / "profiles" / "alpha"
     alpha.mkdir(parents=True)
     (root / ".env").write_text("HERMES_MODEL=default-model\nTERMINAL_ENV=docker\n")

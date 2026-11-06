@@ -51,8 +51,11 @@ def prepare(request: dict) -> tuple[Path, dict[str, str]]:
         # an ordinary sync, which builds and validates a fresh generation too.
         repair = repair_marker.is_file() and venv_is_current(project_root=root)
         # An update never fails because of a plugin: misfits are disabled and reported.
+        # The old venv's extras are carried, not asked for: none of them undoes a `--without`, and
+        # one beyond [all] that no longer builds is left out.
+        carried = {"carried": extras[1:]} if not repair and extras and len(extras) > 1 else {}
         sync_venv(None if repair else extras, explicit=True, project_root=root, repair=repair,
-                  evict_incompatible_plugins=not repair)
+                  evict_incompatible_plugins=not repair, **carried)
         collect_superseded_generations(root)
         request["pm_receipt"] = receipt.last_for_update(correlation)
     publish_launchers(root)
@@ -144,7 +147,7 @@ def main() -> int:
         root = Path(request["root"])
         python = resolve_store_python(root)
         if python is None:
-            print("Cannot resume stopped backends: no selected Hermes interpreter", file=sys.stderr)
+            print("Cannot resume stopped backends: no selected Huntington interpreter", file=sys.stderr)
             return 1
         return subprocess.run(
             [str(python), "-I", "-B", "-X", "utf8", str(root / "hermes_cli/update_serve_resume.py"),
@@ -207,7 +210,7 @@ def _record_owed_finish(request: dict, result: Path, detail: str) -> None:
     from contextlib import suppress
 
     print(f"  ⚠ The update is installed, but its finishing steps did not run: {detail}. "
-          "The next `hermes` launch finishes them.", file=sys.stderr, flush=True)
+          "The next `huntington` launch finishes them.", file=sys.stderr, flush=True)
     saved = None
     # Receipt/exit-code writes are best effort: a committed update exits 0 whatever they hit.
     with suppress(Exception):  # health: allow BLE001 -- post-commit boundary: a receipt error never fails the update

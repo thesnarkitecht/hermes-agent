@@ -18,6 +18,7 @@ from agent.replay_cleanup import strip_stale_dangerous_confirmations
 from gateway.config import Platform
 from gateway.media_repair import repair_explicit_computer_use_media_paths
 from gateway.platforms.base import BasePlatformAdapter
+from gateway.platforms.helpers import typing_metadata_for_turn
 from gateway.turn_context import TurnContext
 from hermes_cli.config import cfg_get
 from utils import is_truthy_value
@@ -571,6 +572,8 @@ class GatewayTurnProgressMixin:
         _progress_len_fn: Any
         _PROGRESS_TEXT_LIMIT: int
         _edit_accepts_metadata: bool
+        # (message_id, text) the platform last accepted for a progress bubble.
+        _delivered: tuple = (None, None)
 
     def _progress_edit_state(self, adapter) -> TurnRunner._ProgressEditState:
         ctx = self._ctx
@@ -603,7 +606,10 @@ class GatewayTurnProgressMixin:
             kwargs["finalize"] = True
         if st._edit_accepts_metadata:
             kwargs["metadata"] = ctx._progress_metadata
-        return await st.adapter.edit_message(**kwargs)
+        result = await st.adapter.edit_message(**kwargs)
+        if getattr(result, "success", False):
+            st._delivered = (message_id, content)
+        return result
 
     @staticmethod
     def _progress_text(lines: list) -> str:
@@ -627,6 +633,8 @@ class GatewayTurnProgressMixin:
             chat_id=ctx.source.chat_id, content=text, reply_to=ctx._progress_reply_to, metadata=ctx._progress_metadata,
         )
         self._track_progress_result(result)
+        if getattr(result, "success", False) and getattr(result, "message_id", None):
+            st._delivered = (result.message_id, text)
         return result
 
     async def _roll_progress_overflow_if_needed(self, st) -> bool:
@@ -682,8 +690,13 @@ class GatewayTurnProgressMixin:
 
     async def _flush_progress_edit(self, st) -> None:
         if st.can_edit and st.progress_lines and st.progress_msg_id:
+            text = self._progress_text(st.progress_lines)
+            # The bubble already shows this text: an identical edit is a wasted platform call (and
+            # one that races the turn's end). Adapters that seal a bubble by editing still get it.
+            if st._delivered == (st.progress_msg_id, text) and not getattr(st.adapter, "REQUIRES_EDIT_FINALIZE", False):
+                return
             with suppress(Exception):
-                await self._edit_progress_message(st, st.progress_msg_id, self._progress_text(st.progress_lines))
+                await self._edit_progress_message(st, st.progress_msg_id, text)
 
     async def _drain_progress_on_cancel(self, st) -> None:
         ctx = self._ctx
@@ -708,7 +721,9 @@ class GatewayTurnProgressMixin:
         ctx = self._ctx
         await asyncio.sleep(0.3)
         if ctx._run_still_current():
-            await st.adapter.send_typing(ctx.source.chat_id, metadata=ctx._progress_metadata)
+            # On this turn's own message, as its refresh: the chat's latest may be a newer one.
+            await st.adapter.send_typing(ctx.source.chat_id, metadata=typing_metadata_for_turn(
+                st.adapter, ctx.source.chat_id, ctx.event_message_id, ctx._progress_metadata))
 
     async def _progress_send_or_edit(self, st, msg) -> bool:
         """Deliver this tick's bubble. Returns False on a transient edit failure (retry next tick).

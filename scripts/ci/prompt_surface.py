@@ -108,7 +108,7 @@ class _ImportFailures(logging.Handler):
 def _scrub(text: str, home: Path) -> str:
     import platform as _platform
     for raw, token in sorted({
-        str(home / ".hermes"): "<HERMES_HOME>",
+        str(home / ".huntington"): "<HERMES_HOME>",
         str(home): "<HOME>",
         f"{_platform.system()} ({_platform.release()})": "<HOST_OS>",
     }.items(), key=lambda kv: -len(kv[0])):
@@ -202,7 +202,7 @@ def render(out: Path) -> int:
         home.mkdir()
         staging = Path(tmp) / "out"
         env = {
-            "PATH": os.environ.get("PATH", ""), "HOME": str(home), "HERMES_HOME": str(home / ".hermes"),
+            "PATH": os.environ.get("PATH", ""), "HOME": str(home), "HERMES_HOME": str(home / ".huntington"),
             "TZ": "UTC", "LANG": "C.UTF-8", "PYTHONHASHSEED": "0", "PYTHONPATH": str(ROOT),
             "TMPDIR": tmp, "PYTHONDONTWRITEBYTECODE": "1",
         }

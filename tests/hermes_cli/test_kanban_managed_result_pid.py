@@ -20,7 +20,7 @@ from hermes_cli import kanban_db_dispatch as kbd
 
 @pytest.fixture
 def conn(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setenv("HERMES_KANBAN_HOME", str(home))

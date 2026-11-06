@@ -35,7 +35,7 @@ _DESCENDANTS_SQL = f"""
 # Desktop 0.22.2's ``readableError`` keeps the HTTP ``detail`` and shows its "app and backend are
 # on different versions" toast (with an Update action) for "out of sync (different versions)".
 CLIENT_UPGRADE_REQUIRED = ('client_upgrade_required: this app is out of sync (different versions) '
-                           'with the Hermes backend; update the app to edit sessions')
+                           'with the Huntington backend; update the app to edit sessions')
 
 
 def _session_latest_descendant(session_id: str, db):
@@ -85,7 +85,7 @@ def _session_latest_descendant(session_id: str, db):
 def _session_mutation_context(request, profile):
     """Use the same principal and profile boundary for prepare and apply."""
     from fastapi import HTTPException
-    from gateway.session_contract import Principal
+    from gateway.session_contract import SessionActor
     from hermes_cli.web_server import _has_valid_session_token
     from hermes_cli.web_server_cron import _cron_profile_home
     from hermes_state import _default_db_path
@@ -112,7 +112,7 @@ def _session_mutation_context(request, profile):
         # Standalone ``serve``/``dashboard`` (no composed gateway; its owner cutover is a
         # follow-up): the store is the owner. Same principal id form as a gateway authority's
         # (``str(home)``), so import bindings written offline stay valid once one starts.
-        return None, Principal(subject, str(home.resolve()), capabilities, 'http')
+        return None, SessionActor(subject, str(home.resolve()), capabilities, 'http')
     # ``?profile=`` selects a served home; its own authority (not the launch one) owns the mutation.
     from gateway.session_authorities import authority_for_home
     runner = getattr(request.app.state, 'gateway_runner', None)
@@ -129,8 +129,8 @@ def _session_mutation_context(request, profile):
         # local history exactly as over the native socket (``require_history_claim``); a shared
         # 'http' id never can.
         import uuid
-        return authority, Principal(subject, authority.profile_id, capabilities, 'native-http:' + uuid.uuid4().hex)
-    return authority, Principal(subject, authority.profile_id, capabilities, 'http')
+        return authority, SessionActor(subject, authority.profile_id, capabilities, 'native-http:' + uuid.uuid4().hex)
+    return authority, SessionActor(subject, authority.profile_id, capabilities, 'http')
 
 
 @contextmanager
@@ -414,7 +414,7 @@ def _open_session_db_at_path(db_path: Path, *, read_only: bool):
         else:
             detail = (
                 "Session store schema is unavailable or corrupt. Start or restart this profile's "
-                "gateway to reconcile it; if it persists, run `hermes doctor` for diagnosis. "
+                "gateway to reconcile it; if it persists, run `huntington doctor` for diagnosis. "
                 "Browsing does not repair the store.")
         raise HTTPException(status_code=503, detail=detail) from exc
 

@@ -86,8 +86,8 @@ def pool_cooldown_message(provider_id: str) -> Optional[str]:
              else f"all {len(live)} credentials are")
     return (f"Provider '{provider_id}' is set in config.yaml but {which} cooling down after a "
             f"rate limit / quota error (429); the next one resets at {when}. Wait for the reset, "
-            f"add another credential with `hermes auth add {provider_id}`, or switch to a "
-            "different provider with `hermes model`.")
+            f"add another credential with `huntington auth add {provider_id}`, or switch to a "
+            "different provider with `huntington model`.")
 
 
 class ProviderCredentialsExhaustedError(RuntimeError):
@@ -173,7 +173,7 @@ def pool_billing_message(
     return (
         f"Provider '{provider_id}'{scope} is out of usable credentials: {which} exhausted"
         f"{code_text}. Add credits or update billing with that provider, then retry, or switch "
-        f"to a different provider with `hermes model`."
+        f"to a different provider with `huntington model`."
     )
 
 
@@ -214,10 +214,10 @@ def missing_provider_credentials_message(provider_id: str) -> str:
     elif pconfig is None:
         remedy = f"Set the {provider_id.upper().replace('-', '_')}_API_KEY environment variable"
     elif str(pconfig.auth_type).startswith("oauth"):
-        problem, remedy = "no credentials were found", f"Run `hermes auth add {provider_id}` to sign in"
+        problem, remedy = "no credentials were found", f"Run `huntington auth add {provider_id}` to sign in"
     else:
         problem = "no credentials were found"
-    switch = "switch to a different provider with `hermes model`."
+    switch = "switch to a different provider with `huntington model`."
     return (f"Provider '{provider_id}' is set in config.yaml but {problem}. "
             + (f"{remedy}, or {switch}" if remedy else switch.capitalize()))
 
@@ -251,7 +251,7 @@ def record_nous_credential_failure(exc: BaseException) -> str:
     code = getattr(exc, "code", None)
     if code and str(code) not in message:
         message = f"{message} (code: {code})"
-    detail = f"Nous Portal runtime credentials unavailable: {message}"
+    detail = f"HIP Portal runtime credentials unavailable: {message}"
     global _last_nous_detail
     with _lock:
         _last_nous_detail = detail
@@ -259,7 +259,7 @@ def record_nous_credential_failure(exc: BaseException) -> str:
         _warned_nous_details.add(detail)
     if first_time:
         level = logging.WARNING if _nous_credential_present(exc) else logging.DEBUG
-        logger.log(level, "Auxiliary Nous client unavailable: %s", detail)
+        logger.log(level, "Auxiliary HIP client unavailable: %s", detail)
     return detail
 
 

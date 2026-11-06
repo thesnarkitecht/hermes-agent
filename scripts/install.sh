@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Hermes Agent bootstrap: clone, acquire uv/Python, then hand the checkout to
+# HUNTINGTON-AGENT bootstrap: clone, acquire uv/Python, then hand the checkout to
 # the same completion an update runs -- command publication, product builds and
 # post-build maintenance -- so a fresh install and a finished update land in one
 # state. Heavy dependencies (tool binaries, browsers, node) are pm's job:
 # `hermes pm install`.
 #
-# Stage protocol kept for Hermes-Setup:
+# Stage protocol kept for Huntington-Setup:
 #   --manifest            print the stage list as JSON
 #   --stage NAME [--json] run one stage
 #   --non-interactive     skip stages that need input
@@ -20,14 +20,14 @@ set -u
 # hygiene can't break the locked sync the way it used to before pm owned it.
 export UV_NO_CONFIG=1
 
-REPO_URL="${HERMES_REPO_URL:-https://github.com/NousResearch/hermes-agent.git}"
+REPO_URL="${HERMES_REPO_URL:-https://github.com/thesnarkitecht/huntington-agent.git}"  # HUNTINGTON-AGENT fork
 BRANCH="main"
 INSTALL_COMMIT=""
 # The update channel to install: stable (the latest published release, the default for the
 # official repository's main line) or main (every commit). An explicit choice is persisted.
 CHANNEL="${HERMES_INSTALL_CHANNEL:-}"
 INSTALL_DIR="${HERMES_INSTALL_DIR:-}"
-HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
+HERMES_HOME="${HERMES_HOME:-$HOME/.huntington}"
 STAGE=""
 WANT_MANIFEST=false
 JSON=false
@@ -94,13 +94,13 @@ case "$CHANNEL" in
     *) printf -- '--channel must be stable or main, not %s\n' "$CHANNEL" >&2; exit 2 ;;
 esac
 
-INSTALL_DIR="${INSTALL_DIR:-$HERMES_HOME/hermes-agent}"
+INSTALL_DIR="${INSTALL_DIR:-$HERMES_HOME/huntington-agent}"
 export HERMES_HOME
 
 INSTALL_LOG="$HERMES_HOME/logs/install.log"
 
 # Same glyphs as the pre-pm installer. Colour only on a terminal, so CI
-# transcripts and the Hermes-Setup driver read plain text.
+# transcripts and the Huntington-Setup driver read plain text.
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
     C_RED=$'\033[0;31m' C_GREEN=$'\033[0;32m' C_YELLOW=$'\033[0;33m'
     C_CYAN=$'\033[0;36m' C_MAGENTA=$'\033[0;35m' C_BOLD=$'\033[1m'
@@ -116,7 +116,7 @@ log_error() { printf '%s✗%s %s\n' "$C_RED" "$C_NC" "$1" >&2; }
 # $2: closed failure class for the local install receipt (write_install_receipt).
 fail() { STAGE_REASON="$1"; FAILURE_CLASS="${2:-other}"; log_error "$1"; exit 1; }
 # The last failed run_logged command's own error line (git's "fatal: ..."), so a
-# failure reason -- which Hermes-Setup shows as-is -- names the cause, not just the step.
+# failure reason -- which Huntington-Setup shows as-is -- names the cause, not just the step.
 RUN_LOGGED_ERROR=""
 native_detail() { [ -z "$RUN_LOGGED_ERROR" ] || printf ': %s' "$RUN_LOGGED_ERROR"; }
 # Pick the error line from a command's output on stdin: the first fatal:/error:
@@ -135,7 +135,7 @@ error_line() {
 
 # One local receipt per full-ladder run, under the profile's shared-metrics dir.
 # Only closed tokens and two timestamps (never STAGE_REASON, paths or URLs); the
-# installer never sends anything. Hermes reports it as hermes.install.run on a
+# installer never sends anything. Huntington reports it as hermes.install.run on a
 # later start only while shared metrics collection is on, and deletes it
 # unreported when collection is off. Best effort: never fails the install.
 write_install_receipt() {
@@ -191,16 +191,16 @@ stage_signal() {
 print_banner() {
     printf '\n%s%s' "$C_MAGENTA" "$C_BOLD"
     printf '%s\n' "┌─────────────────────────────────────────────────────────┐"
-    printf '%s\n' "│             ☤ Hermes Agent Installer                    │"
+    printf '%s\n' "│               ◆ HUNTINGTON-AGENT Installer              │"
     printf '%s\n' "├─────────────────────────────────────────────────────────┤"
-    printf '%s\n' "│  An open source AI agent by Nous Research.              │"
+    printf '%s\n' "│               A terminal AI agent by HIP.               │"
     printf '%s\n' "└─────────────────────────────────────────────────────────┘"
     printf '%s\n' "$C_NC"
 }
 
 # Interactive runs collapse child-process output (git, uv, pm, the builds)
 # into one status line. CI, --verbose and a non-terminal stdout -- the
-# Hermes-Setup --json driver, E2E transcripts -- keep the full stream those
+# Huntington-Setup --json driver, E2E transcripts -- keep the full stream those
 # readers parse.
 quiet_output() {
     [ "$VERBOSE" = true ] && return 1
@@ -230,7 +230,7 @@ run_logged() {
         log "$label"
         local err rc
         err="$(mktemp 2>/dev/null)" || { "$@"; return; }
-        # stderr still streams (Hermes-Setup logs it); a copy names the failure.
+        # stderr still streams (Huntington-Setup logs it); a copy names the failure.
         { "$@" 2>&1 1>&3 | tee "$err" >&2; } 3>&1
         rc=${PIPESTATUS[0]}
         [ "$rc" -eq 0 ] || RUN_LOGGED_ERROR="$(error_line < "$err")"
@@ -362,14 +362,14 @@ uv_bootstrap_target() {
 UV_CMD=""
 ensure_uv() {
     [ -n "$UV_CMD" ] && return 0
-    # Always the pinned artifact, never a uv already on PATH: Hermes runs only
+    # Always the pinned artifact, never a uv already on PATH: Huntington runs only
     # its own packaged toolchain.
     local _target
     if ! _target="$(uv_bootstrap_target)"; then
-        fail "no pinned uv build for this platform ($(uname -s) $(uname -m)); Hermes does not support this host" unsupported_platform
+        fail "no pinned uv build for this platform ($(uname -s) $(uname -m)); Huntington does not support this host" unsupported_platform
     fi
     if ! uv_bootstrap_pin "$_target"; then
-        fail "no pinned uv artifact for $_target; Hermes does not support this host" unsupported_platform
+        fail "no pinned uv artifact for $_target; Huntington does not support this host" unsupported_platform
     fi
     local _store="${HERMES_RUNTIME_DIR:-$HERMES_HOME/tools}"
     local _entry="$_store/uv-$UV_PIN_VERSION-$_target"
@@ -510,7 +510,7 @@ products_record() {
 stage_record() {
     case "$1" in
         prerequisites) echo "System prerequisites|runtime|false" ;;
-        repository)    echo "Download Hermes Agent|runtime|false" ;;
+        repository)    echo "Download HUNTINGTON-AGENT|runtime|false" ;;
         venv)          echo "Create Python environment|runtime|false" ;;
         python-deps)   echo "Install Python dependencies|runtime|false" ;;
         config)        echo "Prepare config and skills|configuration|false" ;;
@@ -565,7 +565,7 @@ install_macos_git() {
         log_warn "xcode-select --install: $(printf '%s\n' "$_xs" | error_line)"
     fi
     local _remedy="Install Apple's Command Line Tools (run: xcode-select --install), then re-run this installer."
-    # Hermes-Setup drives stages with --json: no stage timeout, a Cancel
+    # Huntington-Setup drives stages with --json: no stage timeout, a Cancel
     # button, and these log lines show as progress, so it waits too.
     if [ "$JSON" != true ] && { [ "$NON_INTERACTIVE" = true ] || ! has_terminal; }; then
         fail "git needs Apple's Command Line Tools. $_remedy" git_missing
@@ -617,7 +617,7 @@ stage_prerequisites() {
 
 # The update channel this install chose (config.yaml update.installs.<id>.channel,
 # id = sha16 of the canonical install path, as hermes_cli.update_channel keys it).
-# Pre-Python reader of the block YAML Hermes writes; anything it cannot read prints
+# Pre-Python reader of the block YAML Huntington writes; anything it cannot read prints
 # nothing, which keeps the plain branch behaviour.
 chosen_channel() {
     local config="$HERMES_HOME/config.yaml" root id
@@ -881,7 +881,7 @@ stage_repository() {
             if [ -d "$INSTALL_DIR" ] && [ ! -L "$INSTALL_DIR" ] && [ -z "$(ls -A "$INSTALL_DIR")" ]; then
                 rmdir "$INSTALL_DIR" || fail "cannot replace empty $INSTALL_DIR" filesystem_error
             else
-                fail "$INSTALL_DIR exists and is not a Hermes git checkout. Move it aside, or install elsewhere with --dir <path>." dir_not_checkout
+                fail "$INSTALL_DIR exists and is not a Huntington git checkout. Move it aside, or install elsewhere with --dir <path>." dir_not_checkout
             fi
         fi
         mkdir -p "$(dirname "$INSTALL_DIR")"
@@ -969,7 +969,7 @@ stage_repository() {
             || log_warn "could not disable gc.writeCommitGraph in $INSTALL_DIR"
         git -C "$INSTALL_DIR" config fetch.writeCommitGraph false \
             || log_warn "could not disable fetch.writeCommitGraph in $INSTALL_DIR"
-        log_success "Hermes Agent cloned"
+        log_success "HUNTINGTON-AGENT cloned"
     fi
     if [ -n "$INSTALL_COMMIT" ] && [ "$pinned" = false ]; then
         # A rerun over an existing checkout pins here (a fresh clone pinned
@@ -1071,7 +1071,7 @@ append_shell_path() {
         return 0
     fi
     mkdir -p "$(dirname "$rc")"
-    printf '\n# Hermes Agent command\n%s\n' "$line" >> "$rc" || fail "cannot update PATH in $rc" filesystem_error
+    printf '\n# HUNTINGTON-AGENT command\n%s\n' "$line" >> "$rc" || fail "cannot update PATH in $rc" filesystem_error
     log_success "added ~/.local/bin to PATH in $rc"
 }
 
@@ -1153,10 +1153,10 @@ has_terminal() { (: </dev/tty) 2>/dev/null; }
 stage_setup() {
     if [ "$NON_INTERACTIVE" = true ]; then return 0; fi
     if ! has_terminal; then
-        log "setup skipped (no terminal); run 'hermes setup' after install"
+        log "setup skipped (no terminal); run 'huntington setup' after install"
         return 0
     fi
-    "$INSTALL_DIR/.hermes/bin/hermes" setup </dev/tty || fail "setup failed" setup_failed
+    "$INSTALL_DIR/.huntington/bin/hermes" setup </dev/tty || fail "setup failed" setup_failed
 }
 
 stage_gateway() {
@@ -1166,7 +1166,7 @@ stage_gateway() {
         return 0
     fi
     # Setup installs the service when it handles the gateway; ask only if it did not.
-    "$INSTALL_DIR/.hermes/bin/hermes" gateway install --if-missing </dev/tty || fail "gateway installation failed" gateway_failed
+    "$INSTALL_DIR/.huntington/bin/hermes" gateway install --if-missing </dev/tty || fail "gateway installation failed" gateway_failed
 }
 
 stage_complete() {
@@ -1179,10 +1179,10 @@ stage_complete() {
         mv -f "$INSTALL_DIR/.hermes-bootstrap-complete.tmp" "$INSTALL_DIR/.hermes-bootstrap-complete"
     fi
     if [ -n "$CHANNEL" ]; then
-        "$INSTALL_DIR/.hermes/bin/hermes" update --set-channel "$CHANNEL" \
+        "$INSTALL_DIR/.huntington/bin/hermes" update --set-channel "$CHANNEL" \
             || fail "could not save the $CHANNEL update channel" other
     fi
-    log_success "Hermes Agent install complete. Run: hermes"
+    log_success "HUNTINGTON-AGENT install complete. Run: huntington"
 }
 
 print_path_reload_hint() {

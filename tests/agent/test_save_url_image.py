@@ -82,11 +82,11 @@ def http_server(tmp_path, monkeypatch):
     reach (the same toggle a LAN-hosted provider would set) — save_url now
     refuses private targets by default.
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
     monkeypatch.setenv("HERMES_ALLOW_PRIVATE_URLS", "1")
     from tools import url_safety
     url_safety._reset_allow_private_cache()
-    (tmp_path / ".hermes").mkdir()
+    (tmp_path / ".huntington").mkdir()
 
     # Force the constants/image cache helpers to re-read HERMES_HOME.
     import sys

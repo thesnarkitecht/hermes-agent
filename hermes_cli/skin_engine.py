@@ -58,11 +58,11 @@ def _wings(*glyphs) -> list[list[str]]:
 
 # Branding shared by every Hermes-named built-in (mono/daylight override help_header).
 _HERMES_BRANDING: dict[str, str] = _branding(
-    "Hermes", "☤", "Goodbye! ☤", prompt="❯", help_header="(^_^)? Available Commands")
+    "Huntington", "☤", "Goodbye! ☤", prompt="❯", help_header="(^_^)? Available Commands")
 
 _BUILTIN_SKINS: dict[str, dict[str, Any]] = {
     "default": {
-        "name": "default", "description": "Classic Hermes — gold and kawaii",
+        "name": "default", "description": "Classic Huntington — gold and kawaii",
         # Dark-authored; values match the TUI's DARK_THEME so both render the same gold.
         "colors": {
             "banner_border": "#CD7F32", "banner_title": "#FFD700", "banner_accent": "#FFBF00",
@@ -340,6 +340,7 @@ _BUILTIN_SKINS: dict[str, dict[str, Any]] = {
 [#F29C38]⠀⠀⠀⠀⠀⠀⠀⣼⡟⠀⠀⢻⣧⠀⠀⠀⠀⠀⠀⠀⠀[/]
 [dim #7A3511]⠀⠀⠀⠀⠀⠀⠀tail flame lit⠀⠀⠀⠀⠀⠀⠀⠀[/]""",
     }}
+__import__("hermes_cli.huntington").huntington.apply_default_skin(_BUILTIN_SKINS)  # HUNTINGTON-AGENT
 
 _active_skin: Optional[SkinConfig] = None
 _active_skin_name: str = "default"

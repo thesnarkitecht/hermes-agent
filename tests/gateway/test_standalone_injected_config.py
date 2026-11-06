@@ -13,7 +13,7 @@ def test_injected_config_cannot_multiplex_a_standalone_home(tmp_path, monkeypatc
     from gateway.run import GatewayRunner, _profile_runtime_scope
 
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     solo = root / "profiles" / "solo"
     solo.mkdir(parents=True)
     (root / "config.yaml").write_text("{}\n")

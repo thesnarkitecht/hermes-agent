@@ -30,9 +30,9 @@ def cell(tmp_path):
     (root / "hermes_cli").mkdir(parents=True)
     shutil.copyfile(REPO / "hermes_cli/update_pause_record.py", root / "hermes_cli/update_pause_record.py")
     home = tmp_path / "home"
-    (home / ".hermes").mkdir(parents=True)
+    (home / ".huntington").mkdir(parents=True)
     env = {**os.environ, "HOME": str(home), "USERPROFILE": str(home),
-           "HERMES_HOME": str(home / ".hermes"), "PYTHONPATH": str(REPO),
+           "HERMES_HOME": str(home / ".huntington"), "PYTHONPATH": str(REPO),
            "PYTHONDONTWRITEBYTECODE": "1"}
     children = []
 
@@ -53,7 +53,7 @@ def cell(tmp_path):
         children.append(proc)
         return proc
 
-    yield tmp_path, home / ".hermes", launch
+    yield tmp_path, home / ".huntington", launch
     for proc in children:
         if proc.poll() is None:
             proc.kill()
@@ -86,7 +86,7 @@ def test_consumption_checkpoints_debt_before_unlink_and_producer_death(cell, cla
         token = r.record_pause({"resume_needed": True, "profiles": {"default": pid},
                                "identities": {str(pid): r.identity(pid)["ct"]}}, None, [])
         # Discovery and the gateway can spell the same profile path differently.
-        r.mark_stop_requested(token, [pid], {pid: home / ".." / ".hermes" / ".gateway-planned-stop.json"})
+        r.mark_stop_requested(token, [pid], {pid: home / ".." / ".huntington" / ".gateway-planned-stop.json"})
         # The real callback is the first operation after marker publication. Hold it
         # before its checkpoint while another interpreter runs the actual consumer.
         def on_request(pid):

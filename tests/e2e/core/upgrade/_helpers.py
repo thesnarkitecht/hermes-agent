@@ -112,7 +112,7 @@ def isolated_env(
 ) -> dict[str, str]:
     """Allowlisted environment with HOME/HERMES_HOME under ``root``."""
     home = root / "home"
-    hermes_home = home / ".hermes"
+    hermes_home = home / ".huntington"
     hermes_home.mkdir(parents=True, exist_ok=True)
     shim_dir = root / "shims"
     write_shims(shim_dir)
@@ -148,7 +148,7 @@ def isolated_env(
     if real_uv_cache.is_dir():
         env["UV_CACHE_DIR"] = str(real_uv_cache)
     base_path = os.environ.get("PATH", "/usr/bin:/bin")
-    uv = shutil.which("uv") or (str(REAL_HOME / ".hermes" / "bin" / "uv") if (REAL_HOME / ".hermes" / "bin" / "uv").exists() else None)
+    uv = shutil.which("uv") or (str(REAL_HOME / ".huntington" / "bin" / "uv") if (REAL_HOME / ".huntington" / "bin" / "uv").exists() else None)
     path_parts = [str(shim_dir), *[str(p) for p in extra_path]]
     if uv:
         path_parts.append(str(Path(uv).parent))
@@ -175,7 +175,7 @@ def sandbox_argv(argv: Sequence[str], *, writable: Iterable[Path], unshare_net: 
     # The child's allowlisted PATH may omit the Nix-provided bwrap (notably a login shell
     # with a clean distro PATH); resolve it in the parent before wrapping the command.
     cmd = [shutil.which("bwrap") or "bwrap", "--dev-bind", "/", "/"]
-    real_hermes = REAL_HOME / ".hermes"
+    real_hermes = REAL_HOME / ".huntington"
     if real_hermes.is_dir():
         cmd += ["--ro-bind", str(real_hermes), str(real_hermes)]
     for w in writable:

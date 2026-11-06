@@ -2,13 +2,13 @@
 name: weekly-review-planning
 description: "Weekly reset: commitments, stalled work, next-week plan."
 version: 0.1.0
-author: Ben Barclay (benbarclay), Hermes Agent
+author: Ben Barclay (benbarclay), HUNTINGTON-AGENT
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [Weekly-Review, Planning, Tasks, Calendar, Productivity]
-    related_skills: [obsidian, notion, airtable, google-workspace, email-inbox-triage]
+    related_skills: [email-inbox-triage]
 ---
 
 # Weekly Review and Planning
@@ -37,7 +37,7 @@ Load `google-workspace` or the relevant calendar connector. Inspect the complete
 
 ### 3. Clear capture inboxes
 
-Review the task inbox, notes (`obsidian`, `notion`), flagged email (`email-inbox-triage` owns thread-level triage), and other declared capture points. Convert each item to next action, project, waiting, scheduled, someday, reference, archive, or delete proposal. Do not mutate until scope is approved. Done when remaining unprocessed items are counted and stated.
+Review the task inbox, notes (`obsidian`, Notion), flagged email (`email-inbox-triage` owns thread-level triage), and other declared capture points. Convert each item to next action, project, waiting, scheduled, someday, reference, archive, or delete proposal. Do not mutate until scope is approved. Done when remaining unprocessed items are counted and stated.
 
 ### 4. Reconcile active projects
 

@@ -197,18 +197,8 @@ def _instantiate_explicit_provider(provider_key: str) -> Optional[BrowserProvide
 
 
 def _autodetect_provider() -> Optional[BrowserProvider]:
-    """Browser Use, then Browserbase, from credentials; never raises. Third-party plugins are only reachable
-    through an explicit ``browser.cloud_provider``."""
-    # Late import: a core tool must not execute bundled plugin code before a session is resolved.
-    from plugins.browser.browser_use.provider import BrowserUseBrowserProvider
-    from plugins.browser.browserbase.provider import BrowserbaseBrowserProvider
-    try:
-        for cls in (BrowserUseBrowserProvider, BrowserbaseBrowserProvider):
-            provider = cls()
-            if provider.is_available():
-                return provider
-    except Exception:  # health: allow BLE001 -- auto-detect must never poison the cache
-        logger.debug("Cloud provider auto-detect failed", exc_info=True)
+    """HUNTINGTON-AGENT ships no cloud browser vendors: with no explicit ``browser.cloud_provider``
+    the browser is always the local Chromium. A user plugin stays reachable by naming it."""
     return None
 
 

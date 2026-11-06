@@ -23,7 +23,7 @@ def two_profiles(monkeypatch, tmp_path):
     from hermes_state import SessionDB
     from hermes_state_runtime import begin_runtime_epoch
 
-    launch = tmp_path / ".hermes"
+    launch = tmp_path / ".huntington"
     beta = launch / "profiles" / "beta"
     beta.mkdir(parents=True)
     for home in (launch, beta):

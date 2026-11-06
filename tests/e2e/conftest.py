@@ -125,12 +125,16 @@ _ensure_discord_mock()
 _ensure_slack_mock()
 
 import discord
-from plugins.platforms.telegram.adapter import TelegramAdapter
-from plugins.platforms.discord.adapter import DiscordAdapter
-
-import plugins.platforms.slack.adapter as _slack_mod
-_slack_mod.SLACK_AVAILABLE = True
-from plugins.platforms.slack.adapter import SlackAdapter
+# HUNTINGTON-AGENT removes the Telegram/Discord/Slack adapters; the e2e suites that drive them are
+# removed too, and the rest of tests/e2e must still collect.
+try:
+    from plugins.platforms.telegram.adapter import TelegramAdapter
+    from plugins.platforms.discord.adapter import DiscordAdapter
+    import plugins.platforms.slack.adapter as _slack_mod
+    _slack_mod.SLACK_AVAILABLE = True
+    from plugins.platforms.slack.adapter import SlackAdapter
+except ModuleNotFoundError:
+    TelegramAdapter = DiscordAdapter = SlackAdapter = None
 
 
 # Platform-generic factories

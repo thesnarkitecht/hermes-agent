@@ -33,7 +33,7 @@ async def test_direct_model_switch_runs_off_the_event_loop(tmp_path, monkeypatch
     blocking models.dev HTTP fetch can't freeze the gateway event loop (#20525)."""
     from hermes_cli.model_switch import ModelSwitchResult
 
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     hermes_home.mkdir()
     (hermes_home / "config.yaml").write_text(
         yaml.safe_dump({"model": {"default": "gpt-5.4", "provider": "openrouter"}}),

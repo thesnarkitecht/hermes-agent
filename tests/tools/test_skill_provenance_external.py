@@ -19,7 +19,7 @@ def external_home(tmp_path, monkeypatch):
     traverse dir symlinks but does yield symlinked files, and is_external_skill_path
     resolves the link to tag it 'external').
     """
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     (home / "skills").mkdir(parents=True)
     ext_dir = tmp_path / "vault"
     (ext_dir / "ext-skill").mkdir(parents=True)

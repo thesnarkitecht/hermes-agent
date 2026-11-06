@@ -18,7 +18,7 @@ _LIVE_PID = 4242
 
 @pytest.fixture
 def fake_root(tmp_path, monkeypatch):
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     root.mkdir()
     monkeypatch.setattr(hermes_constants.Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(root))
@@ -28,7 +28,7 @@ def fake_root(tmp_path, monkeypatch):
 
 def _live_record(hermes_home):
     return {
-        "pid": _LIVE_PID, "kind": "hermes-gateway", "gateway_state": "running", "start_time": 1000,
+        "pid": _LIVE_PID, "kind": "huntington-gateway", "gateway_state": "running", "start_time": 1000,
         "argv": ["python", "-m", "hermes_cli.main", "-p", "eagle", "gateway", "run"],
         "hermes_home": str(hermes_home),
     }

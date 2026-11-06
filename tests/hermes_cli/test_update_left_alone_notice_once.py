@@ -16,7 +16,7 @@ def test_left_alone_notice_prints_once_across_the_completion_handoff(monkeypatch
     from hermes_cli import update_cmd_fleet as fleet, update_fleet_scope, update_receipt
     from hermes_cli.update_completion import _resume_receipt
 
-    homes = {101: "/srv/other-a/.hermes", 102: "/srv/other-b/.hermes", 103: "/srv/other-c/.hermes"}
+    homes = {101: "/srv/other-a/.huntington", 102: "/srv/other-b/.huntington", 103: "/srv/other-c/.huntington"}
     monkeypatch.setattr(update_fleet_scope, "partition_gateway_pids_by_scope",
                         lambda pids, scope=None: ([], [(pid, homes[pid]) for pid in pids]))
 
@@ -34,4 +34,4 @@ def test_left_alone_notice_prints_once_across_the_completion_handoff(monkeypatch
     assert contextvars.Context().run(completion_process) == []
     out = capsys.readouterr().out
     for pid, home in homes.items():
-        assert out.count(f"↷ PID {pid}: gateway process of another Hermes home ({home})") == 1, out
+        assert out.count(f"↷ PID {pid}: gateway process of another Huntington home ({home})") == 1, out

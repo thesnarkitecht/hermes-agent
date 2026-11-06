@@ -172,12 +172,12 @@ def test_failed_completion_tail_is_retried_without_rebuilding_dependencies(tmp_p
 
     monkeypatch.setattr(pm, "sync_venv", sync)
     completion_tail.exit_code = 1
-    with pytest.raises(RuntimeError, match="run `hermes update`"):
+    with pytest.raises(RuntimeError, match="run `huntington update`"):
         venv_sync.prepare_launch(root, [])
     assert len(syncs) == 1 and len(completion_tail) == 1
     assert pm.venv_is_current()
 
-    with pytest.raises(RuntimeError, match="run `hermes update`"):
+    with pytest.raises(RuntimeError, match="run `huntington update`"):
         venv_sync.prepare_launch(root, [])
     assert len(syncs) == 1, "current dependencies were rebuilt for a tail retry"
     assert len(completion_tail) == 2
@@ -386,7 +386,7 @@ def test_blessed_legacy_install_is_adopted_before_sync(tmp_path, monkeypatch, co
     home = tmp_path / "home"
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.delenv("HERMES_DISABLE_LAZY_INSTALLS", raising=False)
-    root = home / "hermes-agent"
+    root = home / "huntington-agent"
     root.mkdir(parents=True)
     (root / ".git").mkdir()
     (root / "pyproject.toml").write_text("[project]\n")
@@ -465,7 +465,7 @@ def test_gateway_status_skips_pending_source_update_completion(tmp_path, monkeyp
 
     assert venv_sync.prepare_launch(root, ["gateway", "status"]) is None
     assert completion_tail == []
-    assert pending.is_file(), "a status query must leave the update tail for `hermes gateway restart`"
+    assert pending.is_file(), "a status query must leave the update tail for `huntington gateway restart`"
 
 
 @pytest.mark.parametrize("marker,value,owed_by_cli", [
@@ -502,7 +502,7 @@ def test_supervised_launch_leaves_a_pending_tail_to_the_cli(
         assert completion_tail == []
         assert pending.is_file(), "a supervised child discharged an obligation the CLI still owes"
         out, err = capsys.readouterr()
-        assert out == "" and err.count("run `hermes update`") == 1
+        assert out == "" and err.count("run `huntington update`") == 1
     else:
         assert len(completion_tail) == 1
         assert not pending.is_file()

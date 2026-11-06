@@ -210,7 +210,7 @@ def _hermes_home_for_pid(pid: int, *, require_launch_identity: bool = False) -> 
         base = Path(local_appdata) if local_appdata else Path(env.get("USERPROFILE") or Path.home()) / "AppData" / "Local"
         default_home = base / "hermes"
     else:
-        default_home = Path(env.get("HOME") or _pid_passwd_home(pid) or Path.home()) / ".hermes"
+        default_home = Path(env.get("HOME") or _pid_passwd_home(pid) or Path.home()) / ".huntington"
     root = profile_root_for_env_home(env_home, default_home)
     fixed_identity = any(env.get(k) for k in ("HERMES_SUPERVISED_CHILD", "HERMES_S6_SUPERVISED_CHILD",
                                                "HERMES_GATEWAY_EXTERNAL_SUPERVISOR",
@@ -632,7 +632,7 @@ def _kill_stale_dashboard_processes(
     """
     from hermes_cli import main_dashboard as _dash
 
-    _dash_unit = str(getattr(_dash, "_DASHBOARD_SYSTEMD_UNIT", "hermes-dashboard.service")).removesuffix(".service")
+    _dash_unit = str(getattr(_dash, "_DASHBOARD_SYSTEMD_UNIT", "huntington-dashboard.service")).removesuffix(".service")
     # The update's fleet loop already handled the dashboard unit (restarted it, or declined for lack
     # of root and printed the manual command): a second attempt here restarts a healthy unit twice,
     # or retries without --no-ask-password and dumps a polkit/tty error under the same advice (#141021).
@@ -709,7 +709,7 @@ def _kill_stale_dashboard_processes(
             print(f"  ⚠ PID(s) supervised by launchd job {target}: a KeepAlive job restarts itself.\n"
                   f"    To keep it down: launchctl bootout {target}")
         if any(p not in pid_launchd for p in killed):
-            print("  Restart the dashboard when you're ready:\n    hermes dashboard --port <port>")
+            print("  Restart the dashboard when you're ready:\n    huntington dashboard --port <port>")
     return {"matched": list(pids), "killed": list(killed), "failed": list(failed),
             "unrecovered": list(unrecovered)}
 
@@ -771,7 +771,7 @@ def _restart_killed_backends(
     if failed_cmds:
         unrecovered.extend(p for p in killed if pid_cmdline.get(p) in failed_cmds)
     if failed_restarts or unrecovered:
-        print("  Restart anything not auto-restarted when you're ready:\n    hermes dashboard --port <port>")
+        print("  Restart anything not auto-restarted when you're ready:\n    huntington dashboard --port <port>")
     return unrecovered
 
 
@@ -948,7 +948,7 @@ def _process_age_seconds(pid: int) -> float:
 
 
 def _reap_orphaned_desktop_local_serves(
-    *, reason: str = "orphaned desktop-local hermes serve", signal_term=None, signal_kill=None,
+    *, reason: str = "orphaned desktop-local huntington serve", signal_term=None, signal_kill=None,
     sleep_fn=None, lock_owned_pids_fn=None, process_age_seconds_fn=None) -> dict[str, list]:
     """Kill leftover Desktop-local ``hermes serve`` backends with no parent. Never raises.
 

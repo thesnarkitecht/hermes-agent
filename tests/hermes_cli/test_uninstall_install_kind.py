@@ -51,7 +51,7 @@ def test_all_refusals_point_at_the_data_mode():
     # CLI stewards point at the CLI flag; desktop refusals deliberately
     # point at the app's own data path.
     for steward in (STEWARD_NIX, STEWARD_DOCKER, "somepkg"):
-        assert "hermes uninstall --data" in steward_uninstall_message(steward)
+        assert "huntington uninstall --data" in steward_uninstall_message(steward)
     for platform in ("win32", "darwin", "linux"):
         message = steward_uninstall_message(STEWARD_DESKTOP, platform=platform)
         assert "Settings -> About" in message
@@ -63,7 +63,7 @@ def test_all_refusals_point_at_the_data_mode():
 
 
 def _fake_project_root(monkeypatch, tmp_path: Path, *, git: bool, distribution: str | None = None) -> Path:
-    root = tmp_path / "hermes-agent"
+    root = tmp_path / "huntington-agent"
     root.mkdir()
     if git:
         (root / ".git").mkdir()
@@ -125,13 +125,13 @@ def test_run_gui_uninstall_exits_on_sealed_tree(monkeypatch, tmp_path, capsys):
 
 
 def _make_home(tmp_path: Path) -> Path:
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     (home / "sessions").mkdir(parents=True)
     (home / "sessions" / "s1.json").write_text("{}", encoding="utf-8")
     (home / "logs").mkdir()
     (home / "config.yaml").write_text("x: 1\n", encoding="utf-8")
     (home / ".env").write_text("KEY=secret\n", encoding="utf-8")
-    agent = home / "hermes-agent"
+    agent = home / "huntington-agent"
     (agent / "hermes_cli").mkdir(parents=True)
     (agent / "hermes_cli" / "__init__.py").write_text("", encoding="utf-8")
     return home
@@ -155,7 +155,7 @@ def test_run_data_uninstall_removes_electron_userdata(monkeypatch, tmp_path):
 def test_run_data_uninstall_works_on_sealed_trees(monkeypatch, tmp_path):
     # The whole point of the data mode: no code-removal gate applies.
     home = _make_home(tmp_path)
-    (home / "hermes-agent" / "install-stamp.json").write_text(
+    (home / "huntington-agent" / "install-stamp.json").write_text(
         json.dumps({"distribution": "nix", "updateMechanism": "external"})
     , encoding="utf-8")
     monkeypatch.setattr(un, "get_hermes_home", lambda: home)
@@ -166,7 +166,7 @@ def test_run_data_uninstall_works_on_sealed_trees(monkeypatch, tmp_path):
     un.run_data_uninstall(SimpleNamespace(yes=True))
 
     assert not (home / "config.yaml").exists()
-    assert (home / "hermes-agent").exists()
+    assert (home / "huntington-agent").exists()
 
 
 # ---------------------------------------------------------------------------
@@ -178,7 +178,7 @@ def test_gui_summary_reports_steward_and_gate(monkeypatch, tmp_path):
     import hermes_cli.gui_uninstall as gu
     from hermes_cli import steward as st
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(gu, "packaged_gui_app_paths", list)
     monkeypatch.setattr(gu, "desktop_userdata_dir", lambda: tmp_path / "none")
@@ -207,7 +207,7 @@ def test_gui_summary_classifies_the_agent_root(tmp_path, monkeypatch):
     monkeypatch.setattr(gu, "packaged_gui_app_paths", list)
     monkeypatch.setattr(gu, "desktop_userdata_dir", lambda: tmp_path / "none")
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     gu.gui_install_summary(home)
 
     assert seen == [home / "hermes-agent"]

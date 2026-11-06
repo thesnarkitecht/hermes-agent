@@ -27,6 +27,17 @@ class TestCredentialFingerprint:
     def test_none_without_token(self):
         assert GatewayRunner._adapter_credential_fingerprint(_FakeAdapter()) is None
 
+    def test_claims_never_raise(self):
+        """Unserve and a fatal teardown compute claims after the adapter left the map: a lone surrogate in a
+        token, or a non-finite port int() cannot take, must not raise there. Valid tokens hash as before."""
+        import hashlib
+
+        valid, odd = _FakeAdapter("tok"), _FakeAdapter("tok\ud800")
+        assert GatewayRunner._adapter_credential_fingerprint(valid) == hashlib.sha256(b"hermes-mux:tok").hexdigest()[:16]
+        assert GatewayRunner._adapter_credential_fingerprint(odd)
+        photon = types.SimpleNamespace(_sidecar_bind="0.0.0.0", _sidecar_port=float("inf"))
+        assert GatewayRunner._adapter_listener_claim(Platform("photon"), photon) is None
+
 
     def test_reads_photon_project_secret(self):
         class _PhotonAdapter:
@@ -218,6 +229,7 @@ def _secondary_recovery_runner(*, running=True):
     runner = GatewayRunner.__new__(GatewayRunner)
     runner.config = GatewayConfig(multiplex_profiles=True)
     runner._running = running
+    runner.adapters = {}
     runner._profile_adapters = {}
     runner._profile_failed_platforms = {}
     runner._background_tasks = set()
@@ -1147,7 +1159,7 @@ class TestSecondaryProfileConfigHandling:
         assert factory_calls == ([Platform.WHATSAPP, Platform.DISCORD] if paired else [Platform.DISCORD])
         if not paired:
             assert statuses[-1][1]["error_code"] == "whatsapp_unpaired"
-            assert "hermes -p clientbot whatsapp" in statuses[-1][1]["error_message"]
+            assert "huntington -p clientbot whatsapp" in statuses[-1][1]["error_message"]
 
 
 class TestSecondaryProfileHookRegistration:
@@ -1172,7 +1184,7 @@ class TestSecondaryProfileHookRegistration:
         profile_cfg = {
             "hooks": {
                 "pre_tool_call": [
-                    {"matcher": "write_file", "command": "~/.hermes/deny.sh"}
+                    {"matcher": "write_file", "command": "~/.huntington/deny.sh"}
                 ],
                 "outbound": [
                     {"url": "http://127.0.0.1:9000/hook", "events": ["on_session_end"]}

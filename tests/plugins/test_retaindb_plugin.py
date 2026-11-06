@@ -19,7 +19,7 @@ import pytest
 @pytest.fixture(autouse=True)
 def _isolate_env(tmp_path, monkeypatch):
     """Ensure HERMES_HOME and RETAINDB vars are isolated."""
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     hermes_home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(hermes_home))
     monkeypatch.delenv("RETAINDB_API_KEY", raising=False)
@@ -236,8 +236,8 @@ class TestRetainDBMemoryProvider:
 
     def _make_provider(self, tmp_path, monkeypatch, api_key="rdb-test-key"):
         monkeypatch.setenv("RETAINDB_API_KEY", api_key)
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
-        (tmp_path / ".hermes").mkdir(exist_ok=True)
+        monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".huntington"))
+        (tmp_path / ".huntington").mkdir(exist_ok=True)
         provider = RetainDBMemoryProvider()
         return provider
 
@@ -259,7 +259,7 @@ class TestPrefetch:
 
     def _make_initialized_provider(self, tmp_path, monkeypatch):
         monkeypatch.setenv("RETAINDB_API_KEY", "rdb-test-key")
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir(exist_ok=True)
         monkeypatch.setenv("HERMES_HOME", str(hermes_home))
         p = RetainDBMemoryProvider()
@@ -295,7 +295,7 @@ class TestOnMemoryWrite:
 
     def test_mirrors_add_action(self, tmp_path, monkeypatch):
         monkeypatch.setenv("RETAINDB_API_KEY", "rdb-test-key")
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir(exist_ok=True)
         monkeypatch.setenv("HERMES_HOME", str(hermes_home))
         p = RetainDBMemoryProvider()
@@ -308,7 +308,7 @@ class TestOnMemoryWrite:
 
     def test_skips_non_add_action(self, tmp_path, monkeypatch):
         monkeypatch.setenv("RETAINDB_API_KEY", "rdb-test-key")
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir(exist_ok=True)
         monkeypatch.setenv("HERMES_HOME", str(hermes_home))
         p = RetainDBMemoryProvider()
@@ -320,7 +320,7 @@ class TestOnMemoryWrite:
 
     def test_memory_target_maps_to_type(self, tmp_path, monkeypatch):
         monkeypatch.setenv("RETAINDB_API_KEY", "rdb-test-key")
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir(exist_ok=True)
         monkeypatch.setenv("HERMES_HOME", str(hermes_home))
         p = RetainDBMemoryProvider()

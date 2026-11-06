@@ -17,7 +17,7 @@ def sticky_profile_home(monkeypatch, tmp_path):
 
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.delenv("HERMES_HOME", raising=False)
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     (root / "profiles" / "coder").mkdir(parents=True)
     (root / "active_profile").write_text("coder\n", encoding="utf-8")
     monkeypatch.setattr(hermes_constants, "_profile_fallback_warned", False)
@@ -37,4 +37,4 @@ def test_help_text_names_the_profile_config_once_the_process_is_re_homed(sticky_
 
     monkeypatch.setenv("HERMES_HOME", str(sticky_profile_home / "profiles" / "coder"))
 
-    assert _cfg_path() == "~/.hermes/profiles/coder/config.yaml"
+    assert _cfg_path() == "~/.huntington/profiles/coder/config.yaml"

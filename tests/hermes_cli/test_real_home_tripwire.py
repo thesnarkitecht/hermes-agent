@@ -72,14 +72,14 @@ _OPERATIONS = {
 
 @pytest.mark.parametrize("operation", _OPERATIONS, ids=_OPERATIONS)
 def test_io_guard_denies_protected_roots_before_mutation(protected_home, operation):
-    with pytest.raises((AssertionError, pytest.fail.Exception), match="REAL hermes home"):
+    with pytest.raises((AssertionError, pytest.fail.Exception), match="REAL huntington home"):
         _OPERATIONS[operation](protected_home / "file.txt")
 
 
 def test_rename_cannot_overwrite_a_protected_destination(protected_home, tmp_path):
     source = tmp_path / "source.txt"
     source.write_text("external", encoding="utf-8")
-    with pytest.raises((AssertionError, pytest.fail.Exception), match="REAL hermes home"):
+    with pytest.raises((AssertionError, pytest.fail.Exception), match="REAL huntington home"):
         source.replace(protected_home / "file.txt")
     assert source.read_text(encoding="utf-8") == "external"
 
@@ -87,23 +87,23 @@ def test_rename_cannot_overwrite_a_protected_destination(protected_home, tmp_pat
 def test_installed_desktop_app_can_be_read_but_never_changed(tmp_path, monkeypatch):
     from tests import conftest
 
-    app = tmp_path / "Applications" / "Hermes.app"
+    app = tmp_path / "Applications" / "Huntington.app"
     (app / "Contents").mkdir(parents=True)
     plist = app / "Contents" / "Info.plist"
     plist.write_text("unchanged", encoding="utf-8")
-    replacement = tmp_path / "Hermes.app.new"
+    replacement = tmp_path / "Huntington.app.new"
     replacement.mkdir()
     changes = [lambda: shutil.rmtree(app), plist.unlink, lambda: replacement.replace(app),
                lambda: plist.write_text("clobbered", encoding="utf-8")]
     try:  # Windows without Developer Mode cannot create symlinks
         (tmp_path / "linked").symlink_to(app.parent, target_is_directory=True)
-        changes.append(lambda: shutil.rmtree(tmp_path / "linked" / "Hermes.app"))
+        changes.append(lambda: shutil.rmtree(tmp_path / "linked" / "Huntington.app"))
     except OSError:
         pass
     monkeypatch.setattr(conftest, "_REAL_INSTALLED_GUI_APPS", [os.path.normcase(os.path.realpath(app))])
     assert plist.read_text(encoding="utf-8") == "unchanged"
     for change in changes:
-        with pytest.raises(pytest.fail.Exception, match="REAL installed Hermes desktop app"):
+        with pytest.raises(pytest.fail.Exception, match="REAL installed Huntington desktop app"):
             change()
     assert plist.read_text(encoding="utf-8") == "unchanged"
 
@@ -166,7 +166,7 @@ def test_path_metadata_exemption_tracks_path_changes(protected_home, monkeypatch
     monkeypatch.setenv("PATH", str(protected_home))
     guard.check(target, metadata=True)  # executable lookup, not a state read
     monkeypatch.setenv("PATH", str(protected_home.parent))
-    with pytest.raises(AssertionError, match="REAL hermes home"):
+    with pytest.raises(AssertionError, match="REAL huntington home"):
         guard.check(target, metadata=True)
 
 
@@ -182,7 +182,7 @@ def test_relative_path_metadata_exemption_tracks_working_directory(protected_hom
     monkeypatch.chdir(other)
     guard.check(target, metadata=True)
     monkeypatch.chdir(other / "nested")
-    with pytest.raises(AssertionError, match="REAL hermes home"):
+    with pytest.raises(AssertionError, match="REAL huntington home"):
         guard.check(target, metadata=True)
 
 
@@ -196,9 +196,9 @@ def test_resolving_a_path_entry_under_the_home_is_command_lookup(protected_home,
     monkeypatch.setenv("PATH", str(entry))
     guard.check(entry, metadata=True)
     guard.check(entry.parent, metadata=True)
-    with pytest.raises(AssertionError, match="REAL hermes home"):
+    with pytest.raises(AssertionError, match="REAL huntington home"):
         guard.check(protected_home / "tools" / "other", metadata=True)
-    with pytest.raises(AssertionError, match="REAL hermes home"):
+    with pytest.raises(AssertionError, match="REAL huntington home"):
         guard.check(entry.parent, metadata=False)
 
 
@@ -212,7 +212,7 @@ def test_checkout_inside_a_guarded_root_is_not_hermes_state():
     guard = HomeIOGuard(lambda: [PROJECT_ROOT.parent])
     guard.check(PROJECT_ROOT / "tests" / "home_io_guard.py")
     guard.check(PROJECT_ROOT / ".venv" / "bin" / "python", metadata=True)
-    with pytest.raises(AssertionError, match="REAL hermes home"):
+    with pytest.raises(AssertionError, match="REAL huntington home"):
         guard.check(PROJECT_ROOT.parent / "config.yaml")
 
 
@@ -223,7 +223,7 @@ def test_pm_generation_dir_around_the_running_venv_is_the_interpreter(tmp_path, 
     ``<venv>/../hermes_cli/main.py`` (update_owning_install) and must not trip the guard."""
     from tests.home_io_guard import _pm_generation_dirs
 
-    generation = tmp_path / ".hermes" / "installs" / "0123456789abcdef" / kind / "gen-1"
+    generation = tmp_path / ".huntington" / "installs" / "0123456789abcdef" / kind / "gen-1"
     venv = generation / "venv"
     venv.mkdir(parents=True)
     assert _pm_generation_dirs([venv]) == {generation.resolve()}

@@ -64,7 +64,7 @@ _MESSAGE_MAX_CHARS = 300
 # instead of each parking for another full wait (boot fires a burst of token reads).
 _GAVE_UP_COOLDOWN_SECONDS = 30.0
 
-CHALLENGE_COPY = "Nous needs to run a quick check before starting your free session."
+CHALLENGE_COPY = "HIP needs to run a quick check before starting your free session."
 
 T = TypeVar("T")
 
@@ -175,7 +175,7 @@ def parse_browser_challenge(payload: dict[str, Any], portal_base_url: str) -> Op
             continue
         url = entry.get("url")
         if not isinstance(url, str) or not url.isprintable() or not _same_origin(url, portal_base_url):
-            logger.info("Nous free tier: ignoring a challenge URL outside the portal origin")
+            logger.info("HIP free tier: ignoring a challenge URL outside the portal origin")
             continue
         return BrowserChallenge(
             url=url, required=entry.get("required") is not False,

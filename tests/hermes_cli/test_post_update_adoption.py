@@ -17,8 +17,8 @@ from hermes_cli.post_update import step_adopt_blessed_checkout
 @pytest.fixture
 def blessed_checkout(tmp_path, monkeypatch):
     """A .git checkout at the blessed $HERMES_HOME/hermes-agent root."""
-    home = tmp_path / ".hermes"
-    root = home / "hermes-agent"
+    home = tmp_path / ".huntington"
+    root = home / "huntington-agent"
     root.mkdir(parents=True)
     (root / ".git").mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
@@ -56,9 +56,9 @@ def test_existing_stamp_is_never_touched(blessed_checkout):
 
 def test_non_blessed_checkout_untouched(tmp_path, monkeypatch):
     """.git anywhere else → never adopted."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
-    dev = tmp_path / "src" / "hermes-agent"
+    dev = tmp_path / "src" / "huntington-agent"
     dev.mkdir(parents=True)
     (dev / ".git").mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
@@ -71,8 +71,8 @@ def test_non_blessed_checkout_untouched(tmp_path, monkeypatch):
 def test_sealed_tree_untouched(tmp_path, monkeypatch):
     """No .git → not a checkout, nothing to adopt (sealed trees always
     ship stamps anyway)."""
-    home = tmp_path / ".hermes"
-    root = home / "hermes-agent"
+    home = tmp_path / ".huntington"
+    root = home / "huntington-agent"
     root.mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setenv("HERMES_INSTALL_ROOT", str(root))
@@ -114,8 +114,8 @@ def test_adoption_of_real_checkout_records_full_identity(tmp_path, monkeypatch):
 
     git_env = {"HOME": str(tmp_path), "PATH": os.environ["PATH"]}
 
-    home = tmp_path / ".hermes"
-    root = home / "hermes-agent"
+    home = tmp_path / ".huntington"
+    root = home / "huntington-agent"
     root.mkdir(parents=True)
 
     def git(*args: str) -> None:
@@ -123,7 +123,7 @@ def test_adoption_of_real_checkout_records_full_identity(tmp_path, monkeypatch):
                        capture_output=True)
 
     git("init", "-q")
-    git("config", "user.name", "Hermes Test")
+    git("config", "user.name", "Huntington Test")
     git("config", "user.email", "hermes@example.invalid")
     (root / "tracked").write_text("release\n", encoding="utf-8")
     git("add", "tracked")

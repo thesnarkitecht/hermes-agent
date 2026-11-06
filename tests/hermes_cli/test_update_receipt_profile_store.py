@@ -39,7 +39,7 @@ _PROBE = textwrap.dedent("""
 
 def test_named_profile_sees_update_and_pm_receipts_in_both_directions(tmp_path):
     home = tmp_path / "account"
-    profile = home / ".hermes" / "profiles" / "foo"
+    profile = home / ".huntington" / "profiles" / "foo"
     profile.mkdir(parents=True)
     script = tmp_path / "probe.py"
     script.write_text(_PROBE, encoding="utf-8")

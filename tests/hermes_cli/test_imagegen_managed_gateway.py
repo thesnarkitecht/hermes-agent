@@ -106,7 +106,7 @@ def test_reconfigure_managed_fal_row_keeps_managed_selection(monkeypatch):
     import hermes_cli.tools_config as tc
 
     managed_row = {
-        "name": "Nous Subscription",
+        "name": "HIP Subscription",
         "env_vars": [],
         "requires_nous_auth": True,
         "managed_nous_feature": "image_gen",

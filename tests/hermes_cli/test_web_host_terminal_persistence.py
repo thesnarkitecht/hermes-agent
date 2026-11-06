@@ -16,7 +16,7 @@ from tests.waiting import async_wait_until, wait_until
 
 @pytest.fixture
 def host_app(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text("{}", encoding="utf-8")
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
@@ -75,7 +75,7 @@ def test_shell_scopes_passthrough_after_eager_activation(
     from tools.terminal_scope import get_terminal_scope
     from tui_gateway import launch_profile_policy
 
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     launch = root / "profiles" / "launch" if named_launch else root
     other = root / "profiles" / "other"
     passthrough = "WEBAPP_TEST_TOKEN"
@@ -329,7 +329,7 @@ def ticket_url(user="owner", extra=""):
 
 def test_identity_profile_deletion_and_auth_gate(host_app, fake_bridges, tmp_path, monkeypatch):
     from hermes_constants import mark_named_profile_deleted
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     for name in ("alpha", "beta"):
         profile = home / "profiles" / name
         profile.mkdir(parents=True)
@@ -359,7 +359,7 @@ def test_identity_profile_deletion_and_auth_gate(host_app, fake_bridges, tmp_pat
 def test_real_profile_a_b_a_and_process_exit_never_respawns(host_app, tmp_path):
     homes = {}
     for name in ("alpha", "beta"):
-        homes[name] = tmp_path / ".hermes" / "profiles" / name
+        homes[name] = tmp_path / ".huntington" / "profiles" / name
         homes[name].mkdir(parents=True)
         (homes[name] / "config.yaml").write_text("{}", encoding="utf-8")
     with TestClient(host_app) as client:
@@ -422,7 +422,7 @@ def test_real_shell_rejects_input_after_profile_deletion(host_app, tmp_path):
     import subprocess
     import sys
 
-    profile = tmp_path / ".hermes" / "profiles" / "alpha"
+    profile = tmp_path / ".huntington" / "profiles" / "alpha"
     profile.mkdir(parents=True)
     (profile / "config.yaml").write_text("{}", encoding="utf-8")
     before, after = tmp_path / "before", tmp_path / "after"
@@ -501,7 +501,7 @@ def test_ownership_checks_never_block_the_event_loop(host_app, fake_bridges, tmp
     from hermes_cli.web_host_terminal_sessions import HostOwner
     from hermes_constants import mark_named_profile_deleted
 
-    profile = tmp_path / ".hermes" / "profiles" / "alpha"
+    profile = tmp_path / ".huntington" / "profiles" / "alpha"
     profile.mkdir(parents=True)
     (profile / "config.yaml").write_text("{}", encoding="utf-8")
     checks = []
@@ -594,7 +594,7 @@ def test_cross_process_deletion_closes_attached_shell(host_app, fake_bridges, tm
     import os
     import subprocess
     import sys
-    profile = tmp_path / ".hermes" / "profiles" / "alpha"
+    profile = tmp_path / ".huntington" / "profiles" / "alpha"
     profile.mkdir(parents=True)
     (profile / "config.yaml").write_text("{}", encoding="utf-8")
     with TestClient(host_app) as client:

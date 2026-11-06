@@ -135,15 +135,15 @@ def test_shared_nous_store_writes_0o600_with_0o700_parent(tmp_path, monkeypatch)
     finally:
         os.umask(old_umask)
 
-    assert path.exists(), "shared Nous store was not written"
+    assert path.exists(), "shared HIP store was not written"
     mode = stat.S_IMODE(path.stat().st_mode)
     parent_mode = stat.S_IMODE(path.parent.stat().st_mode)
 
     assert mode == 0o600, (
-        f"Nous shared store mode 0o{mode:o} != 0o600 — TOCTOU race regressed"
+        f"HIP shared store mode 0o{mode:o} != 0o600 — TOCTOU race regressed"
     )
     assert parent_mode == 0o700, (
-        f"Nous shared store parent dir mode 0o{parent_mode:o} != 0o700"
+        f"HIP shared store parent dir mode 0o{parent_mode:o} != 0o700"
     )
 
     data = json.loads(path.read_text())

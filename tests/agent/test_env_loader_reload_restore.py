@@ -53,7 +53,7 @@ def _register_fake_source(values: dict[str, str], *, override_existing: bool):
 
 
 def _make_home(tmp_path: Path, monkeypatch, env_text: str, *, preserve: str = "") -> Path:
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     secrets = "secrets:\n  fakebulk:\n    enabled: true\n"
     if preserve:

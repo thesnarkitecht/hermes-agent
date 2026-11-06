@@ -11,7 +11,7 @@ from tui_gateway import methods_groups
 
 @pytest.fixture
 def home(tmp_path, monkeypatch):
-    path = tmp_path / ".hermes"
+    path = tmp_path / ".huntington"
     (path / "profiles" / "ops").mkdir(parents=True)
     (path / "profiles" / "ops" / "config.yaml").write_text("{}\n")
     monkeypatch.setenv("HERMES_HOME", str(path))

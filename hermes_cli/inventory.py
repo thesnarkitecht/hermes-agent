@@ -544,13 +544,18 @@ def _apply_capabilities(rows: list[dict], *, metadata_config: dict | None = None
     silent (the dial is a no-op on models that ignore it; hiding it from a capable model is worse). A
     serving aggregator's detail overrides models.dev (adds ``can_disable_reasoning``). ``supported_efforts``
     is deliberately NOT forwarded — it under-reports levels that work."""
-    from agent.codex_service_tiers import ultrafast_offered
+    from agent.codex_service_tiers import daybreak_offered, ultrafast_offered
     from hermes_cli.models import model_supports_ultrafast, resolve_fast_mode_overrides
 
     try:
         from agent.models_dev import get_model_capabilities
     except Exception:
         get_model_capabilities = None  # type: ignore[assignment]
+
+    # Daybreak rides the Responses request; the opt-in codex app-server runtime never sends it.
+    _model_cfg = (metadata_config or {}).get("model")
+    _app_server = isinstance(_model_cfg, dict) and str(
+        _model_cfg.get("openai_runtime") or "").strip().lower() == "codex_app_server"
 
     for row in rows:
         slug = row.get("slug") or ""
@@ -572,6 +577,8 @@ def _apply_capabilities(rows: list[dict], *, metadata_config: dict | None = None
             if fast and model_supports_ultrafast(model) and ultrafast_offered(
                     model, provider=slug, base_url=row.get("api_url")):
                 entry["ultrafast"] = True
+            if not _app_server and daybreak_offered(model, provider=slug, base_url=row.get("api_url")):
+                entry["daybreak"] = True
 
             if reasoning and read_reasoning_catalog is not None:
                 try:
@@ -731,7 +738,7 @@ def _append_unconfigured_rows(
             warning = (
                 f"Configured provider missing usable credentials; paste {key_env} to reactivate. {tail}"
                 if auth_type == "api_key" and key_env
-                else f"Configured provider is not authenticated; run `hermes model` to reactivate. {tail}"
+                else f"Configured provider is not authenticated; run `huntington model` to reactivate. {tail}"
             )
             extras.append(_canonical_row(
                 entry, cur, models=[saved_model] if saved_model else [], total_models=1 if saved_model else 0,
@@ -851,7 +858,7 @@ def _apply_picker_hints(rows: list[dict]) -> None:
         row["auth_type"] = auth_type
         row["key_env"] = key_env
         row["warning"] = (f"paste {key_env} to activate" if auth_type == "api_key" and key_env
-                          else f"run `hermes model` to configure ({auth_type})")
+                          else f"run `huntington model` to configure ({auth_type})")
 
 
 def _reorder_canonical(rows: list[dict]) -> list[dict]:
@@ -873,7 +880,7 @@ def _attach_nous_plan_usage(row: dict, *, warm: bool):
         from hermes_cli.model_picker_usage import nous_picker_usage
         usage = nous_picker_usage(warm=warm, any_age=not warm)
     except Exception:
-        logging.getLogger(__name__).debug("Nous plan usage unavailable", exc_info=True)
+        logging.getLogger(__name__).debug("HIP plan usage unavailable", exc_info=True)
         return None
     if usage is not None:
         row["plan_usage"] = usage.to_payload()
@@ -946,7 +953,7 @@ def _apply_pricing(rows: list[dict], *, force_fresh_nous_tier: bool = False, cac
                 row["free_tier_pending"] = True
                 row["unavailable_models"] = list(models)
                 if not row.get("warning"):  # say why every model renders locked
-                    row["warning"] = ("Checking Nous plan entitlement… models unlock on the "
+                    row["warning"] = ("Checking HIP plan entitlement… models unlock on the "
                                       "next picker open or refresh.")
                 continue
         if not raw_pricing:

@@ -59,10 +59,10 @@ def gap_open(pr: int) -> bool:
     extra_env, script = PROBES[pr]
     with tempfile.TemporaryDirectory(prefix=f"gap-{pr}-") as tmp:
         home = Path(tmp) / "home"
-        (home / ".hermes").mkdir(parents=True)
+        (home / ".huntington").mkdir(parents=True)
         env = {k: v for k, v in os.environ.items()
                if not k.startswith(("PYTEST_", "HERMES_")) and not k.endswith("_API_KEY")}
-        env.update({"HOME": str(home), "HERMES_HOME": str(home / ".hermes"),
+        env.update({"HOME": str(home), "HERMES_HOME": str(home / ".huntington"),
                     "PYTHONPATH": str(REPO_ROOT), **extra_env})
         proc = subprocess.run([sys.executable, "-c", _PRELUDE + script], cwd=str(REPO_ROOT), env=env,
                               stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=120, check=False)

@@ -91,6 +91,6 @@ def build_billing_block(*, provider: str, base_url: str, model: str, message: st
     slug = (provider or "").strip().lower()
     model = (model or "").strip()
     if is_nous_inference_route(slug, base_url):
-        return BillingBlock(slug or "nous", "Nous Portal", model, _nous_billing_url(), True, message or "")
+        return BillingBlock(slug or "nous", "HIP Portal", model, _nous_billing_url(), True, message or "")
     label, url = _resolve_provider_link(slug, base_url)
     return BillingBlock(slug, label, model, url, False, message or "")

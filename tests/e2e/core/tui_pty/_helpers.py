@@ -228,7 +228,7 @@ class TmuxTui:
                  tui_dir: Path | None = None) -> None:
         self.root = root
         self.home = root / "home"
-        self.hermes_home = self.home / ".hermes"
+        self.hermes_home = self.home / ".huntington"
         # A socket path of our own (never the shared default dir tmux-<uid> under the system temp
         # dir, where a crashed run would leave it behind); close() removes it.
         self._sock_dir: str | None = None
@@ -351,7 +351,7 @@ class TmuxTui:
                  timeout=timeout, what=f"{what} on screen")
         except AssertionError as exc:
             raise AssertionError(f"{exc}\n--- screen ---\n{self.dump()}") from None
-        assert self.alive(), f"hermes exited while waiting for {what}\n{self.dump()}"
+        assert self.alive(), f"huntington exited while waiting for {what}\n{self.dump()}"
 
     def wait_quiet(self, idle: float = 1.0, timeout: float = 45.0) -> None:
         """A settled frame: unchanged for ``idle`` seconds, ignoring what ticks on its own while a
@@ -397,7 +397,7 @@ class TmuxTui:
             raise AssertionError(f"{exc}\n{self.dump()}") from None
         state = self.pane_state()
         assert state.startswith("0 "), (
-            f"hermes --tui exited during startup (pane_dead pid status={state!r}, "
+            f"huntington --tui exited during startup (pane_dead pid status={state!r}, "
             f"tmux server {'up' if state else 'gone'})\n{self.dump()}")
 
     def wait_ready(self, timeout: float = 120.0) -> None:
@@ -410,7 +410,7 @@ class TmuxTui:
                  what="the startup session (status bar 'ready')")
         except AssertionError as exc:
             raise AssertionError(f"{exc} (status {self.status()!r})\n{self.dump()}") from None
-        assert self.alive(), f"hermes --tui exited during startup\n{self.dump()}"
+        assert self.alive(), f"huntington --tui exited during startup\n{self.dump()}"
         self.wait_quiet(1.5, timeout=timeout)
 
     # -- processes -------------------------------------------------------------------------------
@@ -564,7 +564,7 @@ class TmuxTui:
             poll(done, timeout=timeout, what=f"{n} assistant replies persisted", interval=0.1)
         except AssertionError as exc:
             raise AssertionError(f"{exc}\n{self.dump()}") from None
-        assert self.alive(), f"hermes exited mid-turn\n{self.dump()}"
+        assert self.alive(), f"huntington exited mid-turn\n{self.dump()}"
 
 
 def _proc_state(pid: int) -> str:

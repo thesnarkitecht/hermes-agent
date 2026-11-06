@@ -36,7 +36,7 @@ COMMANDS: dict[str, tuple[str, str | None]] = {
     "queue": ("Queue a prompt to run after the current turn finishes", "prompt to run next"),
     "usage": ("Show token usage and rate limits", None),
     "status": ("Show session, model, token, and context info", None),
-    "version": ("Show Hermes version", None),
+    "version": ("Show Huntington version", None),
     "title": ("Show or set the session title", "new title"),
     "undo": ("Remove the last N user turns and their replies", "number of turns"),
     "retry": ("Resend the last user message", None),
@@ -53,7 +53,7 @@ def available_commands_update() -> AvailableCommandsUpdate:
 def help_text() -> str:
     lines = ["Available commands:", ""]
     lines.extend(f"  /{name:10s}  {description}" for name, (description, _hint) in COMMANDS.items())
-    lines.extend(["", "Other Hermes commands run on the gateway, which answers them or says why not.",
+    lines.extend(["", "Other Huntington commands run on the gateway, which answers them or says why not.",
                   "Unrecognized /commands are sent to the model as normal messages."])
     return "\n".join(lines)
 
@@ -70,6 +70,8 @@ def session_modes(info: dict | None = None) -> SessionModeState:
 
 
 REASONING_CONFIG_ID = "reasoning_effort"
+SERVICE_TIER_CONFIG_ID = "service_tier"
+SERVICE_TIER_LABELS = {"normal": "Normal", "fast": "Fast", "auto": "Auto", "cold": "Cold", "ultrafast": "Ultrafast"}
 
 
 def reasoning_choices() -> tuple[str, ...]:
@@ -95,6 +97,31 @@ def config_options(models: SessionModelState | None, info: dict, mode_id: str) -
     effort = info.get("reasoning_effort") if info.get("reasoning_effort") in levels else "default"
     options.append(select(REASONING_CONFIG_ID, "Reasoning effort", "thought_level", effort,
                           [(v, v) for v in (levels if effort in levels else ("default", *levels))]))
+    return options
+
+
+async def session_config_options(client, session_id, models, info, mode_id):
+    """Project the owner's eligible speed choices alongside the existing ACP pickers."""
+    from hermes_cli.gateway_client import GatewayRPCError
+    from hermes_cli.models import model_supports_fast_mode
+    options = config_options(models, info, mode_id)
+    if not model_supports_fast_mode(info.get('model')):
+        return options
+    try:
+        speed = await client.rpc('config.get', session_id=session_id, key='service_tier')
+    except GatewayRPCError as exc:
+        if str(exc) != 'invalid_params':
+            raise
+        return options  # Older owners do not serve the speed-choice read.
+    choices = speed.get('options') or []
+    if choices:
+        current = speed['value']
+        rows = [SessionConfigSelectOption(value=value, name=SERVICE_TIER_LABELS[value]) for value in choices]
+        if current not in choices:
+            rows.append(SessionConfigSelectOption(value=current,
+                        name=f"{SERVICE_TIER_LABELS.get(current, current)} (unavailable on this route)"))
+        options.append(SessionConfigOptionSelect(id=SERVICE_TIER_CONFIG_ID, name='Service tier', category='other',
+                                                type='select', current_value=current, options=rows))
     return options
 
 

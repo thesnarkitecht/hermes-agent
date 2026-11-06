@@ -31,7 +31,7 @@ class AdmissionQueued(RuntimeStoreError):
     input is committed: the row stays queued and the next owner runs it exactly once, so a client
     that resends it submits the work twice. ``str()`` is the message every API surface shows."""
 
-    MESSAGE = 'Hermes is restarting. Your input is saved and will run once when it is back; do not resend it.'
+    MESSAGE = 'Huntington is restarting. Your input is saved and will run once when it is back; do not resend it.'
 
     def __init__(self):
         super().__init__('admission_queued')
@@ -409,6 +409,8 @@ def observe_api_controls(admitted, sink):
     either in the snapshot or arrives live (never both), and one already answered is absent."""
     from hermes_state_runtime import get_session_admission
     authority, ref, row = admitted
+    from gateway.session_retirement import restore_retired
+    restore_retired(authority, ref.session_id)  # idle between its bind and this admission's commit
     live = authority.sessions.get(ref.session_id)
     if live is None:
         # Deleted or pruned: only an exact retry of a settled (retired) receipt reaches here,

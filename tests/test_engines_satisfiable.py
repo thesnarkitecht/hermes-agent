@@ -125,7 +125,7 @@ class TestEnginesAreSatisfiable:
         assert managed_npm, "pm/lock.json does not pin npm"
         assert _satisfies_range(managed_npm, npm_range), (
             f"PM provisions npm {managed_npm}, but engines.npm is "
-            f"{npm_range!r}. A fresh Hermes-managed install cannot run npm ci."
+            f"{npm_range!r}. A fresh Huntington-managed install cannot run npm ci."
         )
 
 class TestExcludedNpmBand:

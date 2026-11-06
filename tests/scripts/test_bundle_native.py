@@ -149,7 +149,7 @@ def test_bundle_stages_git_tree_and_runs_native_children_before_manifest(tmp_pat
         assert "uv" not in kwargs
         assert kwargs["sealed"] is True
         assert kwargs["python"] == target_python
-        assert kwargs["source"] == output / "hermes-agent"
+        assert kwargs["source"] == output / "huntington-agent"
         assert kwargs.get("timeout", install_timeout) > install_timeout
         calls.append(kwargs)
         assert not (output / "manifest.json").exists()
@@ -201,7 +201,7 @@ def test_bundle_stages_git_tree_and_runs_native_children_before_manifest(tmp_pat
         with pytest.raises(ValueError, match="run preparation again"):
             load_prepared(prepared)
         changed.write_bytes(original)
-    moved = output / "hermes-agent"
+    moved = output / "huntington-agent"
     outside = tmp_path / "substituted-source"
     moved.rename(outside)
     moved.symlink_to(outside, target_is_directory=True)
@@ -256,8 +256,8 @@ def test_bundle_stages_git_tree_and_runs_native_children_before_manifest(tmp_pat
     with monkeypatch.context() as patch:
         # The desktop app points the bundled backend's store at the payload's tools dir.
         patch.setenv("HERMES_RUNTIME_DIR", str(output / "tools"))
-        patch.setattr("pm.paths.repo_root", lambda: output / "hermes-agent")
-        assert venv_is_current(project_root=output / "hermes-agent")
+        patch.setattr("pm.paths.repo_root", lambda: output / "huntington-agent")
+        assert venv_is_current(project_root=output / "huntington-agent")
     for name in stale:
         assert facts.get(name) is None
         assert not (output / "tools" / f"cached-{name}").exists()
@@ -288,7 +288,7 @@ def test_bundle_stages_git_tree_and_runs_native_children_before_manifest(tmp_pat
         assert run.stdout.strip() == "1.0"
         from pm import runtime as runtime_api, paths
         with monkeypatch.context() as patch:
-            patch.setattr(paths, "repo_root", lambda: moved / "hermes-agent")
+            patch.setattr(paths, "repo_root", lambda: moved / "huntington-agent")
             run = subprocess.run(runtime_api.runtime_command(moved / "hermes-agent/pm/launch.py", ["status"]),
                                  cwd=tmp_path, env=runtime_api.runtime_environment(), capture_output=True, text=True, timeout=30, check=False)
         assert run.returncode == 0, run.stderr
@@ -386,6 +386,53 @@ def test_staged_cache_prunes_wheel_index_entries_outside_the_lock(tmp_path):
     assert not (cache / "sdists-v9" / "pypi" / "old-sdist-only").exists()
 
 
+def test_staged_cache_keeps_a_dotted_dist_the_lock_resolves(tmp_path):
+    """``ruamel.yaml`` and ``jaraco.classes`` keep the dot in their dist-info names, while
+    uv.lock lists them as ``ruamel-yaml``; the prune must compare normalized names or it
+    deletes the archive the shipped venv was installed from."""
+    lock = tmp_path / "repo"
+    lock.mkdir()
+    (lock / "uv.lock").write_text(
+        "[[package]]\n"
+        'name = "ruamel-yaml"\n'
+        'version = "0.18.16"\n'
+        'source = { registry = "https://pypi.org/simple" }\n',
+        encoding="utf-8",
+    )
+    cache = tmp_path / "cache"
+    bucket = cache / "archive-v0" / "bucket"
+    (bucket / "ruamel.yaml-0.18.16.dist-info").mkdir(parents=True)
+    index = cache / "wheels-v6" / "pypi" / "ruamel-yaml"
+    index.mkdir(parents=True)
+
+    assert native.prune_uv_cache_to_lock(cache, lock) == 0
+    assert bucket.is_dir()
+    assert index.is_dir()
+
+
+@pytest.mark.platforms("posix")
+def test_prune_drops_a_url_wheel_link_whose_archive_it_pruned(tmp_path):
+    """A URL, git or named-index wheel sits a hash directory deeper than ``pypi``. Once the
+    prune deletes its bucket, the link must go too: a payload that ships a link with no target
+    fails ``publish_prepared``. A link the lock still resolves stays."""
+    lock = tmp_path / "repo"
+    lock.mkdir()
+    (lock / "uv.lock").write_text('[[package]]\nname = "keep-me"\nversion = "1.0"\n', encoding="utf-8")
+    cache = tmp_path / "cache"
+    (cache / "archive-v0" / "gone" / "gone_dep-1.0.dist-info").mkdir(parents=True)
+    (cache / "archive-v0" / "kept" / "keep_me-1.0.dist-info").mkdir(parents=True)
+    url = cache / "wheels-v7" / "url" / "d87c3d39b3c6ef8c"
+    (url / "gone-dep").mkdir(parents=True)
+    (url / "keep-me").mkdir()
+    os.symlink("../../../../archive-v0/gone", url / "gone-dep" / "1.0-py3-none-any")
+    os.symlink("../../../../archive-v0/kept", url / "keep-me" / "1.0-py3-none-any")
+
+    native.prune_uv_cache_to_lock(cache, lock)
+
+    assert not (url / "gone-dep" / "1.0-py3-none-any").is_symlink(), "a dangling wheel link survived the prune"
+    assert (url / "keep-me" / "1.0-py3-none-any").resolve() == (cache / "archive-v0" / "kept").resolve()
+
+
 @pytest.mark.parametrize("pointer, shard", [("revision.http", ""), ("revision.rev", "build-settings")])
 def test_staged_cache_skips_build_inputs_before_copying(tmp_path, monkeypatch, pointer, shard):
     cache = tmp_path / "cache"
@@ -419,6 +466,28 @@ def test_staged_cache_skips_build_inputs_before_copying(tmp_path, monkeypatch, p
     assert all(not (shipped / relative).exists() for relative in waste)
     assert all((shipped / relative).read_bytes() == data for relative, data in kept.items())
     assert all((cache / relative).read_bytes() == data for relative, data in {**waste, **kept}.items())
+
+
+@pytest.mark.platforms("posix")
+def test_staged_cache_keeps_wheel_entries_as_links(tmp_path):
+    """uv stores each cached wheel as a relative link into ``archive-v0/``. Following it
+    shipped every unpacked wheel twice and handed the seed a directory where uv renames
+    its own link (#141891); the payload must carry the link itself."""
+    cache = tmp_path / "cache"
+    bucket = cache / "archive-v0" / "bucket"
+    (bucket / "pkg").mkdir(parents=True)
+    (bucket / "pkg" / "__init__.py").write_text("shipped = True\n", encoding="utf-8")
+    wheel = cache / "wheels-v6" / "pypi" / "pkg"
+    wheel.mkdir(parents=True)
+    os.symlink("../../../archive-v0/bucket", wheel / "1.0-py3-none-any")
+
+    shipped = tmp_path / "payload" / "uv-cache"
+    native.stage_uv_cache(cache, shipped)
+
+    link = shipped / "wheels-v6" / "pypi" / "pkg" / "1.0-py3-none-any"
+    assert link.is_symlink(), "staging followed the wheel link and copied the archive again"
+    assert os.readlink(link) == "../../../archive-v0/bucket"
+    assert (link / "pkg" / "__init__.py").read_text(encoding="utf-8") == "shipped = True\n"
 
 
 SELF_BUILD_BACKEND = '''import os, zipfile
@@ -535,6 +604,12 @@ def test_staged_cache_ships_full_wheel_set_and_rebuilds_offline(tmp_path):
         # or built: a per-install venv rebuild must not depend on network
         # reachability for any package the payload already shipped.
         assert any(shipped.rglob("wheel_proof*")), "downloadable wheels ship in the full cache"
+        # uv's wheel entries are links into archive-v0/ (POSIX); each ships as the same link.
+        for link in (path for path in cache.rglob("*") if path.is_symlink()):
+            copy = shipped / link.relative_to(cache)
+            assert copy.is_symlink() and os.readlink(copy) == os.readlink(link), copy
+        # The payload prunes its cache to the lock after staging; the rebuild below reads that.
+        native.prune_uv_cache_to_lock(shipped, project)
 
         # A fresh mutable venv rebuilds OFFLINE from the shipped cache alone.
         shutil.rmtree(cache, ignore_errors=True)
@@ -584,7 +659,7 @@ def test_native_preparation_refuses_symlinked_output_before_writing(tmp_path, mo
     outside = tmp_path / "outside"
     outside.mkdir()
     (outside / "keep").write_text("untouched", encoding="utf-8")
-    (output / "hermes-agent").symlink_to(outside, target_is_directory=True)
+    (output / "huntington-agent").symlink_to(outside, target_is_directory=True)
     with pytest.raises(ValueError, match="symlink|escaped"):
         native.prepare_native(out=output, ref="HEAD", source=Path(__file__).resolve().parents[2],
                               cache=tmp_path / "cache")
@@ -638,7 +713,7 @@ def test_native_dispatch_child_environment(tmp_path, monkeypatch, cache_source, 
         assert {key: env[key] for key in compilers} == compilers
         assert Path(env["UV_CACHE_DIR"]) == cache
         assert Path(env["HERMES_RUNTIME_DIR"]) == out / "tools"
-        assert Path(env["HERMES_HOME"]) == homes[-1] / ".hermes"
+        assert Path(env["HERMES_HOME"]) == homes[-1] / ".huntington"
     assert (cache / "reused").read_text(encoding="utf-8-sig") == "xx"
     assert all(not home.exists() for home in homes)
     assert dict(os.environ) == before

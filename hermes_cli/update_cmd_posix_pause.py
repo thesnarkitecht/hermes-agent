@@ -136,7 +136,7 @@ def _discover_systemd() -> list[dict]:
         _for_each_systemd_gateway_unit(listing.stdout, process_unit=names.append,
                                        on_unit_timeout=lambda name, exc: None)
         for name in names:
-            if not name.startswith("hermes-gateway"):
+            if not name.startswith("huntington-gateway"):
                 continue  # serve/dashboard units are not gateways: the post-commit restart owns them
             pid = _unit_main_pid(scope_cmd, name)
             if pid <= 0 or pid in seen_pids or not _systemd_unit_owned_by_update(scope_cmd, name):
@@ -237,7 +237,7 @@ def _discover_bare(service_pids: set[int]) -> tuple[list[dict], list[str]]:
         argv, home = _capture_gateway_argv(pid), gateway_pid_home(pid)
         if marker or not argv or not home:
             why = f"supervised by {marker}" if marker else "its command line could not be read" if not argv \
-                else "its Hermes home could not be proved"
+                else "its Huntington home could not be proved"
             notices.append(f"  ↷ gateway PID {pid} keeps running until after the update ({why})")
             continue
         bare.append({"pid": pid, "argv": list(argv), "home": str(home), "ct": get_process_start_time(pid)})
@@ -276,7 +276,7 @@ def _escape_cgroup(unit: dict) -> bool:
     cmd = ["busctl", bus, "call", "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
            "org.freedesktop.systemd1.Manager", "StartTransientUnit", "ssa(sv)a(sa(sv))",
            f"hermes-update-{os.getpid()}.scope", "fail", "2", "PIDs", "au", str(len(pids)), *map(str, pids),
-           "Description", "s", f"hermes update (outside {unit['unit']} while it is paused)", "0"]
+           "Description", "s", f"huntington update (outside {unit['unit']} while it is paused)", "0"]
     with suppress(OSError, subprocess.SubprocessError):
         subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace",
                    stdin=subprocess.DEVNULL, timeout=15, check=False)
@@ -319,7 +319,7 @@ def _manage_cmd(scope: str) -> list | None:
     cmd = cmd + ["--no-ask-password"]
     if scope == "system" and _needs_sudo(scope):
         sudo = ["sudo", "-n", *cmd]
-        return sudo if _sudo_noninteractive_ok(cmd + ["show", "-p", "Id", "hermes-gateway"]) else None
+        return sudo if _sudo_noninteractive_ok(cmd + ["show", "-p", "Id", "huntington-gateway"]) else None
     return cmd
 
 

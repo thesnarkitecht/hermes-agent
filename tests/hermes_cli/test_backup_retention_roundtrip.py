@@ -25,7 +25,7 @@ def test_run_backup_prunes_older_default_named_zips_but_not_others(tmp_path, mon
     from argparse import Namespace
     from hermes_cli import backup as backup_mod
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     (home / "config.yaml").write_text("model: x\n")
     monkeypatch.setenv("HERMES_HOME", str(home))
@@ -46,7 +46,7 @@ def test_import_restores_the_session_store_with_its_message_uids(tmp_path, monke
     message ids come back with the rows."""
     from hermes_state import SessionDB
 
-    hermes_home = tmp_path / ".hermes"
+    hermes_home = tmp_path / ".huntington"
     hermes_home.mkdir()
     _make_hermes_tree(hermes_home)
     db = SessionDB(db_path=hermes_home / "state.db")

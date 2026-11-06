@@ -88,7 +88,7 @@ _CHILD = textwrap.dedent('''
         if mode == "ipc-failed-unit":
             gateway_module.find_gateway_pids = lambda **kwargs: []
             fleet._restart_systemd_gateway_units = lambda restarted, failed, *rest: failed.append(
-                "hermes-gateway-probe.service")
+                "huntington-gateway-probe.service")
         else:
             def unavailable(*args, **kwargs):
                 raise RuntimeError("systemctl unavailable")
@@ -154,7 +154,7 @@ _CHILD = textwrap.dedent('''
 
 def _run_completion(tmp_path: Path, mode: str, *, sqlite: str | None = None) -> dict:
     cell = tmp_path / "cell"
-    root_home = cell / "home" / ".hermes"
+    root_home = cell / "home" / ".huntington"
     # A named profile: receipts stay in the (writable) root home while the profile home refuses.
     profile = root_home / "profiles" / "probe"
     for name in ("logs/update_receipts", "skills", "cache", "profiles/probe"):
@@ -330,7 +330,7 @@ def test_zip_update_never_replays_a_refused_resume_after_the_commit_point(tmp_pa
     """The child already tried the resume and recorded the follow-up: the parent's finally and its
     atexit net must not run it again, and a restart error must not become exit 1 / "/update failed"."""
     cell = tmp_path / "cell"
-    home = cell / "home" / ".hermes"
+    home = cell / "home" / ".huntington"
     (home / "logs/update_receipts").mkdir(parents=True)
     completion = cell / "source" / "hermes_cli" / "update_completion.py"
     completion.parent.mkdir(parents=True)
@@ -374,7 +374,7 @@ _RECEIPT_CHILD = textwrap.dedent('''
 def test_old_schema_handoff_receipt_keeps_the_previous_runs_manual_serve_debt(tmp_path):
     from hermes_cli.process_identity import _process_create_time
 
-    home = tmp_path / "home" / ".hermes"
+    home = tmp_path / "home" / ".huntington"
     home.mkdir(parents=True)
     # The durable reminder store is obstructed, so the receipt is the only record of the debt.
     (home / "serve_restart_pending").write_text("not a directory\n", encoding="utf-8")

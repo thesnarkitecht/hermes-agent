@@ -41,7 +41,7 @@ class ForeignRoot(ValueError):
 def _install_root(home: Path) -> Path:
     # <root>/.hermes or <root>/.hermes/profiles/<name>: the root is the HOME that anchors it.
     parts = home.parts
-    if len(parts) >= 3 and parts[-3] == ".hermes" and parts[-2] == "profiles":
+    if len(parts) >= 3 and parts[-3] == ".huntington" and parts[-2] == "profiles":
         return home.parents[2]
     return home.parent
 
@@ -63,7 +63,7 @@ def _own_store_launcher(executable: str) -> bool:
     """Whether ``executable`` is the store launcher ``installation_command`` writes for THIS install
     root (``<root>/.hermes/bin/hermes``, root = gateway.PROJECT_ROOT), never another checkout's."""
     from hermes_cli import gateway
-    launcher = Path(gateway.PROJECT_ROOT).resolve() / ".hermes" / "bin" / "hermes"
+    launcher = Path(gateway.PROJECT_ROOT).resolve() / ".huntington" / "bin" / "hermes"
     return os.path.normcase(str(Path(executable).resolve())) == os.path.normcase(str(launcher))
 
 
@@ -113,7 +113,7 @@ def verify_gateway_argv(argv: list[str], home: Path, *, wrapped: bool = False) -
         if entry is None or entry[0] != "hermes_cli.main":
             _unverified()
         args = entry[1]
-    elif executable in {"hermes", "hermes.exe"} and (not own_launcher_only or _own_store_launcher(argv[0])):
+    elif executable in {"hermes", "hermes.exe", "huntington", "huntington.exe"} and (not own_launcher_only or _own_store_launcher(argv[0])):
         args = argv[1:]
     else:
         _unverified()
@@ -201,7 +201,7 @@ def verify_systemd(props: dict[str, str], manager_env: str, home: Path, *, syste
             env.pop(key, None)
     configured = env.get("HERMES_HOME", "").strip()
     if not configured:
-        configured = str(_absolute(env.get("HOME") or pwd.getpwuid(uid).pw_dir) / ".hermes")
+        configured = str(_absolute(env.get("HOME") or pwd.getpwuid(uid).pw_dir) / ".huntington")
     verify_home(home, configured)
     match = re.fullmatch(r"\{ path=(.*?) ; argv\[\]=(.*?) ; ignore_errors=(?:yes|no) ;(?:.*?)\}", props["ExecStart"])
     if not match or any(char in match[2] for char in ("$", "\\", "{", "}")):

@@ -20,7 +20,7 @@ HOST_PID = 4242
 @pytest.fixture
 def homes(tmp_path, monkeypatch):
     from hermes_cli import profiles
-    root = tmp_path / '.hermes'
+    root = tmp_path / '.huntington'
     secondary = root / 'profiles' / 'worker'
     secondary.mkdir(parents=True)
     (secondary / 'config.yaml').write_text('model: {default: worker-model}\n')

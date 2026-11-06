@@ -154,7 +154,7 @@ def step_state_db_guard() -> dict:
     message = result.get("message", "unknown error")
     logger.error(
         "state.db failed integrity check after a code update: %s — "
-        "restore a backup with `hermes backup` tooling or contact support",
+        "restore a backup with `huntington backup` tooling or contact support",
         message,
     )
     return {"ok": False, "error": message}
@@ -205,7 +205,7 @@ def step_adopt_blessed_checkout(project_root: Path | None = None) -> dict:
 
     # The blessed roots: the canonical locations installers create.
     blessed = (
-        get_hermes_home() / "hermes-agent",
+        get_hermes_home() / "huntington-agent",
         Path("/usr/local/lib/hermes-agent"),
     )
 

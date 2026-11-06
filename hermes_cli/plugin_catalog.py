@@ -358,6 +358,9 @@ def fetch_live_catalog(*, force: bool = False) -> Optional[dict[str, Any]]:
     :data:`LIVE_CATALOG_FAILURE_TTL_SECONDS` so a dead host costs one timeout per TTL window, not one
     per call (``force`` bypasses both caches)."""
     global _live_fetch_failed_until
+    from hermes_cli.huntington import LIVE_PLUGIN_CATALOG
+    if not LIVE_PLUGIN_CATALOG:
+        return None  # HUNTINGTON-AGENT: the curated in-tree catalog is the only source
     cache = _live_cache_path()
     try:
         if not force and cache.is_file() and time.time() - cache.stat().st_mtime < LIVE_CATALOG_TTL_SECONDS:
@@ -525,7 +528,7 @@ def entry_capability_summary(entry: PluginCatalogEntry) -> str:
     if entry.platforms:
         bits.append(f"Platforms: {', '.join(entry.platforms)}.")
     if entry.requires_hermes:
-        bits.append(f"Requires Hermes {entry.requires_hermes}.")
+        bits.append(f"Requires Huntington {entry.requires_hermes}.")
     if entry.known_issues:
         # #124058: informational — the catalog documents traps (unsupported
         # install-method/mode combinations); surface them at install prompts

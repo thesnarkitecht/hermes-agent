@@ -117,7 +117,7 @@ class TestImageFalStrictSelection:
             with pytest.raises(ValueError) as exc:
                 it._resolve_managed_fal_gateway()
         assert "image_gen is configured to use nous" in str(exc.value)
-        assert "hermes tools" in str(exc.value)
+        assert "huntington tools" in str(exc.value)
 
     def test_fal_selection_missing_key_errors_without_managed_call(self):
         from tools import image_generation_tool as it
@@ -130,7 +130,7 @@ class TestImageFalStrictSelection:
         gw.assert_not_called()
         assert "FAL_KEY" in str(exc.value)
         assert "image_gen is configured to use fal" in str(exc.value)
-        assert "hermes tools" in str(exc.value)
+        assert "huntington tools" in str(exc.value)
 
     def test_fal_selection_with_key_routes_direct(self):
         from tools import image_generation_tool as it
@@ -228,7 +228,7 @@ class TestSttStrictSelection:
                 tt._resolve_openai_audio_client_config()
         gw.assert_not_called()
         assert "stt is configured to use openai" in str(exc.value)
-        assert "hermes tools" in str(exc.value)
+        assert "huntington tools" in str(exc.value)
 
     def test_never_configured_keeps_legacy_ladder(self):
         from tools import transcription_tools as tt
@@ -290,7 +290,7 @@ class TestWriteProviderConfig:
         from hermes_cli.tools_config import _write_provider_config
 
         config = {"tts": {"provider": "edge", "use_gateway": False}}
-        provider = {"name": "Nous Subscription", "tts_provider": "openai"}
+        provider = {"name": "HIP Subscription", "tts_provider": "openai"}
         _write_provider_config(provider, config, managed_feature="tts")
         assert config["tts"]["provider"] == "nous"
         assert "use_gateway" not in config["tts"]
@@ -308,7 +308,7 @@ class TestWriteProviderConfig:
         from hermes_cli.tools_config import _write_provider_config
 
         config = {}
-        provider = {"name": "Nous Subscription", "imagegen_backend": "fal"}
+        provider = {"name": "HIP Subscription", "imagegen_backend": "fal"}
         _write_provider_config(provider, config, managed_feature="image_gen")
         assert config["image_gen"]["provider"] == "nous"
         assert "use_gateway" not in config["image_gen"]

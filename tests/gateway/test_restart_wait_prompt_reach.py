@@ -83,7 +83,7 @@ async def test_restart_wait_commits_new_input_queued_and_never_claims_it(tmp_pat
     from gateway.config import Platform
     from gateway.session import SessionSource
     from gateway.session_authority import LiveSession, SessionAuthority
-    from gateway.session_contract import Principal, SessionRef, Submission
+    from gateway.session_contract import SessionActor, SessionRef, Submission
 
     monkeypatch.setenv("HERMES_HOME", str(tmp_path))
     db = SessionDB(tmp_path / "state.db")
@@ -100,7 +100,7 @@ async def test_restart_wait_commits_new_input_queued_and_never_claims_it(tmp_pat
     authority = SessionAuthority(runner, profile_id="p", instance_id="owner", db=db,
                                  epoch=begin_runtime_epoch(db, instance_id="owner"))
     authority.sessions["s"] = LiveSession(SessionSource(platform=Platform.TELEGRAM, chat_id="c", user_id="human"), "route")
-    actor = Principal("human", "p", frozenset({"session:submit"}), "t")
+    actor = SessionActor("human", "p", frozenset({"session:submit"}), "t")
     try:
         receipt = await authority.submit(actor, Submission("r1", SessionRef("p", "s"), {"text": "next"}, "queue"),
                                          queue_while_restarting=True)
@@ -208,7 +208,7 @@ async def test_restart_wait_queues_only_interactive_input(tmp_path, monkeypatch)
     from gateway.config import Platform
     from gateway.session import SessionSource
     from gateway.session_authority import LiveSession, SessionAuthority
-    from gateway.session_contract import Principal, SessionRef, Submission
+    from gateway.session_contract import SessionActor, SessionRef, Submission
 
     monkeypatch.setenv("HERMES_HOME", str(tmp_path))
     db = SessionDB(tmp_path / "state.db")
@@ -219,7 +219,7 @@ async def test_restart_wait_queues_only_interactive_input(tmp_path, monkeypatch)
     authority = SessionAuthority(runner, profile_id="p", instance_id="owner", db=db,
                                  epoch=begin_runtime_epoch(db, instance_id="owner"))
     authority.sessions["s"] = LiveSession(SessionSource(platform=Platform.TELEGRAM, chat_id="c", user_id="peer"), "route")
-    peer = Principal("peer", "p", frozenset({"session:submit"}), "t")
+    peer = SessionActor("peer", "p", frozenset({"session:submit"}), "t")
     try:
         with pytest.raises(RuntimeStoreError, match="runtime_draining"):
             await authority.submit(peer, Submission("a2a:1", SessionRef("p", "s"), {"text": "hi"}, "queue"))
@@ -233,13 +233,13 @@ def test_update_drain_hint_names_the_draining_profile(tmp_path, monkeypatch):
     ``hermes --tui`` opens the default profile, where that session isn't listed (#139041)."""
     from hermes_cli.update_cmd_drain_report import format_drain_report
 
-    root = tmp_path / ".hermes"
+    root = tmp_path / ".huntington"
     (root / "profiles" / "work").mkdir(parents=True)
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setenv("HERMES_HOME", str(root))
     work = [{"kind": "chat", "session": "s1"}]
-    assert "`hermes -p work --tui`" in format_drain_report(work, remaining_s=60, home=root / "profiles" / "work")
-    assert "`hermes --tui`" in format_drain_report(work, remaining_s=60, home=root)
+    assert "`huntington -p work --tui`" in format_drain_report(work, remaining_s=60, home=root / "profiles" / "work")
+    assert "`huntington --tui`" in format_drain_report(work, remaining_s=60, home=root)
 
 
 @pytest.mark.asyncio
@@ -328,7 +328,7 @@ async def test_restart_wait_lets_a_webapp_tab_dial_back_in_to_answer_the_parked_
                              session_authority=None)
     db = SessionDB(tmp_path / "state.db")
     db.create_session("s", source="test")
-    authority = SessionAuthority(runner, profile_id=str(tmp_path / ".hermes"), instance_id="owner", db=db,
+    authority = SessionAuthority(runner, profile_id=str(tmp_path / ".huntington"), instance_id="owner", db=db,
                                  epoch=begin_runtime_epoch(db, instance_id="owner"))
     authority.sessions["s"] = LiveSession(None, "route")
     monkeypatch.setattr(web.app.state, "session_authority", authority, raising=False)

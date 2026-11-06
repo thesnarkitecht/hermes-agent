@@ -27,7 +27,7 @@ def host_gateways(tmp_path):
     other = tmp_path / "other-user"
     installs = {
         "own": {"HERMES_HOME": os.environ["HERMES_HOME"]},
-        "foreign": {"HERMES_HOME": str(other / ".hermes")},
+        "foreign": {"HERMES_HOME": str(other / ".huntington")},
         # Another install at its platform default home: no HERMES_HOME in its environment.
         "foreign_default": {"HOME": str(other), "USERPROFILE": str(other),
                             "LOCALAPPDATA": str(other / "AppData" / "Local")},

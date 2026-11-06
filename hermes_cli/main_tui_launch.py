@@ -111,9 +111,9 @@ def _print_tui_exit_summary(session_id: Optional[str], active_session_file: Opti
     from hermes_cli.profiles import get_active_profile_name
     active_profile = get_active_profile_name()
     profile_flag = "" if active_profile in ("default", "custom") else f" -p {active_profile}"
-    print(f"\n{t('cli.session.exit_resume_hint')}\n  hermes --tui --resume {resume_id}{profile_flag}")
+    print(f"\n{t('cli.session.exit_resume_hint')}\n  huntington --tui --resume {resume_id}{profile_flag}")
     if title:
-        print(f'  hermes --tui -c "{title}"{profile_flag}')
+        print(f'  huntington --tui -c "{title}"{profile_flag}')
     print(f"\nSession:        {resume_id}")
     if title:
         print(f"Title:          {title}")
@@ -180,14 +180,14 @@ def _ensure_tui_workspace(tui_dir: Path) -> None:
         return
 
     print(
-        "Error: the TUI workspace is missing from this Hermes checkout.\n"
+        "Error: the TUI workspace is missing from this Huntington checkout.\n"
         f"Expected directory: {tui_dir}\n"
-        "This usually means `hermes update` left tracked ui-tui files deleted.\n"
+        "This usually means `huntington update` left tracked ui-tui files deleted.\n"
         "Recovery:\n"
-        "  1. From the Hermes checkout, run `git restore -- ui-tui`\n"
+        "  1. From the Huntington checkout, run `git restore -- ui-tui`\n"
         "  2. Run `npm install --silent --no-fund --no-audit --progress=false`\n"
-        "  3. Retry `hermes --tui`\n"
-        "If the checkout is still inconsistent, run `hermes update --force`.",
+        "  3. Retry `huntington --tui`\n"
+        "If the checkout is still inconsistent, run `huntington update --force`.",
         file=sys.stderr)
     sys.exit(1)
 
@@ -203,8 +203,8 @@ def _tui_node_bin(bin: str) -> str:
     if not path:
         print(
             f"Node.js is required for the TUI but `{bin}` was not found. Install it from "
-            "https://nodejs.org (run `hermes doctor` for the install hint for your OS), then "
-            "retry `hermes --tui`. To keep working now, run `hermes --cli`."
+            "https://nodejs.org (run `huntington doctor` for the install hint for your OS), then "
+            "retry `huntington --tui`. To keep working now, run `huntington --cli`."
         )
         sys.exit(1)
     return path
@@ -439,7 +439,7 @@ def _require_bypass_model(env: dict, model: Optional[str], resume_session_id: Op
     if bypass and not resume_session_id and not (model or env.get("HERMES_MODEL", "").strip()):
         print("Error: --safe-mode / --ignore-user-config (or HERMES_IGNORE_USER_CONFIG=1) read no profile "
               "default model: pass --model explicitly.\n"
-              "  Example: hermes --tui --safe-mode --provider openrouter --model anthropic/claude-sonnet-4",
+              "  Example: huntington --tui --safe-mode --provider openrouter --model anthropic/claude-sonnet-4",
               file=sys.stderr)
         raise SystemExit(1)
 
@@ -454,7 +454,7 @@ def _refuse_unforwarded_tui_flags(args) -> None:
     flags = [flag for name, flag in _TUI_UNFORWARDED.items() if getattr(args, name, None)]
     if flags:
         print(f"Error: Unsupported --tui options: {', '.join(flags)}. No session was started.\n"
-              f"  Use classic chat for this launch: hermes chat --cli {' '.join(flags)} ...\n"
+              f"  Use classic chat for this launch: huntington chat --cli {' '.join(flags)} ...\n"
               "  Or set model.base_url / agent.reasoning_effort in config.yaml (/reasoning in the TUI).",
               file=sys.stderr)
         raise SystemExit(2)
@@ -633,27 +633,13 @@ def _sync_bundled_skills_quietly() -> None:
 
 
 def _resolve_use_tui(args) -> bool:
-    """Decide whether to launch the TUI: ``--cli`` → classic; ``--tui`` → TUI; no TTY → classic;
-    ``HERMES_TUI=1`` → TUI; ``display.interface`` config; default classic.
+    """HUNTINGTON-AGENT ships the classic CLI only: the Ink TUI (ui-tui/) is removed.
 
-    The TTY gate is load-bearing: ambient preferences must never hijack a piped
-    ``hermes chat -q`` (kanban workers, cron) — the Ink no-TTY bail-out exits 0 and
-    the worker dies with a protocol violation. Explicit ``--tui`` still bails out.
+    ``--tui`` / ``HERMES_TUI=1`` / ``display.interface: tui`` fall back to the CLI with a notice.
     """
-    if getattr(args, "cli", False):
-        return False
-    if getattr(args, "tui", False) or getattr(args, "tui_native", False):
-        return True
-    try:
-        if not (sys.stdin.isatty() and sys.stdout.isatty()):
-            return False
-    except Exception:
-        return False
-    if os.environ.get("HERMES_TUI") == "1":
-        return True
-    try:
-        from hermes_cli.config import load_config
-        iface = (load_config().get("display", {}) or {}).get("interface", "cli")
-        return isinstance(iface, str) and iface.strip().lower() == "tui"
-    except Exception:
-        return False
+    asked = (getattr(args, "tui", False) or getattr(args, "tui_native", False)
+             or os.environ.get("HERMES_TUI") == "1")
+    if asked and not getattr(args, "cli", False):
+        print("HUNTINGTON-AGENT: the TUI is not included in this build; starting the CLI.",
+              file=sys.stderr)
+    return False

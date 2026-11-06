@@ -89,7 +89,7 @@ asyncio.run(main())
 
 @pytest.fixture()
 def live_server(tmp_path: Path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     proc = subprocess.Popen(
         [sys.executable, "-c", _CHILD_CODE, str(PROJECT_ROOT), str(home)],
@@ -129,7 +129,7 @@ def test_named_pipe_identify_status_and_fleet_consumer(live_server, monkeypatch)
     # Windows trampoline makes the spawner's view wrong (see _CHILD_CODE).
     assert ident["pid"] == server_pid
     assert ident["protocol"] == 1
-    assert ident["kind"] == "hermes-gateway"
+    assert ident["kind"] == "huntington-gateway"
     assert ident["supervisor"] in {"systemd", "launchd", "desktop", "external", "manual"}
 
     status = query_gateway_control(home, "status", timeout=5.0)
@@ -186,7 +186,7 @@ def test_pipe_gone_after_kill_falls_back(live_server, monkeypatch):
             json.dumps(
                 {
                     "pid": pid, "gateway_state": "running",
-                    "code_sha": "OLD", "kind": "hermes-gateway",
+                    "code_sha": "OLD", "kind": "huntington-gateway",
                 }
             ),
             encoding="utf-8",

@@ -223,10 +223,10 @@ def main() -> int:
         return 0
 
     if result == "reseeded":
-        print("[rebootstrap] Nous bootstrap session was terminal; re-seeded auth.json from "
+        print("[rebootstrap] HIP bootstrap session was terminal; re-seeded auth.json from "
               f"{REBOOTSTRAP_ENV}")
     elif result == "reseeded_newer":
-        print("[rebootstrap] Applied newer orchestrator-issued Nous bootstrap session from "
+        print("[rebootstrap] Applied newer orchestrator-issued HIP bootstrap session from "
               f"{REBOOTSTRAP_ENV}")
     else:
         # Quiet by default for the common no-op cases; still emit a breadcrumb.

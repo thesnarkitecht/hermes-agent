@@ -25,13 +25,13 @@ def test_ensure_checks_effective_service_binding_before_start(tmp_path, monkeypa
     from hermes_cli.gateway_runtime_service import service_suffix
 
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    home = tmp_path / (".hermes" if case == "default" else "custom root")
+    home = tmp_path / (".huntington" if case == "default" else "custom root")
     if case == "named":
         home = home / "profiles" / "worker"
     home.mkdir(mode=0o700, parents=True)
     monkeypatch.setenv("HERMES_HOME", str(home))
     suffix = service_suffix(home)
-    unit = tmp_path / ".config/systemd/user" / f"hermes-gateway{'-' + suffix if suffix else ''}.service"
+    unit = tmp_path / ".config/systemd/user" / f"huntington-gateway{'-' + suffix if suffix else ''}.service"
     unit.parent.mkdir(parents=True)
     unit.write_text(f'[Service]\nExecStart={sys.executable} -m hermes_cli.main gateway run\nEnvironment="HERMES_HOME={home}"\n', encoding="utf-8")
     original = unit.read_bytes()
@@ -124,7 +124,7 @@ def test_loaded_launchd_identity_is_independent_of_disk(configured, command, rea
     if command == "echo":
         argv = ["/bin/echo", "hermes_cli.main", "gateway", "run"]
     environment = f"HERMES_HOME => {tmp_path / configured}" if configured else ""
-    output = "gui/123/ai.hermes.gateway = {\n\tstate = not running\n\tprogram = " + argv[0] + "\n\targuments = {\n" + "\n".join("\t\t" + a for a in argv) + "\n\t}\n\tenvironment = {\n\t\t" + environment + "\n\t}\n}"
+    output = "gui/123/ai.huntington.gateway = {\n\tstate = not running\n\tprogram = " + argv[0] + "\n\targuments = {\n" + "\n".join("\t\t" + a for a in argv) + "\n\t}\n\tenvironment = {\n\t\t" + environment + "\n\t}\n}"
     if command != "unsupervised":
         output = output.replace("\n\tenvironment = {\n", "\n\tenvironment = {\n\t\tHERMES_SUPERVISED_CHILD => 1\n")
     if command == "wrong_account":
@@ -140,7 +140,7 @@ def _launchd_gateway_command(tmp_path, monkeypatch, *, store, profile=""):
     """The gateway command generate_launchd_plist persists, from a store Python or an external one."""
     from hermes_cli import _launchers, gateway as gw
     from hermes_cli.gateway_launchd import _timestamped_stderr_gateway_command
-    monkeypatch.setattr(gw, "PROJECT_ROOT", tmp_path / "hermes-agent")
+    monkeypatch.setattr(gw, "PROJECT_ROOT", tmp_path / "huntington-agent")
     monkeypatch.setattr(gw, "get_python_path", lambda: sys.executable)
     monkeypatch.setattr(gw, "_profile_arg", lambda *a, **k: profile)
     monkeypatch.setattr(_launchers, "resolve_store_python", lambda *a, **k: Path(sys.executable) if store else None)
@@ -166,7 +166,7 @@ def test_launchd_verifies_the_osascript_wrapped_command_the_installer_writes(cas
     import plistlib
     from hermes_cli.gateway_launchd import launchd_program_arguments
     from hermes_cli.gateway_runtime_service_identity import verify_launchd_loaded, verify_launchd_plist
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     from hermes_cli import gateway as gw
     command = _launchd_gateway_command(tmp_path, monkeypatch,
                                        store=case not in {"inline", "tampered_bootstrap", "foreign_root_inline"},
@@ -212,13 +212,13 @@ def test_launchd_verifies_the_osascript_wrapped_command_the_installer_writes(cas
         argv[4] += ' $.system("id");'
     if case == "foreign_osascript":
         argv[0] = str(tmp_path / "osascript")
-    env = dict(HERMES_HOME=str(home if case != "other_home" else tmp_path / "elsewhere" / ".hermes"),
+    env = dict(HERMES_HOME=str(home if case != "other_home" else tmp_path / "elsewhere" / ".huntington"),
                HERMES_SUPERVISED_CHILD="1")
-    definition = plistlib.loads(plistlib.dumps(dict(Label="ai.hermes.gateway", ProgramArguments=argv, EnvironmentVariables=env)))
-    output = ("gui/123/ai.hermes.gateway = {\n\tstate = not running\n\tprogram = " + argv[0] + "\n\targuments = {\n"
+    definition = plistlib.loads(plistlib.dumps(dict(Label="ai.huntington.gateway", ProgramArguments=argv, EnvironmentVariables=env)))
+    output = ("gui/123/ai.huntington.gateway = {\n\tstate = not running\n\tprogram = " + argv[0] + "\n\targuments = {\n"
               + "\n".join("\t\t" + arg for arg in argv) + "\n\t}\n\tenvironment = {\n"
               + "".join(f"\t\t{key} => {value}\n" for key, value in env.items()) + "\t}\n}")
-    for verify in (lambda: verify_launchd_plist(definition, "ai.hermes.gateway", home),
+    for verify in (lambda: verify_launchd_plist(definition, "ai.huntington.gateway", home),
                    lambda: verify_launchd_loaded(output, home, uid=123, username="owner")):
         if reason:
             with pytest.raises(ValueError, match=reason):
@@ -231,14 +231,14 @@ def _installed_vbs(home, configured):
     """The current installed launcher grammar; no script is executed."""
     script = home / 'gateway.vbs'
     script.write_text("\n".join([
-        "' Hermes Agent Gateway", "Option Explicit", "Dim sh, env, existing_pp",
+        "' HUNTINGTON-AGENT Gateway", "Option Explicit", "Dim sh, env, existing_pp",
         'Set sh = CreateObject("WScript.Shell")', 'Set env = sh.Environment("PROCESS")',
         f'env.Item("HERMES_HOME") = "{configured}"',
         'env.Item("HERMES_SUPERVISED_CHILD") = "1"',
-        'env.Item("VIRTUAL_ENV") = "C:\\Hermes"',
+        'env.Item("VIRTUAL_ENV") = "C:\\Huntington"',
         'existing_pp = env.Item("PYTHONPATH")', 'If Len(existing_pp) > 0 Then',
-        '  env.Item("PYTHONPATH") = "C:\\Hermes;" & existing_pp', 'Else',
-        '  env.Item("PYTHONPATH") = "C:\\Hermes"', 'End If',
+        '  env.Item("PYTHONPATH") = "C:\\Huntington;" & existing_pp', 'Else',
+        '  env.Item("PYTHONPATH") = "C:\\Huntington"', 'End If',
         f'sh.CurrentDirectory = "{home}"',
         f'sh.Run "{sys.executable} -m hermes_cli.main gateway run", 0, False',
     ]) + "\n", encoding='utf-8')
@@ -366,7 +366,7 @@ def test_native_launchd_checks_loaded_job_before_disk(case, reason, tmp_path, mo
     home.mkdir(mode=0o700)
     monkeypatch.setenv('HERMES_HOME', str(home))
     monkeypatch.setattr(pwd, 'getpwuid', lambda uid: SimpleNamespace(pw_dir=str(tmp_path), pw_name="owner"))
-    label = 'ai.hermes.gateway' + ('-' + service.service_suffix(home) if service.service_suffix(home) else '')
+    label = 'ai.huntington.gateway' + ('-' + service.service_suffix(home) if service.service_suffix(home) else '')
     plist = tmp_path / 'Library/LaunchAgents' / (label + '.plist')
     plist.parent.mkdir(parents=True)
     argv = [sys.executable, '-m', 'hermes_cli.main', 'gateway', 'run']

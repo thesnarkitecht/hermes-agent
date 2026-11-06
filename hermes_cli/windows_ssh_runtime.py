@@ -368,16 +368,32 @@ def _resolve_direct_command(hermes_path: str) -> list[str]:
     out = subprocess.run([hermes_path, "--print-runtime-command"], capture_output=True,
                          text=True, encoding="utf-8", errors="replace", timeout=30, check=False)
     if out.returncode != 0:
-        raise ValueError("could not resolve Hermes runtime; refresh this installation's launcher")
+        raise ValueError("could not resolve Huntington runtime; refresh this installation's launcher")
     try:
         command = json.loads(out.stdout)
     except ValueError as exc:
-        raise ValueError("Hermes launcher did not report a runtime command") from exc
+        raise ValueError("Huntington launcher did not report a runtime command") from exc
     if (not isinstance(command, list) or not command
             or not all(isinstance(part, str) and "\x00" not in part for part in command)
             or not os.path.isabs(command[0]) or not os.path.isfile(command[0])):
-        raise ValueError("Hermes launcher reported an invalid runtime command")
+        raise ValueError("Huntington launcher reported an invalid runtime command")
     return command
+
+
+def _spawn_env(payload: dict[str, Any]) -> dict[str, str]:
+    """The serve's environment. A Desktop dev build's renderer is an http origin the backend trusts
+    only from the HERMES_DESKTOP_DEV_SERVER it inherits, so the payload's ``devServer`` is handed
+    down exactly as the POSIX spawn command does; without one the variable is not set at all."""
+    dev_server = str(payload.get("devServer") or "")
+    if len(dev_server) > 2048 or any(ch in dev_server for ch in "\x00\r\n"):
+        raise ValueError("invalid devServer")
+    env = dict(os.environ)
+    env.pop("VIRTUAL_ENV", None)
+    env.pop("PYTHONPATH", None)
+    env.pop("HERMES_DESKTOP_DEV_SERVER", None)
+    if dev_server:
+        env["HERMES_DESKTOP_DEV_SERVER"] = dev_server
+    return env
 
 
 def spawn_backend(payload: dict[str, Any]) -> dict[str, Any]:
@@ -385,7 +401,7 @@ def spawn_backend(payload: dict[str, Any]) -> dict[str, Any]:
     spawn_nonce = _nonce(str(payload["spawnNonce"]))
     configured_path = str(payload["hermesPath"])
     if not os.path.isabs(configured_path):
-        raise ValueError("Hermes path must be absolute")
+        raise ValueError("Huntington path must be absolute")
     hermes_path = os.path.abspath(configured_path)
     token_path = str(_token_path(ownership_id, spawn_nonce))
     profile = str(payload.get("profile") or "")
@@ -396,9 +412,7 @@ def spawn_backend(payload: dict[str, Any]) -> dict[str, Any]:
         args.extend(["--profile", profile])
     args.extend(["serve", "--isolated", "--host", "127.0.0.1", "--port", "0",
                  "--ssh-session-token-file", token_path, "--ssh-owner-nonce", spawn_nonce])
-    env = dict(os.environ)
-    env.pop("VIRTUAL_ENV", None)
-    env.pop("PYTHONPATH", None)
+    env = _spawn_env(payload)
     _ensure_scope(ownership_id)
     log_path = _log_path(ownership_id, spawn_nonce)
     win32con = _win32().win32con
@@ -419,7 +433,7 @@ def spawn_backend(payload: dict[str, Any]) -> dict[str, Any]:
 def inspect_hermes(hermes_path: str) -> dict[str, Any]:
     path = os.path.abspath(hermes_path)
     if not os.path.isabs(hermes_path) or not os.path.isfile(path):
-        raise ValueError("Hermes path is not an executable file")
+        raise ValueError("Huntington path is not an executable file")
     version = subprocess.run([path, "--version"], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20, check=False)
     help_result = subprocess.run([path, "serve", "--help"], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20, check=False)
     help_text = help_result.stdout + help_result.stderr

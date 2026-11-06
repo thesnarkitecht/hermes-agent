@@ -91,8 +91,8 @@ _MESSAGING_ENV_FALLBACKS: dict[str, dict[str, Any]] = {
         ("WECOM_CALLBACK_AGENT_ID", "WeCom app agent ID", "WeCom Agent ID", {}),
         ("WECOM_CALLBACK_TOKEN", "WeCom callback verification token", "WeCom Token", {}),
         ("WECOM_CALLBACK_ENCODING_AES_KEY", "WeCom callback AES encoding key", "WeCom AES Key", {"password": True}),
-        ("WEIXIN_ACCOUNT_ID", "iLink Bot account ID obtained through QR login in hermes gateway setup", "iLink Bot account ID", {}),
-        ("WEIXIN_TOKEN", "iLink Bot token obtained through QR login in hermes gateway setup", "iLink Bot token", {"password": True}),
+        ("WEIXIN_ACCOUNT_ID", "iLink Bot account ID obtained through QR login in huntington gateway setup", "iLink Bot account ID", {}),
+        ("WEIXIN_TOKEN", "iLink Bot token obtained through QR login in huntington gateway setup", "iLink Bot token", {"password": True}),
         ("WEIXIN_BASE_URL", "iLink API base URL saved by QR login (default: https://ilinkai.weixin.qq.com)", "iLink API base URL", {}),
         ("FEISHU_APP_ID", "Feishu / Lark app ID", "App ID", {}),
         ("FEISHU_APP_SECRET", "Feishu / Lark app secret", "App secret", {"password": True}),
@@ -202,9 +202,27 @@ def _platform_enablement(
     return enabled, configured, home_channel
 
 
+def _relay_disabled_platform_ids(scoped: bool) -> frozenset[str]:
+    """Platforms the GATEWAY_RELAY_URL relay-exclusive rule switches off at gateway load
+    (#141175), read from the same load_gateway_config() the unscoped enablement arm uses, so the
+    page can say "Team Gateway" instead of a bare "Disabled" that reverts every restart.
+    Unscoped arm only: profile-scoped status is judged per profile (``_platform_enablement``)."""
+    if scoped:
+        return frozenset()
+    try:
+        from gateway.config import load_gateway_config
+
+        platforms = load_gateway_config().platforms
+        return frozenset(p.value for p, cfg in platforms.items() if cfg.disabled_by_relay)
+    except Exception:  # health: allow BLE001 -- advisory label; an unreadable config keeps the plain state
+        _log.debug("relay-disabled platform lookup failed", exc_info=True)
+        return frozenset()
+
+
 def _messaging_platform_payload(
     entry: dict[str, Any], env_on_disk: dict[str, str], runtime: dict | None,
     scoped: bool = False, profile_home: Optional[Path] = None, source_keys: Collection[str] = (),
+    relay_disabled: frozenset[str] = frozenset(), relay_view: tuple[frozenset[str], bool] = (frozenset(), False),
 ) -> dict[str, Any]:
     platform_id = entry["id"]
     rt = runtime if isinstance(runtime, dict) else {}
@@ -275,6 +293,11 @@ def _messaging_platform_payload(
         "gateway_running": gateway_running, "state": state, "error_code": error_code,
         "error_message": error_message, "updated_at": runtime_platform.get("updated_at"),
         "home_channel": home_channel, "env_vars": env_vars,
+        "disabled_by_relay": not enabled and platform_id in relay_disabled,
+        # Team Gateway's shared bot carries this platform: setup is linking an account to it, and a
+        # direct bot is switched off at every start when ``relay_exclusive`` (#141546).
+        "relay_fronted": platform_id in relay_view[0],
+        "relay_exclusive": platform_id in relay_view[0] and relay_view[1],
         # Multiplex secondary served on the default's shared listener: the vendor callback URL.
         "ingress_url": runtime_platform.get("ingress_url") if gateway_running else None,
     }
@@ -303,11 +326,24 @@ def _platform_payloads(scoped_dir: Optional[Path], entries) -> list[dict[str, An
     runtime = served_profile_runtime(own_home, runtime) or runtime
     # Credentials a secret manager supplies have no .env line; only values the profile's enabled
     # sources resolved (into its secret scope, by ``_profile_scope``) count, and an empty one is unset.
-    source_values = get_secret_source_values(scoped_dir) if scoped_dir is not None else {}
+    scoped = scoped_dir is not None
+    source_values = get_secret_source_values(scoped_dir) if scoped else {}
     source_keys = frozenset(key for key, value in source_values.items() if str(value).strip())
-    return [_messaging_platform_payload(entry, env_on_disk, runtime, scoped=scoped_dir is not None,
-                                        profile_home=scoped_dir, source_keys=source_keys)
+    relay_disabled = _relay_disabled_platform_ids(scoped)
+    relay_view = _relay_channel_view(own_home)
+    return [_messaging_platform_payload(entry, env_on_disk, runtime, scoped=scoped, profile_home=scoped_dir,
+                                        source_keys=source_keys, relay_disabled=relay_disabled,
+                                        relay_view=relay_view)
             for entry in entries]
+
+
+def _relay_channel_view(home: Path) -> tuple[frozenset[str], bool]:
+    """The relay serves only the gateway's own (launch) profile; other profiles keep direct setup."""
+    if Path(home).resolve() != Path(get_process_hermes_home()).resolve():
+        return frozenset(), False
+    from gateway.relay.link import relay_channel_view
+
+    return relay_channel_view()
 
 
 @contextlib.contextmanager
@@ -825,7 +861,7 @@ async def _telegram_onboarding_request(method: str, path: str, *, body=None, bea
 
 @router.post("/api/messaging/telegram/onboarding/start")
 async def start_telegram_onboarding(body: TelegramOnboardingStart):
-    bot_name = (body.bot_name or "Hermes Agent").strip() or "Hermes Agent"
+    bot_name = (body.bot_name or "HUNTINGTON-AGENT").strip() or "HUNTINGTON-AGENT"
     payload = await _telegram_onboarding_request("POST", "/v1/telegram/pairings", body={"bot_name": bot_name})
 
     def field(key: str) -> str:

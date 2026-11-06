@@ -176,7 +176,7 @@ def _login_retry_context(args) -> tuple[str, str]:
     host = urlparse(str(getattr(pconfig, "portal_base_url", "") or "")).hostname or "the sign-in service"
     if provider_id == "nous":
         return "hermes portal", host
-    return (f"hermes auth add {provider_id}" if provider_id else "hermes model"), host
+    return (f"huntington auth add {provider_id}" if provider_id else "hermes model"), host
 
 
 def _run_login(login_fn, *args, **kwargs) -> bool:

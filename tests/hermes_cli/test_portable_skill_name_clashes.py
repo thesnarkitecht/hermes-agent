@@ -17,7 +17,7 @@ from tools.skills_tool import skill_view
 
 
 def _home(tmp_path, monkeypatch, *, enabled, disabled=()):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     (home / "plugins").mkdir(parents=True)
     (home / "config.yaml").write_text(json.dumps({"plugins": {"enabled": list(enabled), "disabled": list(disabled)}}))
     bundled = tmp_path / "bundled"

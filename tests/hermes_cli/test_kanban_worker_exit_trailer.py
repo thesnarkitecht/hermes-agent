@@ -22,7 +22,7 @@ from hermes_cli.quiet_single_query import KANBAN_WORKER_EXIT_TRAILER, exit_singl
 
 @pytest.fixture
 def kanban_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
@@ -45,7 +45,7 @@ def _dead_worker_with_log(conn, tid: str, pid: int, rc: int) -> None:
     log = kb.worker_log_path(tid)
     log.parent.mkdir(parents=True, exist_ok=True)
     with open(log, "a", encoding="utf-8") as f:
-        f.write(f"the model said something\n\nResume this session with:\n  hermes --resume x\n\n{KANBAN_WORKER_EXIT_TRAILER}{rc}\n")
+        f.write(f"the model said something\n\nResume this session with:\n  huntington --resume x\n\n{KANBAN_WORKER_EXIT_TRAILER}{rc}\n")
 
 
 @pytest.mark.parametrize(

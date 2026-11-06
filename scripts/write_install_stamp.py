@@ -305,7 +305,7 @@ def main() -> int:
         "--update-mechanism",
         required=True,
         choices=UPDATE_MECHANISMS,
-        help="Who applies the next update: 'self' (hermes update), "
+        help="Who applies the next update: 'self' (huntington update), "
         "'app-installer' (Windows App Installer), 'electron-updater' (in-app updater), "
         "'external' (nix/docker/store)",
     )

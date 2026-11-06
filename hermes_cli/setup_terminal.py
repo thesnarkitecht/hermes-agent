@@ -109,9 +109,9 @@ def _ensure_sdk(extra: str) -> None:
             pm.sync_venv([extra], explicit=True)
         except (pm.InstallError, OSError, ValueError) as exc:
             _setup.print_warning(f"Install failed: {exc}")
-            _setup.print_info("Retry with: hermes setup terminal")
+            _setup.print_info("Retry with: huntington setup terminal")
         else:
-            _setup.print_success(f"{extra} SDK installed. Restart Hermes to use it.")
+            _setup.print_success(f"{extra} SDK installed. Restart Huntington to use it.")
 
 
 def _report_binary(found: str | None, missing: str, install_hint: str, found_prefix: str = "Found: ") -> None:
@@ -148,9 +148,9 @@ def _setup_backend_docker(config: dict) -> None:
         proxy_cfg.setdefault("enforce_on_docker", True)
         _setup.print_success("Egress firewall enabled in config")
         _setup.print_info(
-            "Run `hermes egress setup` then `hermes egress start` to mint tokens and launch the proxy.")
+            "Run `huntington egress setup` then `huntington egress start` to mint tokens and launch the proxy.")
     else:
-        _setup.print_info("Skipping egress firewall. You can enable it later with `hermes egress setup`.")
+        _setup.print_info("Skipping egress firewall. You can enable it later with `huntington egress setup`.")
 
 
 def _setup_backend_modal(config: dict) -> None:
@@ -169,10 +169,10 @@ def _setup_backend_modal(config: dict) -> None:
         default_idx = {"managed": 0, "direct": 1}.get(modal_mode, 1 if _setup.get_env_value("MODAL_TOKEN_ID") else 0)
         use_managed_modal = _setup.prompt_choice(
             "Select how Modal execution should be billed:",
-            ["Use my Nous subscription", "Use my own Modal account"], default_idx) == 0
+            ["Use my HIP subscription", "Use my own Modal account"], default_idx) == 0
     if use_managed_modal:
         config["terminal"]["modal_mode"] = "managed"
-        _setup.print_info("Modal execution will use the managed Nous gateway and bill to your subscription.")
+        _setup.print_info("Modal execution will use the managed HIP gateway and bill to your subscription.")
         if _setup.get_env_value("MODAL_TOKEN_ID") or _setup.get_env_value("MODAL_TOKEN_SECRET"):
             _setup.print_info(
                 "Direct Modal credentials are still configured, but this backend is pinned to managed mode.")
@@ -204,7 +204,7 @@ def _setup_backend_daytona(config: dict) -> None:
 def _setup_backend_vercel(config: dict) -> None:
     _setup.print_success("Terminal backend: Vercel Sandbox")
     _setup._info("Cloud microVM sandboxes with snapshot-backed filesystem persistence.",
-                 "Requires the optional Vercel SDK (installed through Hermes PM).")
+                 "Requires the optional Vercel SDK (installed through Huntington PM).")
     _ensure_sdk("vercel")
     _prompt_vercel_sandbox_settings(config)
 
@@ -272,11 +272,12 @@ _BACKEND_ENV_MIRROR = {"modal": ("TERMINAL_MODAL_MODE", "modal_mode", "auto"),
 def setup_terminal_backend(config: dict):
     """Configure the terminal execution backend."""
     _setup.print_header("Terminal Backend")
-    _setup._info("Choose where Hermes runs shell commands and code.",
+    _setup._info("Choose where Huntington runs shell commands and code.",
                  "This affects tool execution, file access, and isolation.",
                  f"   Guide: {_setup._DOCS_BASE}/user-guide/configuration#terminal-backend-configuration", None)
     current_backend = _setup.cfg_get(config, "terminal", "backend", default="local")
-    backends = list(_BUILTIN_TERMINAL_BACKENDS)
+    from hermes_cli.huntington import terminal_backend_supported
+    backends = [b for b in _BUILTIN_TERMINAL_BACKENDS if terminal_backend_supported(b[0])]
     # Plugin-registered backends (~/.hermes/plugins/). Fail-soft: a broken plugin must not take
     # the wizard down.
     plugin_backend_names = []

@@ -22,7 +22,7 @@ from tools import bot_relay
 
 @pytest.fixture
 def home(tmp_path, monkeypatch):
-    h = tmp_path / ".hermes"
+    h = tmp_path / ".huntington"
     (h / "profiles" / "ops").mkdir(parents=True)
     (h / "profiles" / "ops" / "config.yaml").write_text("{}\n")  # identity marker: a bare dir is no target
     monkeypatch.setenv("HERMES_HOME", str(h))
@@ -289,7 +289,7 @@ def test_gateway_drains_the_mailbox_the_tools_write_to(tmp_path, monkeypatch, su
     from tui_gateway import methods_bot_relay
 
     monkeypatch.setenv("HOME", str(tmp_path))
-    home = tmp_path / ".hermes" / subdir
+    home = tmp_path / ".huntington" / subdir
     home.mkdir(parents=True)
     monkeypatch.setenv("HERMES_HOME", str(home))
 

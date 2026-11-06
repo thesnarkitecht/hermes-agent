@@ -35,7 +35,7 @@ _PNG = base64.b64decode(
 
 def _assert_not_available(error: dict, method: str) -> None:
     assert error["code"] == -32601, error
-    assert error["message"] == f"unknown method: {method} — not available on this Hermes backend"
+    assert error["message"] == f"unknown method: {method} — not available on this Huntington backend"
     assert "out of sync" not in error["message"]
 
 
@@ -62,7 +62,7 @@ def home(tmp_path, monkeypatch):
     class DurableRunStore:
         durable = True
 
-    path = tmp_path / ".hermes"
+    path = tmp_path / ".huntington"
     path.mkdir()
     (path / "profiles" / "ops").mkdir(parents=True)
     (path / "profiles" / "ops" / "config.yaml").write_text("{}\n")

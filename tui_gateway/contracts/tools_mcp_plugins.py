@@ -110,7 +110,7 @@ class ReloadEnvResult(Result):
 
 
 method("reload.env", params=ReloadEnvParams, result=ReloadEnvResult,
-       doc="Re-read ~/.hermes/.env (CLI /reload parity); built agents keep their pool until /new.")
+       doc="Re-read ~/.huntington/.env (CLI /reload parity); built agents keep their pool until /new.")
 
 
 class ReloadMcpParams(Params):
@@ -425,6 +425,8 @@ class McpServerRuntimeRow(Result):
     status: McpRuntimeStatus
     source: McpServerSource
     plugin: str | None = None
+    # Parked on a rejected OAuth credential (older backends omit it).
+    needs_auth: bool = False
 
 
 class McpServersStatusResult(Result):

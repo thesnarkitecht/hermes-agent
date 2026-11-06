@@ -15,7 +15,7 @@ import pytest
 @pytest.fixture
 def isolated_home(tmp_path, monkeypatch):
     """Isolate HERMES_HOME + reset any module-level catalog cache per test."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HERMES_HOME", str(home))
@@ -43,7 +43,7 @@ def _valid_manifest() -> dict:
                 ],
             },
             "nous": {
-                "metadata": {"display_name": "Nous Portal"},
+                "metadata": {"display_name": "HIP Portal"},
                 "models": [
                     {"id": "anthropic/claude-opus-4.7"},
                     {"id": "moonshotai/kimi-k2.6"},

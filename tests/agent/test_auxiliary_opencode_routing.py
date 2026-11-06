@@ -15,7 +15,7 @@ from agent import auxiliary_client as aux
 
 @pytest.fixture(autouse=True)
 def _isolated_home(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setenv("OPENCODE_GO_API_KEY", "sk-go-test")

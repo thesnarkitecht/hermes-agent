@@ -10,7 +10,7 @@ from hermes_cli.doctor_state import _check_plugins_in_both_lists
 
 def test_plugin_in_both_lists_is_an_issue_with_the_command_that_settles_it(tmp_path, monkeypatch):
     """Doctor sees what the loader skips, under any spelling the loader matches."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     for rel, name in (("obs/intake", "intake-probe"), ("kept", "kept"), ("parked", "parked")):
         plugin = home / "plugins" / rel
         plugin.mkdir(parents=True)
@@ -23,4 +23,4 @@ def test_plugin_in_both_lists_is_an_issue_with_the_command_that_settles_it(tmp_p
     finding = _check_plugins_in_both_lists(False)
 
     assert len(finding.manual_issues) == 1
-    assert "hermes plugins enable obs/intake" in finding.manual_issues[0]
+    assert "huntington plugins enable obs/intake" in finding.manual_issues[0]

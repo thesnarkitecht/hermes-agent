@@ -141,7 +141,7 @@ def test_remote_command_survives_the_ssh_remote_shell_reparse():
 
 @pytest.fixture
 def isolated_home(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".huntington"
     home.mkdir()
     monkeypatch.setenv("HERMES_HOME", str(home))
     monkeypatch.setattr(runtime, "state_dir", lambda: home / "bot-desktop" / "default")
@@ -362,7 +362,7 @@ def test_sandbox_cdp_endpoint_is_rewritten_to_the_forwarded_local_port(monkeypat
     monkeypatch.setattr(runtime, "published_env", lambda: {"DISPLAY": ":20"})
     monkeypatch.setattr(runtime, "_sandbox_env", lambda *, create: _FakeDocker())
     monkeypatch.setattr(sandbox_host, "_user_for", lambda e: "pn")
-    monkeypatch.setattr(sandbox_host, "browser_profile_dir", lambda e: "/home/pn/.hermes/bot-desktop/browser-profile")
+    monkeypatch.setattr(sandbox_host, "browser_profile_dir", lambda e: "/home/pn/.huntington/bot-desktop/browser-profile")
 
     def run_in(env, argv, **_kw):
         out = b"9223\n/devtools/browser/abc\n" if "DevToolsActivePort" in " ".join(argv) else b""

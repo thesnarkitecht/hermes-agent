@@ -268,6 +268,7 @@ _CONFIG_GETTERS = {
     "personality": _cfg_get_personality,
     "reasoning": _cfg_get_reasoning,
     "fast": _cfg_get_fast,
+    "daybreak": lambda params: {"value": (_load_cfg().get("agent") or {}).get("daybreak") is True},
     "busy": lambda params: {"value": _load_busy_input_mode()},
     "approval_mode": lambda params: {"value": _load_approval_mode()},
     "approvals.mode": lambda params: {"value": _load_approval_mode()},
@@ -462,7 +463,7 @@ def _(rid, params: dict) -> dict:
                         "source": src, "error": error, **scoped}
             if (not provider_configured and provider == "bedrock"
                     and source in {"iam-role", "aws-sdk-default-chain"}):
-                return fail("No Hermes provider is configured.", source)
+                return fail("No Huntington provider is configured.", source)
             api_key = runtime.get("api_key")
             api_key_text = "" if callable(api_key) else str(api_key or "").strip()
             if not (callable(api_key) or api_key_text in {"aws-sdk", "no-key-required"}

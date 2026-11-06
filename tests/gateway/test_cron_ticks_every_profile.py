@@ -38,7 +38,7 @@ class _CapturedTicker:
 def isolated_profiles(tmp_path, monkeypatch):
     """A scratch HOME so profile enumeration can never read or write the live install."""
     fake_home = tmp_path / "fakehome"
-    hermes_home = fake_home / ".hermes"
+    hermes_home = fake_home / ".huntington"
     (hermes_home / "profiles" / "secondary").mkdir(parents=True)
     # A dir is only a profile once it carries an identity marker.
     (hermes_home / "profiles" / "secondary" / "config.yaml").write_text("{}\n")

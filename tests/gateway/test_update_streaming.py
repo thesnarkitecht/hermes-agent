@@ -62,7 +62,7 @@ class TestGatewayPrompt:
     def test_writes_prompt_file_and_reads_response(self, tmp_path):
         """Writes .update_prompt.json, reads .update_response, returns answer."""
         import threading
-        hermes_home = tmp_path / ".hermes"
+        hermes_home = tmp_path / ".huntington"
         hermes_home.mkdir()
 
         # Simulate the response arriving after a short delay

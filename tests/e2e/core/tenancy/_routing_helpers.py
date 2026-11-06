@@ -56,12 +56,12 @@ def hermetic_env(home: Path, hermes_home: Path | None = None, proxy: str | None 
     fake = home.resolve()
     # The state-db guard is bypassed below, so prove first that this child can never reach the
     # real install: its HOME (and therefore every profile root) lives outside the real home.
-    assert fake != real_home and real_home / ".hermes" not in (fake, *fake.parents), fake
+    assert fake != real_home and real_home / ".huntington" not in (fake, *fake.parents), fake
     env = {k: v for k, v in os.environ.items()
            if not (k.endswith(_STRIP_SUFFIXES) or k.startswith(_STRIP_PREFIXES))}
     env.update(
         HOME=str(home),
-        HERMES_HOME=str(hermes_home or home / ".hermes"),
+        HERMES_HOME=str(hermes_home or home / ".huntington"),
         PYTHONPATH=str(REPO_ROOT),
         NO_COLOR="1",
         TERM="dumb",
